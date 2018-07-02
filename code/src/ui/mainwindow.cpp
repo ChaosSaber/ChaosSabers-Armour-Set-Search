@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionAbout, &QAction::triggered, [this](bool) { about(); });
 
     connect(ui->actionUpdates, &QAction::triggered,
-            [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/Dauntless-Armour-Set-Search")); });
+            [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/Dauntless-Armour-Set-Search/releases")); });
 }
 
 void MainWindow::setupTranslation()
