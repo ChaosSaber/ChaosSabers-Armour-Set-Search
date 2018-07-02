@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_legs_heroic;Ragetail Treads
+firebrand_legs_heroic;Firebrand Greaves
+shockjaw_legs_heroic;Shockjaw Greaves
+razorwing_legs_heroic;Razorwing Greaves
+frostback_legs_heroic;Frostboots
+bloodfire_legs_heroic;Bloodfire Greaves
+deadeye_legs_heroic;Deadeye Boots
+shrowd_legs_heroic;Shrowd Boots
+rezakiri_legs_heroic;Reza Greaves
+moonreaver_legs_heroic;Reaver Boots

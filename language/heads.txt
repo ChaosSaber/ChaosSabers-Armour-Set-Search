@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_head_heroic;Ragetail Touque
+firebrand_head_heroic;Firebrand Charrhelm
+shockjaw_head_heroic;Shockjaw Mask
+razorwing_head_heroic;Razorwing Helm
+frostback_head_heroic;Frosthelm
+bloodfire_head_heroic;Bloodfire Helm
+deadeye_head_heroic;Deadeye Mask
+shrowd_head_heroic;Shrowd Hood
+rezakiri_head_heroic;Reza Helm
+moonreaver_head_heroic;Reaver Crest

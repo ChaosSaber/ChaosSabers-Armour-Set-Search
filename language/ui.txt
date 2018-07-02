@@ -1,0 +1,44 @@
+#internal_key(name);language 1;language 2;...
+
+all;All
+axe;Axe
+button_advanced_search;Advanced Search
+button_search;Search
+chainblades;Chainblades
+defense;Defense
+hammer;Hammer
+label_skill_filter;Filter skills
+label_skill_level;Skill level
+label_skill_name;Skill name
+label_wanted_skills;search skills
+label_weapon_type;Weapon type
+mobility;Mobility
+pike;War Pike
+power;Power
+sword;Sword
+technique;Technique
+utility;Utility
+unique;Unique skill(Placeholder)
+free_power_cell_slot;free Power cell slot
+free_technique_cell_slot;free Technique cell slot
+free_mobility_cell_slot;free Mobility cell slot
+free_defense_cell_slot;free Defense cell slot
+free_utility_cell_slot;free Utility cell slot
+menu_file;File
+menu_options;Options
+menu_number_of_results;Maximum number of shown results
+menu_save;Save
+menu_load;Load
+label_weapons;Weapons
+label_head_armour;Head Armours
+label_torsos_armour;Torso Armours
+label_arms_armour;Arm Armours
+label_legs_armour;Leg Armours
+label_cells;Cells
+button_cancel;Cancel
+title_advanced_search;Advanced Search
+menu_help;Help
+menu_about;About
+menu_about_qt;About Qt
+about_version;version
+menu_license;License

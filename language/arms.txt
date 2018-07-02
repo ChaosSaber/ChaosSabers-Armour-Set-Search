@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_arms_heroic;Ragetail Gloves
+firebrand_arms_heroic;Firebrand Gauntlets
+shockjaw_arms_heroic;Shockjaw Bracers
+razorwing_arms_heroic;Razorwing Bracers
+frostback_arms_heroic;Frostgrips
+bloodfire_arms_heroic;Bloodfire Gloves
+deadeye_arms_heroic;Deadeye Grips
+shrowd_arms_heroic;Shrowd Bracers
+rezakiri_arms_heroic;Reza Grips
+moonreaver_arms_heroic;Reaver Gauntlets

@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_sword_heroic;Ragesaber
+firebrand_sword_heroic;Firesaber
+shockjaw_sword_heroic;Shockjaw Sword
+razorwing_sword_heroic;Razorwing Sword
+frostback_sword_heroic;Frostsaber
+deadeye_sword_heroic;Deadeye Ripper
+bloodfire_sword_heroic;Bloodfire Saber
+moonreaver_sword_heroic;Moonsaber
+rezakiri_sword_heroic;Rezakatana
+shrowd_sword_heroic;Shrowd Slicer

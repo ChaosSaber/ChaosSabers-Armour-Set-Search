@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_hammer_heroic;Ragehammer
+firebrand_hammer_heroic;Firemace
+shockjaw_hammer_heroic;Shockjaw Smasher
+razorwing_hammer_heroic;Razorwing Hammer
+frostback_hammer_heroic;Frostmaul
+deadeye_hammer_heroic;Deadeye Hammer
+bloodfire_hammer_heroic;Bloodfire Hammer
+shrowd_hammer_heroic;Mooncrusher
+rezakiri_hammer_heroic;Rezacrusher
+moonreaver_hammer_heroic;Shrowdmaul

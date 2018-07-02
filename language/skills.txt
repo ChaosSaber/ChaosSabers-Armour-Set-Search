@@ -1,0 +1,42 @@
+#internal_key(name);language 1;language 2;...
+acidic;Acidic
+aetherborne;Aetherborne
+aetherhunter;Aetherhunter
+aetheric_attunement;Aetheric Attunement
+aetheric_frenzy;Aetheric Frenzy
+agility;Agility
+assassins_vigor;Assassins Vigor
+barbed;Barbed
+bladestorm;Bladestorm
+bloodless;Bloodless
+conditioning;Conditioning
+cunning;Cunning
+deconstruction;Deconstruction
+endurance;Endurance
+energized;Energized
+evasion;Evasion
+evasive_fury;Evasive Fury
+fireproof;Fireproof
+fleet_footed;Fleet Footed
+fortress;Fortress
+insulated;Insulated
+knockout_king;Knockout King
+medic;Medic
+merciless;Merciless
+nimble;Nimble
+nine_lives;Nine lives
+overpower;Overpower
+pacifier;Pacifier
+rage;Rage
+ragehunter;Ragehunter
+savagery;Savagery
+sharpened;Sharpened
+shellshock_resist;Shellshock Resist
+stunning_vigor;Stunning Vigor
+sturdy;Sturdy
+swift;Swift
+tough;Tough
+vampiric;Vampiric
+warmth;Warmth
+weighted_strikes;Weighted Strikes
+wild_frenzy;Wild Frenzy

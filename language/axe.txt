@@ -1,0 +1,11 @@
+#internal_key(name);language 1;language 2;...
+ragetail_axe_heroic;Ragecleaver
+firebrand_axe_heroic;Firecutter
+shockjaw_axe_heroic;Shockjaw Scythe
+razorwing_axe_heroic;Razorwing Axe
+frostback_axe_heroic;Frostaxe
+deadeye_axe_heroic;Deadeye Axe
+bloodfire_axe_heroic;Bloodfire Axe
+moonreaver_axe_heroic;Mooncleaver
+rezakiri_axe_heroic;Rezacutter
+shrowd_axe_heroic;Shrowd Reaper

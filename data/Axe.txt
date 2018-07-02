@@ -1,0 +1,12 @@
+#name;damage;elemental damage(Fire|Ice|Shock|Radiant|Umbral);Skill1 name; Skill1 points;skill2 name; Skill2 points;Cell type1(1:Power, 2:Technique, 3:Mobility, 4:Defense, 5:Utility);Cell Type 2
+ragetail_axe_heroic;430;0|0|0|0|0;ragehunter;2;pacifier;2;5;1
+firebrand_axe_heroic;430;40|0|0|0|0;rage;2;aetherhunter;2;1;4
+shockjaw_axe_heroic;430;0|0|40|0|0;energized;2;unique;1;1;5
+razorwing_axe_heroic;430;0|0|0|0|0;unique;1;sharpened;2;1;2
+frostback_axe_heroic;430;0|40|0|0|0;aetherhunter;2;knockout_king;2;1;4
+deadeye_axe_heroic;430;0|0|0|0|0;savagery;2;acidic;2;1;4
+bloodfire_axe_heroic;430;40|0|0|0|0;wild_frenzy;2;unique;1;1;3
+moonreaver_axe_heroic;430;0|0|0|0|0;evasive_fury;1;unique;1;1;3
+rezakiri_axe_heroic;430;0|0|0|40|0;unique;1;unique;1;3;1
+shrowd_axe_heroic;430;0|0|0|0|40;cunning;3;unique;1;1;5
+#;430;0|0|0|0|0;;;;;;
