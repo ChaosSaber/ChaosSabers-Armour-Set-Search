@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-Project(Dauntless_Armour_Set_Search VERSION 0.8.0 LANGUAGES CXX)
+Project(Dauntless_Armour_Set_Search VERSION 0.8.1 LANGUAGES CXX)
 ######## acquire QT
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
