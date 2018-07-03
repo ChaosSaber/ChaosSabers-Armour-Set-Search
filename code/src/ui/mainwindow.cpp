@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionAbout, &QAction::triggered, [this](bool) { about(); });
 
     connect(ui->actionUpdates, &QAction::triggered,
-            [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/Dauntless-Armour-Set-Search/releases")); });
+            [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")); });
 }
 
 void MainWindow::setupTranslation()
@@ -98,6 +98,7 @@ void MainWindow::setupTranslation()
     ui->menuHelp->setTitle(getTranslation(dict, "menu_help"));
     ui->actionAbout->setText(getTranslation(dict, "menu_about"));
     ui->actionAboutQt->setText(getTranslation(dict, "menu_about_qt"));
+    ui->actionUpdates->setText(getTranslation(dict, "menu_updates"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()

@@ -42,3 +42,4 @@ menu_about;About
 menu_about_qt;About Qt
 about_version;version
 menu_license;License
+menu_updates;Get Updates

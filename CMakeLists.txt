@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-Project(Dauntless_Armour_Set_Search VERSION 0.8.1 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.8.2 LANGUAGES CXX)
 ######## acquire QT
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
@@ -22,7 +22,16 @@ qt5_install_dll(Gui)
 
 add_subdirectory(code)
 install(DIRECTORY language data DESTINATION .)
-install(FILES README LICENSE LICENSE-3RD-PARTY DESTINATION .)
+install(FILES README.md LICENSE LICENSE-3RD-PARTY DESTINATION .)
+
+include(CheckIncludeFiles)
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${${PROJECT_NAME}_VERSION_POINT})
+include(CPack)
+
 
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         SET(CMAKE_INSTALL_PREFIX "install" CACHE PATH "install prefix" FORCE)
