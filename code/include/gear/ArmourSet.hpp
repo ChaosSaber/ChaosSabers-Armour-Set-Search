@@ -31,6 +31,7 @@ class ArmourSet : public Gear
     int getSkillPointsFor(const std::string &skill) const override;
     // returns the cells on the gear
     CellList getCells() const override;
+    virtual std::string getToolTip(const Dictionary &dict) const override { return ""; }
 
     const Armour &getHead() const;
     const Armour &getTorso() const;

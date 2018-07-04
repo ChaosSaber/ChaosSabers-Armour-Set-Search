@@ -27,6 +27,7 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
         else
             checkbox->setChecked(true);
         checkbox->setText(getTranslation(dict, weapon.getName()));
+        checkbox->setToolTip(QString::fromStdString(weapon.getToolTip(dict)));
         addItem(checkbox, ui->listWidgetWeapons);
         connect(checkbox, &QCheckBox::stateChanged, [&options, weapon](int state) {
             options.checkedGear[weapon.getName()] = (state == Qt::Checked);
@@ -94,6 +95,7 @@ void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget *list)
         else
             checkbox->setChecked(true);
         checkbox->setText(getTranslation(dict, armour.getName()));
+        checkbox->setToolTip(QString::fromStdString(armour.getToolTip(dict)));
         addItem(checkbox, list);
         connect(checkbox, &QCheckBox::stateChanged, [this, armour](int state) {
             options.checkedGear[armour.getName()] = (state == Qt::Checked);

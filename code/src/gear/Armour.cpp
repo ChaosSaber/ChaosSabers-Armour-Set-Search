@@ -1,4 +1,5 @@
 #include "gear/Armour.hpp"
+#include <sstream>
 
 Gear::Armour::Armour(ArmourType type, std::string name, unsigned int defense,
                      Elements elementalResistance, Skill skill1, Skill skill2, SkillType cellType)
@@ -54,3 +55,12 @@ Gear::SkillList Gear::Armour::getSkills() const { return skill1 + skill2 + cell.
 Gear::CellList Gear::Armour::getCells() const { return cell; }
 
 const std::string &Gear::Armour::getName() const { return name; }
+
+std::string Gear::Armour::getToolTip(const Dictionary &dict) const
+{
+    std::stringstream ss;
+    ss << skill1.toString(dict) << std::endl
+       << skill2.toString(dict) << std::endl
+       << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType()));
+    return ss.str();
+}

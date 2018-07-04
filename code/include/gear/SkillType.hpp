@@ -12,6 +12,7 @@ enum SkillType { None = 0, Power, Technique, Mobility, Defense, Utility };
 
 std::string SkillTypeToStringKey(SkillType type);
 
+std::string cellSlotToStringKey(SkillType type);
 std::string FreeCellSlotToStringKey(SkillType type);
 } // namespace Gear
 

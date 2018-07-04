@@ -33,6 +33,7 @@ void ArmourSetView::addGear(const Gear::Gear &gear)
 {
     QLabel *label = new QLabel();
     label->setText(QString::fromStdString(gear.getGearInfo(dict)));
+    label->setToolTip(QString::fromStdString(gear.getToolTip(dict)));
     ui->verticalLayoutGearParts->addWidget(label);
 }
 

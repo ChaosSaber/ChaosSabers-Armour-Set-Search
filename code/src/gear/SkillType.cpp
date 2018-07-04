@@ -25,3 +25,16 @@ std::string Gear::SkillTypeToStringKey(SkillType type)
     default: return "unkwon"; break;
     }
 }
+
+std::string Gear::cellSlotToStringKey(SkillType type)
+{
+    switch (type)
+    {
+    case Power: return "cell_slot_power"; break;
+    case Technique: return "cell_slot_technique"; break;
+    case Mobility: return "cell_slot_mobility"; break;
+    case Defense: return "cell_slot_defense"; break;
+    case Utility: return "cell_slot_utility"; break;
+    default: return "unkwon"; break;
+    }
+}

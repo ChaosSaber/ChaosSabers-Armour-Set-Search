@@ -25,6 +25,7 @@ class Gear
     virtual int getSkillPointsFor(const std::string &skill) const = 0;
     // returns the cells on the gear
     virtual CellList getCells() const = 0;
+    virtual std::string getToolTip(const Dictionary &dict) const = 0;
 };
 } // namespace Gear
 

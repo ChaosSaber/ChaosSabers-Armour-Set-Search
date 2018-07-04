@@ -69,3 +69,23 @@ add_executable(${PROJECT_NAME} ${SRCS} ${HDRS} ${UI})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE true)
+
+IF(WIN32)
+	# find the windeployqt binary
+	find_program(TOOL_WINDEPLOYQT NAMES windeployqt)
+	if(NOT TOOL_WINDEPLOYQT)
+		message(FATAL_ERROR "Could not find windeployqt")
+	endif()
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND rmdir /S /Q "${CMAKE_CURRENT_BINARY_DIR}/Qt_$<CONFIG>/"
+		COMMAND "${TOOL_WINDEPLOYQT}"
+				--dir "${CMAKE_CURRENT_BINARY_DIR}/Qt_$<CONFIG>/"
+				--verbose 0
+				--no-compiler-runtime
+				--no-angle
+				--no-opengl-sw
+				\"$<TARGET_FILE:${PROJECT_NAME}>\"
+				
+    )
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Qt_$<CONFIG>/ DESTINATION .)
+ENDIF(WIN32)

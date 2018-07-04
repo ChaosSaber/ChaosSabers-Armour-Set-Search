@@ -1,4 +1,5 @@
 #include "gear/Weapon.hpp"
+#include <sstream>
 
 Gear::Weapon::Weapon(WeaponType type, std::string name, unsigned int damage,
                      Elements elementalDamage, Skill skill1, Skill skill2, SkillType cellType1,
@@ -53,3 +54,15 @@ int Gear::Weapon::getSkillPointsFor(const std::string &skill) const
 Gear::CellList Gear::Weapon::getCells() const { return cell1 + cell2; }
 
 const std::string &Gear::Weapon::getName() const { return name; }
+
+std::string Gear::Weapon::getToolTip(const Dictionary &dict) const
+{
+    std::stringstream ss;
+    ss << skill1.toString(dict) << std::endl << skill2.toString(dict) << std::endl;
+    if (cell1.getCellType() == cell2.getCellType())
+        ss << "2 " << dict.getTranslationFor(cellSlotToStringKey(cell1.getCellType()));
+    else
+        ss << dict.getTranslationFor(cellSlotToStringKey(cell1.getCellType())) << std::endl
+           << dict.getTranslationFor(cellSlotToStringKey(cell2.getCellType()));
+    return ss.str();
+}

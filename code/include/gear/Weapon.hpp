@@ -34,6 +34,7 @@ class Weapon : public Gear
     // returns the cells on the gear
     CellList getCells() const override;
     const std::string &getName() const;
+    virtual std::string getToolTip(const Dictionary &dict) const override;
 
   private:
     WeaponType type;

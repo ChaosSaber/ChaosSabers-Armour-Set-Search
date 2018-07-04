@@ -2,6 +2,7 @@
 
 This Software is distributed under the MIT license(see LICENSE.txt) and uses third party libraries that are distributed under their own terms (see LICENSE-3RD-PARTY.txt)
 You can find the current version on: https://github.com/ChaosSaber/Dauntless-Armour-Set-Search
+If you encounter any error please refer at first to troubleshooting.txt for general troubleshooting
 
 ## Currently implemented
 - Search function: Input the Skills and Weapontype you want and the app searchs for possible armour combinations (it assumes you are standing in goodl relations to RNGesus)
