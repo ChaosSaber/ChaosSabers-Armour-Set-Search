@@ -26,7 +26,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetWeapons"/>
+        <widget class="QListWidget" name="listWidgetWeapons">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -47,7 +54,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetHeads"/>
+        <widget class="QListWidget" name="listWidgetHeads">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -68,7 +82,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetTorsos"/>
+        <widget class="QListWidget" name="listWidgetTorsos">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -89,7 +110,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetArms"/>
+        <widget class="QListWidget" name="listWidgetArms">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -110,7 +138,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetLegs"/>
+        <widget class="QListWidget" name="listWidgetLegs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -131,41 +166,18 @@
         </widget>
        </item>
        <item>
-        <widget class="QScrollArea" name="scrollAreaCells">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
+        <widget class="QListWidget" name="listWidgetCells">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>98</width>
-            <height>351</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <layout class="QFormLayout" name="formLayout"/>
-         </widget>
         </widget>
        </item>
       </layout>
      </item>
     </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
