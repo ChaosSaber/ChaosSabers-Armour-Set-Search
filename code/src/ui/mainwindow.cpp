@@ -40,11 +40,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                   });
     }
 
-    for (size_t i = 0; i < 7; ++i)
+    for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
     {
         auto selector = new SkillSelector(
             dict, skills, dynamic_cast<QGridLayout *>(ui->groupBoxWantedSkills->layout()));
         skillSelectors.push_back(selector);
+        connect(selector, &SkillSelector::changed, [this, i](Options::SkillSearch search) {
+            options.skillSearches[i] = std::move(search);
+        });
     }
 
     connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
@@ -75,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->actionUpdates, &QAction::triggered,
             [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")); });
+    connect(ui->comboBoxWeaponType, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int value) { options.weaponType = (Gear::WeaponType)value; });
 }
 
 void MainWindow::setupTranslation()
@@ -154,25 +159,8 @@ void MainWindow::armourSetSearch(ArmourSetSearch &ass)
     ass.search(armoury, [this](unsigned long long count, unsigned long long max) {
         ui->progressBarSearch->setValue(100 * count / max);
     });
-    const auto &sets = ass.getArmourSets();
-    std::stringstream ss;
-    // TODO: add translation
-    ss << "Found " << sets.size() << " Results";
-    if (sets.size() > options.numberOfResults)
-        ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
-    ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
-    size_t count = 0;
-    for (const auto &set : sets)
-    {
-        if (count > options.numberOfResults)
-            break;
-        auto item = new QListWidgetItem();
-        auto view = new ArmourSetView(dict, set);
-        item->setSizeHint(view->sizeHint());
-        ui->listWidgetArmourSets->addItem(item);
-        ui->listWidgetArmourSets->setItemWidget(item, view);
-        ++count;
-    }
+    options.armourSets = ass.getArmourSets();
+    showArmourSets(options.armourSets);
     setSearchButtonsState(true);
 }
 
@@ -204,4 +192,26 @@ void MainWindow::about()
 {
     auto about = new About(dict, this);
     about->exec();
+}
+
+void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
+{
+    std::stringstream ss;
+    // TODO: add translation
+    ss << "Found " << armoursets.size() << " Results";
+    if (armoursets.size() > options.numberOfResults)
+        ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
+    ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
+    size_t count = 0;
+    for (const auto &set : armoursets)
+    {
+        if (count > options.numberOfResults)
+            break;
+        auto item = new QListWidgetItem();
+        auto view = new ArmourSetView(dict, set);
+        item->setSizeHint(view->sizeHint());
+        ui->listWidgetArmourSets->addItem(item);
+        ui->listWidgetArmourSets->setItemWidget(item, view);
+        ++count;
+    }
 }

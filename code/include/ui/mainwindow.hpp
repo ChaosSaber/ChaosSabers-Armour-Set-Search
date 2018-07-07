@@ -33,8 +33,9 @@ class MainWindow : public QMainWindow
     void setNumberOfResults(QAction *action);
     void setLanguage(QAction *action);
     void about();
+    void showArmourSets(const std::vector<Gear::ArmourSet> &armoursets);
 
-    Options options;
+        Options options;
     std::vector<SkillSelector *> skillSelectors;
     Ui::MainWindow *ui;
     Dictionary dict;

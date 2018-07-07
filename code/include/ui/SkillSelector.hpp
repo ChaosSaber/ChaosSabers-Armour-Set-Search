@@ -2,6 +2,7 @@
 #define DAUNTLESS_ASS_UI_SKILLSELECTOR_HPP
 
 #include "Dictionary.hpp"
+#include "Options.hpp"
 #include "gear/SKillType.hpp"
 #include "gear/Skill.hpp"
 #include "gear/SkillInfo.hpp"
@@ -21,8 +22,15 @@ class SkillSelector : public QObject
         QGridLayout *layout);
 
     void getSkill(std::vector<Gear::Skill> &skills);
+    void set(const Options::SkillSearch &search);
+  signals:
+    void changed(Options::SkillSearch search);
 
   private:
+    void connectSlots();
+    void disConnectSlots();
+    const std::string &getSkillName() const;
+    void emitChangedValues();
     void setSkillTypeFilter();
     void filterChanged(Gear::SkillType filter);
 
