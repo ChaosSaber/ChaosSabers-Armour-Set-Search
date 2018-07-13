@@ -21,16 +21,12 @@ class SkillSelector : public QObject
         std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> &skills,
         QGridLayout *layout);
 
-    void getSkill(std::vector<Gear::Skill> &skills);
+    void getSkill(std::vector<Gear::Skill> &skills) const;
     void set(const Options::SkillSearch &search);
-  signals:
-    void changed(Options::SkillSearch search);
+    Options::SkillSearch getSearchSettings() const;
 
   private:
-    void connectSlots();
-    void disConnectSlots();
     const std::string &getSkillName() const;
-    void emitChangedValues();
     void setSkillTypeFilter();
     void filterChanged(Gear::SkillType filter);
 

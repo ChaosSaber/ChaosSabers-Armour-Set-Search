@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <iostream>
+#include <sstream>
 
 #define CURRENT_VERSION 2
 
@@ -29,6 +30,7 @@ const QString WEAPON = "Weapon";
 const QString CELL1 = "Cell 1";
 const QString CELL2 = "Cell 2";
 const QString LANTERN = "Lantern Cell";
+const QString LAST_SAVE_LOCATION = "Last save location";
 
 void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string &fileName)
 {
@@ -51,42 +53,26 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string 
     if (json.contains(LANGUAGE) && json[LANGUAGE].isString())
         language = json[LANGUAGE].toString().toStdString();
 
-    if (json.contains(CELLS) && json[CELLS].isArray())
+    // moved to other file in version 2
+    if (version < 2 && json.contains(CELLS) && json[CELLS].isArray())
     {
         for (const auto &cell : json[CELLS].toArray())
         {
             if (!cell.isObject())
                 continue;
             auto object = cell.toObject();
-            if (version < 2)
-            {
-                // safe guard
-                if (!(object.contains(NAME) && object[NAME].isString() && object.contains(LEVEL) &&
-                      object[LEVEL].isDouble() && object.contains(COUNT) &&
-                      object[COUNT].isDouble()))
-                    continue;
-                cells[Gear::Cell(
-                    Gear::Skill(object[NAME].toString().toStdString(), object[LEVEL].toInt()),
-                    armoury.getSkillTypeFor(object[NAME].toString().toStdString()))] =
-                    object[COUNT].toInt();
-            }
-            else
-            {
-                // safe guard
-                if (!(object.contains(COUNT) && object[COUNT].isDouble() && object.contains(CELL) &&
-                      object[CELL].isObject()))
-                    continue;
-                try
-                {
-                    cells[jsonToCell(object[CELL].toObject(), armoury)] = object[COUNT].toInt();
-                }
-                catch (...)
-                {
-                }
-            }
+            // safe guard
+            if (!(object.contains(NAME) && object[NAME].isString() && object.contains(LEVEL) &&
+                  object[LEVEL].isDouble() && object.contains(COUNT) && object[COUNT].isDouble()))
+                continue;
+            cells[Gear::Cell(
+                Gear::Skill(object[NAME].toString().toStdString(), object[LEVEL].toInt()),
+                armoury.getSkillTypeFor(object[NAME].toString().toStdString()))] =
+                object[COUNT].toInt();
         }
     }
-    if (json.contains(GEAR) && json[GEAR].isArray())
+    // moved to other file in version 2
+    if (version < 2 && json.contains(GEAR) && json[GEAR].isArray())
     {
         for (const auto &gear : json[GEAR].toArray())
         {
@@ -100,6 +86,8 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string 
             checkedGear[object[NAME].toString().toStdString()] = object[CHECKED].toBool();
         }
     }
+    if (json.contains(LAST_SAVE_LOCATION) && json[LAST_SAVE_LOCATION].isString())
+        lastSaveLocation = json[LAST_SAVE_LOCATION].toString();
 }
 
 void Options::saveConfiguration(const std::string &fileName)
@@ -116,7 +104,7 @@ void Options::saveConfiguration(const std::string &fileName)
     json[VERSION] = CURRENT_VERSION;
     json[MAX_RESULTS] = numberOfResults;
     json[LANGUAGE] = QString::fromStdString(language);
-
+    json[LAST_SAVE_LOCATION] = lastSaveLocation;
     QJsonDocument jsonDoc(json);
     config.write(jsonDoc.toJson());
 }
@@ -141,17 +129,29 @@ QJsonObject Options::cellToJson(const Gear::Cell &cell)
 
 void Options::save()
 {
-    saveConfiguration();
-    saveSearch();
-    saveCells(); // TODO: move cells to different window apart from advanced search and then only
-                 // there saving allowed
+    try
+    {
+        saveConfiguration();
+        saveSearch();
+        saveCells(); // TODO: move cells to different window apart from advanced search and then
+                     // only there saving allowed
+    }
+    catch (OptionsIoException)
+    {
+    }
 }
 
 void Options::load(const Gear::Armoury &armoury)
 {
-    loadConfiguration(armoury);
-    loadSearch(armoury);
-    loadCells(armoury);
+    try
+    {
+        loadConfiguration(armoury);
+        loadSearch(armoury);
+        loadCells(armoury);
+    }
+    catch (OptionsIoException)
+    {
+    }
 }
 
 void Options::saveCells(const std::string &fileName)
@@ -160,8 +160,10 @@ void Options::saveCells(const std::string &fileName)
 
     if (!myCells.open(QIODevice::WriteOnly))
     {
-        std::cout << "Couldn't open cell file";
-        return;
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName << "\"";
+        std::cout << ss.str();
+        throw OptionsIoException(ss.str());
     }
 
     QJsonArray cells;
@@ -183,14 +185,15 @@ void Options::loadCells(const Gear::Armoury &armoury, const std::string &fileNam
     QFile myCells(QString::fromStdString(fileName));
     if (!myCells.open(QIODevice::ReadOnly))
     {
-        std::cout << "Couldn't open cell file";
-        return;
-        // TODO: errorhandling
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName << "\"";
+        std::cout << ss.str();
+        throw OptionsIoException(ss.str());
     }
     QByteArray cellData = myCells.readAll();
     QJsonDocument jsonDoc(QJsonDocument::fromJson(cellData));
     if (!jsonDoc.isArray())
-        return; // TODO: Errorhandling
+        throw OptionsIoException("File has unexpected format");
     for (const auto &cell : jsonDoc.array())
     {
         if (!cell.isObject())
@@ -216,8 +219,10 @@ void Options::saveSearch(const std::string &fileName)
 
     if (!search.open(QIODevice::WriteOnly))
     {
-        std::cout << "Couldn't open ass file";
-        return;
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName << "\"";
+        std::cout << ss.str();
+        throw OptionsIoException(ss.str());
     }
 
     QJsonObject json;
@@ -263,13 +268,15 @@ void Options::loadSearch(const Gear::Armoury &armoury, const std::string &fileNa
     QFile search(QString::fromStdString(fileName));
     if (!search.open(QIODevice::ReadOnly))
     {
-        std::cout << "Couldn't open ass file";
-        return;
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName << "\"";
+        std::cout << ss.str();
+        throw OptionsIoException(ss.str());
     }
     QByteArray searchData = search.readAll();
     QJsonDocument jsonDoc(QJsonDocument::fromJson(searchData));
     if (!jsonDoc.isObject())
-        return; // TODO: errorhandling
+        throw OptionsIoException("File has unexpected format");
     auto json = jsonDoc.object();
     if (json.contains(WEAPON_TYPE) && json[WEAPON_TYPE].isDouble())
         weaponType = (Gear::WeaponType)json[WEAPON_TYPE].toInt();
@@ -308,6 +315,7 @@ void Options::loadSearch(const Gear::Armoury &armoury, const std::string &fileNa
     }
     if (json.contains(SETS) && json[SETS].isArray())
     {
+        armourSets.clear();
         for (auto const &set : json[SETS].toArray())
         {
             if (!set.isObject())
@@ -330,11 +338,10 @@ void Options::loadSearch(const Gear::Armoury &armoury, const std::string &fileNa
                     if (!set.addCell(jsonToCell(json[LANTERN].toObject(), armoury)))
                         continue;
                 armourSets.push_back(set);
-
             }
             catch (std::exception)
             {
-				// implement some debug logging?
+                // implement some debug logging?
             }
         }
     }

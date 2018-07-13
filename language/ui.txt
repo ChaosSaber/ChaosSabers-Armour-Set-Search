@@ -48,3 +48,4 @@ cell_slot_technique;Technique cell slot
 cell_slot_mobility;Mobility cell slot
 cell_slot_defense;Defense cell slot
 cell_slot_utility;Utility cell slot
+error;Error

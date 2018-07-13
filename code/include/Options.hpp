@@ -4,6 +4,7 @@
 #include "gear/ArmourSet.hpp"
 #include "gear/Armoury.hpp"
 #include "gear/Cell.hpp"
+#include <QDir>
 #include <QJsonObject>
 #include <array>
 #include <string>
@@ -14,6 +15,13 @@
 #define MY_CELLS "data/myCells.json"
 #define NUMBER_OF_SKILLSELECTORS 7
 
+class OptionsIoException
+{
+  public:
+    OptionsIoException(std::string what) : what(std::move(what)) {}
+    std::string what;
+};
+
 class Options
 {
   public:
@@ -23,22 +31,24 @@ class Options
         std::string skillName;
         int skillLevel;
     };
-    void loadConfiguration(const Gear::Armoury &armoury, const std::string &fileName = CONFIG_FILE_NAME);
+    void loadConfiguration(const Gear::Armoury &armoury,
+                           const std::string &fileName = CONFIG_FILE_NAME);
     void saveConfiguration(const std::string &fileName = CONFIG_FILE_NAME);
     void loadSearch(const Gear::Armoury &armoury, const std::string &fileName = LAST_SEARCH);
     void saveSearch(const std::string &fileName = LAST_SEARCH);
-	void save();
-	void load(const Gear::Armoury & armoury);
+    void save();
+    void load(const Gear::Armoury &armoury);
     void saveCells(const std::string &fileName = MY_CELLS);
     void loadCells(const Gear::Armoury &armoury, const std::string &fileName = MY_CELLS);
 
-    int numberOfResults = 1000;
+    int numberOfResults = 100;
     std::string language = "English";
     std::unordered_map<std::string, bool> checkedGear;
     std::unordered_map<Gear::Cell, int> cells;
     std::array<SkillSearch, NUMBER_OF_SKILLSELECTORS> skillSearches;
     std::vector<Gear::ArmourSet> armourSets;
     Gear::WeaponType weaponType;
+    QString lastSaveLocation = QDir::currentPath();
 
   private:
     QJsonObject cellToJson(const Gear::Cell &cell);

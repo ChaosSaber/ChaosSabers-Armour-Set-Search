@@ -1,12 +1,14 @@
-#include "ui/mainwindow.hpp"
 #include "gear/ArmourSet.hpp"
 #include "ui/About.hpp"
 #include "ui/AdvancedSearch.hpp"
 #include "ui/ArmourSetView.hpp"
 #include "ui/SkillSelector.hpp"
 #include "ui/Translation.hpp"
+#include "ui/mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include <QDesktopServices>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QUrl>
@@ -14,6 +16,7 @@
 
 MainWindow::~MainWindow()
 {
+    saveSearchSettings();
     options.save();
     delete ui;
 }
@@ -45,9 +48,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         auto selector = new SkillSelector(
             dict, skills, dynamic_cast<QGridLayout *>(ui->groupBoxWantedSkills->layout()));
         skillSelectors.push_back(selector);
-        connect(selector, &SkillSelector::changed, [this, i](Options::SkillSearch search) {
-            options.skillSearches[i] = std::move(search);
-        });
     }
 
     connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
@@ -76,10 +76,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             [this](bool) { QMessageBox::aboutQt(this, getTranslation(dict, "menu_about_qt")); });
     connect(ui->actionAbout, &QAction::triggered, [this](bool) { about(); });
 
-    connect(ui->actionUpdates, &QAction::triggered,
-            [](bool) { QDesktopServices::openUrl(QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")); });
-    connect(ui->comboBoxWeaponType, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int value) { options.weaponType = (Gear::WeaponType)value; });
+    connect(ui->actionUpdates, &QAction::triggered, [](bool) {
+        QDesktopServices::openUrl(
+            QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest"));
+    });
+    showLoadedSearch();
+    connect(ui->actionLoadSearch, &QAction::triggered, [this](bool) { loadSearch(); });
+    connect(ui->actionSaveSearch, &QAction::triggered, [this](bool) { saveSearch(); });
 }
 
 void MainWindow::setupTranslation()
@@ -155,12 +158,11 @@ void MainWindow::advancedSearch()
 void MainWindow::armourSetSearch(ArmourSetSearch &ass)
 {
     setSearchButtonsState(false);
-    ui->listWidgetArmourSets->clear();
     ass.search(armoury, [this](unsigned long long count, unsigned long long max) {
         ui->progressBarSearch->setValue(100 * count / max);
     });
+    showArmourSets(ass.getArmourSets());
     options.armourSets = ass.getArmourSets();
-    showArmourSets(options.armourSets);
     setSearchButtonsState(true);
 }
 
@@ -196,6 +198,7 @@ void MainWindow::about()
 
 void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
 {
+    ui->listWidgetArmourSets->clear();
     std::stringstream ss;
     // TODO: add translation
     ss << "Found " << armoursets.size() << " Results";
@@ -214,4 +217,59 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
         ui->listWidgetArmourSets->setItemWidget(item, view);
         ++count;
     }
+}
+
+void MainWindow::showLoadedSearch()
+{
+    ui->comboBoxWeaponType->setCurrentIndex(options.weaponType);
+    for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
+        skillSelectors[i]->set(options.skillSearches[i]);
+    showArmourSets(options.armourSets);
+}
+
+void MainWindow::saveSearchSettings()
+{
+    options.weaponType = (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex();
+    for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
+        options.skillSearches[i] = std::move(skillSelectors[i]->getSearchSettings());
+}
+
+void MainWindow::saveSearch()
+{
+    QString filter = "Armour Set Searches (*.ass)";
+    auto fileName = QFileDialog::getSaveFileName(this, getTranslation(dict, "menu_save"),
+                                                 options.lastSaveLocation, filter, &filter);
+    if (fileName.isEmpty())
+        return;
+    saveSearchSettings();
+    QFileInfo info(fileName);
+    options.lastSaveLocation = info.path();
+    try
+    {
+        options.saveSearch(fileName.toStdString());
+    }
+    catch (const OptionsIoException &e)
+    {
+        QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+    }
+}
+
+void MainWindow::loadSearch()
+{
+    auto fileName = QFileDialog::getOpenFileName(this, getTranslation(dict, "menu_load"),
+                                                 options.lastSaveLocation,
+                                                 "Armour Set Searches (*.ass);;All Files(*.*)");
+    if (fileName.isEmpty())
+        return;
+    try
+    {
+        options.loadSearch(armoury, fileName.toStdString());
+    }
+    catch (const OptionsIoException &e)
+    {
+        QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+    }
+    showLoadedSearch();
+    QFileInfo info(fileName);
+    options.lastSaveLocation = info.path();
 }

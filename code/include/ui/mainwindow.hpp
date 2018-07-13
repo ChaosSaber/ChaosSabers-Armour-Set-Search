@@ -34,8 +34,12 @@ class MainWindow : public QMainWindow
     void setLanguage(QAction *action);
     void about();
     void showArmourSets(const std::vector<Gear::ArmourSet> &armoursets);
+    void showLoadedSearch();
+    void saveSearchSettings();
+    void saveSearch();
+    void loadSearch();
 
-        Options options;
+    Options options;
     std::vector<SkillSelector *> skillSelectors;
     Ui::MainWindow *ui;
     Dictionary dict;

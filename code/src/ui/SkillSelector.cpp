@@ -21,7 +21,6 @@ SkillSelector::SkillSelector(
     connect(skillType, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { filterChanged((Gear::SkillType)index); });
     setSkillTypeFilter();
-    connectSlots();
 }
 
 void SkillSelector::setSkillTypeFilter()
@@ -47,7 +46,7 @@ void SkillSelector::filterChanged(Gear::SkillType filter)
     skillname->setCurrentIndex(0);
 }
 
-void SkillSelector::getSkill(std::vector<Gear::Skill> &skills)
+void SkillSelector::getSkill(std::vector<Gear::Skill> &skills) const
 {
     if (skillname->currentIndex() == 0 || skillValue->value() == 0)
         return;
@@ -55,24 +54,16 @@ void SkillSelector::getSkill(std::vector<Gear::Skill> &skills)
     skills.push_back(skill);
 }
 
-void SkillSelector::emitChangedValues()
+const std::string &SkillSelector::getSkillName() const
 {
-    Options::SkillSearch search;
-    search.filter = (Gear::SkillType)skillType->currentIndex();
-    search.skillName = getSkillName();
-    search.skillLevel = skillValue->value();
-    emit changed(search);
-}
-
-const std::string& SkillSelector::getSkillName() const
-{
+    if (skillname->currentIndex() == 0)
+        return "";
     return skills[(Gear::SkillType)skillType->currentIndex()][skillname->currentIndex() - 1]
         ->getName();
 }
 
 void SkillSelector::set(const Options::SkillSearch &search)
 {
-    disConnectSlots();
     skillType->setCurrentIndex(search.filter);
     skillValue->setValue(search.skillLevel);
     if (search.skillName.empty())
@@ -85,19 +76,13 @@ void SkillSelector::set(const Options::SkillSearch &search)
                 skillname->setCurrentIndex(i + 1);
         }
     }
-    connectSlots();
 }
 
-void SkillSelector::connectSlots()
+Options::SkillSearch SkillSelector::getSearchSettings() const
 {
-    connect(skillname, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int) { emitChangedValues(); });
-    connect(skillValue, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int) { emitChangedValues(); });
-}
-
-void SkillSelector::disConnectSlots()
-{
-    skillname->disconnect();
-    skillValue->disconnect();
+    Options::SkillSearch search;
+    search.filter = (Gear::SkillType)skillType->currentIndex();
+    search.skillName = getSkillName();
+    search.skillLevel = skillValue->value();
+    return search;
 }
