@@ -36,6 +36,9 @@ class Weapon : public Gear
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
 
+	const Cell &getCell1() const;
+	const Cell &getCell2() const;
+
   private:
     WeaponType type;
     std::string name;

@@ -19,6 +19,7 @@ const QString CELL = "Cell";
 const QString GEAR = "Gear";
 const QString SEARCHED_SKILLS = "Searched Skills";
 const QString FILTER = "Filter";
+const QString SETS = "Sets";
 const QString WEAPON_TYPE = "Weapon type";
 const QString HEAD = "Head";
 const QString TORSO = "Torso";
@@ -27,8 +28,9 @@ const QString LEGS = "Legs";
 const QString WEAPON = "Weapon";
 const QString CELL1 = "Cell 1";
 const QString CELL2 = "Cell 2";
+const QString LANTERN = "Lantern Cell";
 
-void Options::load(const Gear::Armoury &armoury, const std::string &fileName)
+void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string &fileName)
 {
     QFile config(QString::fromStdString(fileName));
     if (!config.open(QIODevice::ReadOnly))
@@ -76,7 +78,7 @@ void Options::load(const Gear::Armoury &armoury, const std::string &fileName)
                     continue;
                 try
                 {
-                    cells[loadCell(object[CELL].toObject(), armoury)] = object[COUNT].toInt();
+                    cells[jsonToCell(object[CELL].toObject(), armoury)] = object[COUNT].toInt();
                 }
                 catch (...)
                 {
@@ -100,7 +102,7 @@ void Options::load(const Gear::Armoury &armoury, const std::string &fileName)
     }
 }
 
-void Options::save(const std::string &fileName)
+void Options::saveConfiguration(const std::string &fileName)
 {
     QFile config(QString::fromStdString(fileName));
 
@@ -115,28 +117,106 @@ void Options::save(const std::string &fileName)
     json[MAX_RESULTS] = numberOfResults;
     json[LANGUAGE] = QString::fromStdString(language);
 
+    QJsonDocument jsonDoc(json);
+    config.write(jsonDoc.toJson());
+}
+
+Gear::Cell Options::jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury)
+{
+    // safe guard
+    if (!(json.contains(NAME) && json[NAME].isString() && json.contains(LEVEL) &&
+          json[LEVEL].isDouble()))
+        throw std::exception();
+    return Gear::Cell(Gear::Skill(json[NAME].toString().toStdString(), json[LEVEL].toInt()),
+                      armoury.getSkillTypeFor(json[NAME].toString().toStdString()));
+}
+
+QJsonObject Options::cellToJson(const Gear::Cell &cell)
+{
+    QJsonObject jsonCell;
+    jsonCell[NAME] = QString::fromStdString(cell.getSkillName());
+    jsonCell[LEVEL] = cell.getSkill().getSkillPoints();
+    return jsonCell;
+}
+
+void Options::save()
+{
+    saveConfiguration();
+    saveSearch();
+    saveCells(); // TODO: move cells to different window apart from advanced search and then only
+                 // there saving allowed
+}
+
+void Options::load(const Gear::Armoury &armoury)
+{
+    loadConfiguration(armoury);
+    loadSearch(armoury);
+    loadCells(armoury);
+}
+
+void Options::saveCells(const std::string &fileName)
+{
+    QFile myCells(QString::fromStdString(fileName));
+
+    if (!myCells.open(QIODevice::WriteOnly))
+    {
+        std::cout << "Couldn't open cell file";
+        return;
+    }
+
     QJsonArray cells;
     for (const auto &cell : this->cells)
     {
 
         QJsonObject jsonCell;
         jsonCell[COUNT] = cell.second;
-        jsonCell[CELL] = saveCell(cell.first);
+        jsonCell[CELL] = cellToJson(cell.first);
         cells.push_back(jsonCell);
     }
-    json[CELLS] = cells;
 
-    QJsonDocument jsonDoc(json);
-    config.write(jsonDoc.toJson());
+    QJsonDocument jsonDoc(cells);
+    myCells.write(jsonDoc.toJson());
+}
+
+void Options::loadCells(const Gear::Armoury &armoury, const std::string &fileName)
+{
+    QFile myCells(QString::fromStdString(fileName));
+    if (!myCells.open(QIODevice::ReadOnly))
+    {
+        std::cout << "Couldn't open cell file";
+        return;
+        // TODO: errorhandling
+    }
+    QByteArray cellData = myCells.readAll();
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(cellData));
+    if (!jsonDoc.isArray())
+        return; // TODO: Errorhandling
+    for (const auto &cell : jsonDoc.array())
+    {
+        if (!cell.isObject())
+            continue;
+        auto object = cell.toObject();
+        // safe guard
+        if (!(object.contains(COUNT) && object[COUNT].isDouble() && object.contains(CELL) &&
+              object[CELL].isObject()))
+            continue;
+        try
+        {
+            cells[jsonToCell(object[CELL].toObject(), armoury)] = object[COUNT].toInt();
+        }
+        catch (...)
+        {
+        }
+    }
 }
 
 void Options::saveSearch(const std::string &fileName)
 {
-    QFile config(QString::fromStdString(fileName));
+    QFile search(QString::fromStdString(fileName));
 
-    if (!config.open(QIODevice::WriteOnly))
+    if (!search.open(QIODevice::WriteOnly))
     {
-        std::cout << "Couldn't open config file";
+        std::cout << "Couldn't open ass file";
         return;
     }
 
@@ -159,27 +239,150 @@ void Options::saveSearch(const std::string &fileName)
         jsonGear[CHECKED] = gear.second;
         gearParts.push_back(jsonGear);
     }
+    json[GEAR] = gearParts;
     for (const auto &set : armourSets)
     {
-        QJsonObject jsonSet, weapon, head, torso, arms, legs;
+        QJsonObject jsonSet;
+        jsonSet[WEAPON] = weaponToJson(set.getWeapon());
+        jsonSet[HEAD] = armourToJson(set.getHead());
+        jsonSet[TORSO] = armourToJson(set.getTorso());
+        jsonSet[ARMS] = armourToJson(set.getArms());
+        jsonSet[LEGS] = armourToJson(set.getLegs());
+        if (!set.getLantern().isEmpty())
+            jsonSet[LANTERN] = cellToJson(set.getLantern());
+        sets.push_back(jsonSet);
     }
-    json[GEAR] = gearParts;
+    json[SETS] = sets;
+
+    QJsonDocument jsonDoc(json);
+    search.write(jsonDoc.toJson());
 }
 
-Gear::Cell Options::loadCell(const QJsonObject &json, const Gear::Armoury &armoury)
+void Options::loadSearch(const Gear::Armoury &armoury, const std::string &fileName)
 {
-    // safe guard
-    if (!(json.contains(NAME) && json[NAME].isString() && json.contains(LEVEL) &&
-          json[LEVEL].isDouble()))
+    QFile search(QString::fromStdString(fileName));
+    if (!search.open(QIODevice::ReadOnly))
+    {
+        std::cout << "Couldn't open ass file";
+        return;
+    }
+    QByteArray searchData = search.readAll();
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(searchData));
+    if (!jsonDoc.isObject())
+        return; // TODO: errorhandling
+    auto json = jsonDoc.object();
+    if (json.contains(WEAPON_TYPE) && json[WEAPON_TYPE].isDouble())
+        weaponType = (Gear::WeaponType)json[WEAPON_TYPE].toInt();
+    if (json.contains(SEARCHED_SKILLS) && json[SEARCHED_SKILLS].isArray())
+    {
+        size_t i = 0;
+        for (const auto &skill : json[SEARCHED_SKILLS].toArray())
+        {
+            if (!skill.isObject())
+                continue;
+            auto json = skill.toObject();
+            SkillSearch search;
+            // safeguard
+            if (!(json.contains(FILTER) && json[FILTER].isDouble() && json.contains(NAME) &&
+                  json[NAME].isString() && json.contains(LEVEL) && json[LEVEL].isDouble()))
+                continue;
+            search.filter = (Gear::SkillType)json[FILTER].toInt();
+            search.skillName = json[NAME].toString().toStdString();
+            search.skillLevel = json[LEVEL].toInt();
+            skillSearches[i] = search;
+            ++i;
+        }
+    }
+    if (json.contains(GEAR) && json[GEAR].isArray())
+    {
+        for (const auto &gear : json[GEAR].toArray())
+        {
+            if (!gear.isObject())
+                continue;
+            auto json = gear.toObject();
+            if (!(json.contains(NAME) && json[NAME].isString() && json.contains(CHECKED) &&
+                  json[CHECKED].isBool()))
+                continue;
+            checkedGear[json[NAME].toString().toStdString()] = json[CHECKED].toBool();
+        }
+    }
+    if (json.contains(SETS) && json[SETS].isArray())
+    {
+        for (auto const &set : json[SETS].toArray())
+        {
+            if (!set.isObject())
+                continue;
+            auto json = set.toObject();
+            if (!(json.contains(WEAPON) && json[WEAPON].isObject() && json.contains(HEAD) &&
+                  json[HEAD].isObject() && json.contains(TORSO) && json[TORSO].isObject() &&
+                  json.contains(ARMS) && json[ARMS].isObject() && json.contains(LEGS) &&
+                  json[LEGS].isObject()))
+                continue;
+            try
+            {
+                auto weapon = jsonToWeapon(json[WEAPON].toObject(), armoury);
+                auto head = jsonToArmour(json[HEAD].toObject(), armoury);
+                auto torso = jsonToArmour(json[TORSO].toObject(), armoury);
+                auto arms = jsonToArmour(json[ARMS].toObject(), armoury);
+                auto legs = jsonToArmour(json[LEGS].toObject(), armoury);
+                Gear::ArmourSet set(head, torso, arms, legs, weapon);
+                if (json.contains(LANTERN) && json[LANTERN].isObject())
+                    if (!set.addCell(jsonToCell(json[LANTERN].toObject(), armoury)))
+                        continue;
+                armourSets.push_back(set);
+
+            }
+            catch (std::exception)
+            {
+				// implement some debug logging?
+            }
+        }
+    }
+}
+
+QJsonObject Options::armourToJson(const Gear::Armour &armour)
+{
+    QJsonObject json;
+    json[NAME] = QString::fromStdString(armour.getName());
+    if (!armour.getCell().isEmpty())
+        json[CELL] = cellToJson(armour.getCell());
+    return json;
+}
+
+Gear::Armour Options::jsonToArmour(const QJsonObject &json, const Gear::Armoury &armoury)
+{
+    // safeguard
+    if (!(json.contains(NAME) && json[NAME].isString()))
         throw std::exception();
-    return Gear::Cell(Gear::Skill(json[NAME].toString().toStdString(), json[LEVEL].toInt()),
-                      armoury.getSkillTypeFor(json[NAME].toString().toStdString()));
+    auto armour = armoury.getArmour(json[NAME].toString().toStdString());
+    if (json.contains(CELL) && json[CELL].isObject())
+        if (!armour.addCell(jsonToCell(json[CELL].toObject(), armoury)))
+            throw std::exception();
+    return armour;
 }
 
-QJsonObject Options::saveCell(const Gear::Cell &cell)
+QJsonObject Options::weaponToJson(const Gear::Weapon &weapon)
 {
-    QJsonObject jsonCell;
-    jsonCell[NAME] = QString::fromStdString(cell.getSkillName());
-    jsonCell[LEVEL] = cell.getSkill().getSkillPoints();
-    return jsonCell;
+    QJsonObject json;
+    json[NAME] = QString::fromStdString(weapon.getName());
+    if (!weapon.getCell1().isEmpty())
+        json[CELL1] = cellToJson(weapon.getCell1());
+    if (!weapon.getCell2().isEmpty())
+        json[CELL2] = cellToJson(weapon.getCell2());
+    return json;
+}
+
+Gear::Weapon Options::jsonToWeapon(const QJsonObject &json, const Gear::Armoury &armoury)
+{
+    // safequard
+    if (!(json.contains(NAME) && json[NAME].isString()))
+        throw std::exception();
+    auto weapon = armoury.getWeapon(json[NAME].toString().toStdString());
+    if (json.contains(CELL1) && json[CELL1].isObject())
+        if (!weapon.addCell(jsonToCell(json[CELL1].toObject(), armoury)))
+            throw std::exception();
+    if (json.contains(CELL2) && json[CELL2].isObject())
+        if (!weapon.addCell(jsonToCell(json[CELL2].toObject(), armoury)))
+            throw std::exception();
+    return weapon;
 }

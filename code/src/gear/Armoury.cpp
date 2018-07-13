@@ -238,3 +238,19 @@ Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string &skillName) con
 {
     return getSkillInfoFor(skillName).getType();
 }
+
+const Gear::Armour &Gear::Armoury::getArmour(const std::string &name) const
+{
+    for (const auto &armours : this->armours)
+        for (const auto &armour : armours.second)
+            if (armour.getName() == name)
+                return armour;
+}
+
+const Gear::Weapon &Gear::Armoury::getWeapon(const std::string &name) const
+{
+    for (const auto &weapons : this->weapons)
+        for (const auto &weapon : weapons.second)
+            if (weapon.getName() == name)
+                return weapon;
+}

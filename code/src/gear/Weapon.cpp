@@ -66,3 +66,6 @@ std::string Gear::Weapon::getToolTip(const Dictionary &dict) const
            << dict.getTranslationFor(cellSlotToStringKey(cell2.getCellType()));
     return ss.str();
 }
+
+const Gear::Cell &Gear::Weapon::getCell1() const { return cell1; }
+const Gear::Cell &Gear::Weapon::getCell2() const { return cell2; }

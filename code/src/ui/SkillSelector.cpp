@@ -75,7 +75,7 @@ void SkillSelector::set(const Options::SkillSearch &search)
     disConnectSlots();
     skillType->setCurrentIndex(search.filter);
     skillValue->setValue(search.skillLevel);
-    if (search.skillName.empty)
+    if (search.skillName.empty())
         skillname->setCurrentIndex(0);
     else
     {

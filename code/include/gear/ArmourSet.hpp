@@ -38,6 +38,7 @@ class ArmourSet : public Gear
     const Armour &getArms() const;
     const Armour &getLegs() const;
     const Weapon &getWeapon() const;
+    const Cell &getLantern() const;
 
   private:
     Armour head, torso, legs, arms;

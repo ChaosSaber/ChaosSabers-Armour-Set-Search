@@ -32,7 +32,7 @@ class Armour : public Gear
     CellList getCells() const override;
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
-
+	
   private:
     ArmourType type;
     std::string name;

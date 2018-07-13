@@ -118,3 +118,5 @@ const Gear::Armour &Gear::ArmourSet::getArms() const { return arms; }
 const Gear::Armour &Gear::ArmourSet::getLegs() const { return legs; }
 
 const Gear::Weapon &Gear::ArmourSet::getWeapon() const { return weapon; }
+
+const Gear::Cell &Gear::ArmourSet::getLantern() const { return lantern; }
