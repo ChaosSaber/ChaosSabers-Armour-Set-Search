@@ -39,7 +39,7 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string 
     if (!config.open(QIODevice::ReadOnly))
     {
         // leave presets
-        std::cout << "Couldn't open config file";
+        std::cout << "Couldn't open config file: " << fileName << std::endl;
         return;
     }
     QByteArray configData = config.readAll();
@@ -99,7 +99,7 @@ void Options::saveConfiguration(const std::string &fileName)
 
     if (!config.open(QIODevice::WriteOnly))
     {
-        std::cout << "Couldn't open config file";
+        std::cout << "Couldn't open config file: " << fileName << std::endl;
         return;
     }
 
@@ -166,7 +166,7 @@ void Options::saveCells(const std::string &fileName)
     {
         std::stringstream ss;
         ss << "Couldn't open file \"" << fileName << "\"";
-        std::cout << ss.str();
+        std::cout << ss.str() << std::endl;
         throw OptionsIoException(ss.str());
     }
 
@@ -193,7 +193,7 @@ void Options::loadCells(const Gear::Armoury &armoury, std::string fileName)
     {
         std::stringstream ss;
         ss << "Couldn't open file \"" << fileName << "\"";
-        std::cout << ss.str();
+        std::cout << ss.str() << std::endl;
         throw OptionsIoException(ss.str());
     }
     QByteArray cellData = myCells.readAll();
@@ -227,7 +227,7 @@ void Options::saveSearch(const std::string &fileName)
     {
         std::stringstream ss;
         ss << "Couldn't open file \"" << fileName << "\"";
-        std::cout << ss.str();
+        std::cout << ss.str() << std::endl;
         throw OptionsIoException(ss.str());
     }
 
@@ -276,7 +276,7 @@ void Options::loadSearch(const Gear::Armoury &armoury, const std::string &fileNa
     {
         std::stringstream ss;
         ss << "Couldn't open file \"" << fileName << "\"";
-        std::cout << ss.str();
+        std::cout << ss.str() << std::endl;
         throw OptionsIoException(ss.str());
     }
     QByteArray searchData = search.readAll();
