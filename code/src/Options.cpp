@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#define CURRENT_VERSION 2
+#define CURRENT_VERSION 3
 
 const QString VERSION = "Version";
 const QString MAX_RESULTS = "Results";
@@ -31,6 +31,7 @@ const QString CELL1 = "Cell 1";
 const QString CELL2 = "Cell 2";
 const QString LANTERN = "Lantern Cell";
 const QString LAST_SAVE_LOCATION = "Last save location";
+const QString CELL_USAGE = "Cell usage";
 
 void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string &fileName)
 {
@@ -45,7 +46,7 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string 
     QJsonDocument jsonDoc(QJsonDocument::fromJson(configData));
 
     auto json = jsonDoc.object();
-    int version = 1;
+    version = 1;
     if (json.contains(VERSION) && json[VERSION].isDouble())
         version = json[VERSION].toInt();
     if (json.contains(MAX_RESULTS) && json[MAX_RESULTS].isDouble())
@@ -88,6 +89,8 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const std::string 
     }
     if (json.contains(LAST_SAVE_LOCATION) && json[LAST_SAVE_LOCATION].isString())
         lastSaveLocation = json[LAST_SAVE_LOCATION].toString();
+    if (json.contains(CELL_USAGE) && json[CELL_USAGE].isDouble())
+        cellUsage = json[CELL_USAGE].toInt();
 }
 
 void Options::saveConfiguration(const std::string &fileName)
@@ -105,6 +108,7 @@ void Options::saveConfiguration(const std::string &fileName)
     json[MAX_RESULTS] = numberOfResults;
     json[LANGUAGE] = QString::fromStdString(language);
     json[LAST_SAVE_LOCATION] = lastSaveLocation;
+    json[CELL_USAGE] = cellUsage;
     QJsonDocument jsonDoc(json);
     config.write(jsonDoc.toJson());
 }
@@ -180,8 +184,10 @@ void Options::saveCells(const std::string &fileName)
     myCells.write(jsonDoc.toJson());
 }
 
-void Options::loadCells(const Gear::Armoury &armoury, const std::string &fileName)
+void Options::loadCells(const Gear::Armoury &armoury, std::string fileName)
 {
+    if (version == 2 && fileName == MY_CELLS)
+        fileName = MY_CELLS_OLD;
     QFile myCells(QString::fromStdString(fileName));
     if (!myCells.open(QIODevice::ReadOnly))
     {

@@ -24,16 +24,15 @@ class AdvancedSearch : public QDialog
                    const Dictionary &dict, Options &options, std::vector<Gear::Skill> wantedSkills,
                    QWidget *parent = NULL);
     ~AdvancedSearch();
+    void set(Gear::WeaponType weaponType, std::vector<Gear::Skill> wantedSkills);
   signals:
     void armourSetSearch(ArmourSetSearch &ass);
 
   private:
-    void quit();
     void addItem(QWidget *widget, QListWidget *list);
     void addArmours(Gear::ArmourType type, QListWidget *list);
     void search();
     std::vector<Gear::Armour> getArmour(Gear::ArmourType type);
-    void closeEvent(QCloseEvent *event) override;
 
     const Dictionary &dict;
     const Gear::Armoury &armoury;

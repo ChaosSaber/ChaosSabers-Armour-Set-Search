@@ -2,6 +2,7 @@
 #include "ui/About.hpp"
 #include "ui/AdvancedSearch.hpp"
 #include "ui/ArmourSetView.hpp"
+#include "ui/CellWindow.hpp"
 #include "ui/SkillSelector.hpp"
 #include "ui/Translation.hpp"
 #include "ui/mainwindow.hpp"
@@ -83,6 +84,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     showLoadedSearch();
     connect(ui->actionLoadSearch, &QAction::triggered, [this](bool) { loadSearch(); });
     connect(ui->actionSaveSearch, &QAction::triggered, [this](bool) { saveSearch(); });
+    connect(ui->pushButtonOrganizeCells, &QPushButton::clicked, [this]() {
+        CellWindow dialog(armoury, options, dict, this);
+        dialog.exec();
+    });
+
+    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_best"));
+    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_own"));
+    ui->comboBoxCellUsage->setCurrentIndex(options.cellUsage);
+    connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int value) { options.cellUsage = value; });
 }
 
 void MainWindow::setupTranslation()
@@ -107,6 +118,8 @@ void MainWindow::setupTranslation()
     ui->actionAbout->setText(getTranslation(dict, "menu_about"));
     ui->actionAboutQt->setText(getTranslation(dict, "menu_about_qt"));
     ui->actionUpdates->setText(getTranslation(dict, "menu_updates"));
+    ui->groupBoxCells->setTitle(getTranslation(dict, "label_cells"));
+    ui->pushButtonOrganizeCells->setText(getTranslation(dict, "button_organize"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -147,12 +160,12 @@ void MainWindow::search()
 
 void MainWindow::advancedSearch()
 {
-    auto advancedSearch =
-        new AdvancedSearch((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
-                           options, getWantedSkills(), this);
-    connect(advancedSearch, &AdvancedSearch::armourSetSearch,
-            [this](ArmourSetSearch ass) { armourSetSearch(ass); });
-    advancedSearch->exec();
+    AdvancedSearch search((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
+                          options, getWantedSkills(), this);
+    connect(&search, &AdvancedSearch::armourSetSearch, this,
+                [this](ArmourSetSearch ass) { armourSetSearch(ass); });
+    search.setModal(true);
+    search.exec();
 }
 
 void MainWindow::armourSetSearch(ArmourSetSearch &ass)

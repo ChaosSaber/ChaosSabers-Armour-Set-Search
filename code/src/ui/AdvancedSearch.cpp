@@ -20,6 +20,22 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
 
+    set(weaponType, wantedSkills);
+
+    connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { close(); });
+    connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
+}
+
+AdvancedSearch::~AdvancedSearch() { delete ui; }
+
+void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> wantedSkills)
+{
+    ui->listWidgetWeapons->clear();
+    ui->listWidgetHeads->clear();
+    ui->listWidgetTorsos->clear();
+    ui->listWidgetArms->clear();
+    ui->listWidgetLegs->clear();
+    ui->listWidgetCells->clear();
     for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType))
     {
         auto checkbox = new QCheckBox();
@@ -30,7 +46,7 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
         checkbox->setText(getTranslation(dict, weapon.getName()));
         checkbox->setToolTip(QString::fromStdString(weapon.getToolTip(dict)));
         addItem(checkbox, ui->listWidgetWeapons);
-        connect(checkbox, &QCheckBox::stateChanged, [&options, weapon](int state) {
+        connect(checkbox, &QCheckBox::stateChanged, [this, weapon](int state) {
             options.checkedGear[weapon.getName()] = (state == Qt::Checked);
         });
         weapons.insert({checkbox, weapon});
@@ -40,7 +56,6 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     addArmours(Gear::ArmourType::Arms, ui->listWidgetArms);
     addArmours(Gear::ArmourType::Legs, ui->listWidgetLegs);
 
-    
     ui->listWidgetCells->setStyleSheet("QListWidget::item { border-bottom: 1px solid black; }");
     for (const auto &skill : wantedSkills)
     {
@@ -73,11 +88,10 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
 
             ++row;
             connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-                    [&options, cell](int value) { options.cells[cell] = value; });
+                    [this, cell](int value) { options.cells[cell] = value; });
         }
         addItem(widget, ui->listWidgetCells);
     }
-
 
     ui->listWidgetWeapons->setMinimumWidth(ui->listWidgetWeapons->sizeHintForColumn(0));
     ui->listWidgetHeads->setMinimumWidth(ui->listWidgetHeads->sizeHintForColumn(0));
@@ -85,14 +99,7 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     ui->listWidgetArms->setMinimumWidth(ui->listWidgetArms->sizeHintForColumn(0));
     ui->listWidgetLegs->setMinimumWidth(ui->listWidgetLegs->sizeHintForColumn(0));
     ui->listWidgetCells->setMinimumWidth(ui->listWidgetCells->sizeHintForColumn(0));
-
-    connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { quit(); });
-    connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
 }
-
-AdvancedSearch::~AdvancedSearch() { delete ui; }
-
-void AdvancedSearch::quit() { delete this; }
 
 void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
 {
@@ -143,8 +150,6 @@ void AdvancedSearch::search()
     Gear::CellList cells;
     for (const auto &cell : this->cells)
         cells += cell.second * cell.first->value();
+    close();
     emit(armourSetSearch(ArmourSetSearch(weapons, heads, torsos, arms, legs, wantedSkills, cells)));
-    quit();
 }
-
-void AdvancedSearch::closeEvent(QCloseEvent *event) { quit(); }

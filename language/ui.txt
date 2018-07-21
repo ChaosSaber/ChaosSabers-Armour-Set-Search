@@ -49,3 +49,13 @@ cell_slot_mobility;Mobility cell slot
 cell_slot_defense;Defense cell slot
 cell_slot_utility;Utility cell slot
 error;Error
+quit;Quit
+unsaved_changes_quit;You have unsaved changes. Do you want to quit anyway?
+label_cells;Cells
+cell_usage_best;Use best cells
+cell_usage_own;Use own cells
+button_import;Import
+button_export;Export
+button_organize;Organize
+button_save;Save
+unsaved_changes_export;You have unsaved changes. Do you want to export anyway?

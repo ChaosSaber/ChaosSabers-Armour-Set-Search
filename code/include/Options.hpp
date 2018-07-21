@@ -12,7 +12,8 @@
 
 #define CONFIG_FILE_NAME "setting.json"
 #define LAST_SEARCH "lastSearch.ass"
-#define MY_CELLS "data/myCells.json"
+#define MY_CELLS_OLD "data/myCells.json"
+#define MY_CELLS "data/myCells.cells"
 #define NUMBER_OF_SKILLSELECTORS 7
 
 class OptionsIoException
@@ -39,7 +40,7 @@ class Options
     void save();
     void load(const Gear::Armoury &armoury);
     void saveCells(const std::string &fileName = MY_CELLS);
-    void loadCells(const Gear::Armoury &armoury, const std::string &fileName = MY_CELLS);
+    void loadCells(const Gear::Armoury &armoury, std::string fileName = MY_CELLS);
 
     int numberOfResults = 100;
     std::string language = "English";
@@ -49,8 +50,11 @@ class Options
     std::vector<Gear::ArmourSet> armourSets;
     Gear::WeaponType weaponType;
     QString lastSaveLocation = QDir::currentPath();
+    int cellUsage = 0;
 
   private:
+    int version;
+
     QJsonObject cellToJson(const Gear::Cell &cell);
     Gear::Cell jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury);
     QJsonObject armourToJson(const Gear::Armour &armour);

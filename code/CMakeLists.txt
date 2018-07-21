@@ -24,6 +24,7 @@ SET(SRCS
 	src/ui/AdvancedSearch.cpp
 	src/ui/About.cpp
 	src/ui/License.cpp
+	src/ui/CellWindow.cpp
 )
 
 SET(HDRS
@@ -50,6 +51,7 @@ SET(HDRS
 	include/ui/AdvancedSearch.hpp
 	include/ui/About.hpp
 	include/ui/License.hpp
+	include/ui/CellWindow.hpp
 )
 
 SET(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui/)
@@ -60,6 +62,7 @@ SET(UI
 	ui/AdvancedSearch.ui
 	ui/About.ui
 	ui/License.ui
+	ui/CellWindow.ui
 )
 
 

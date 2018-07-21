@@ -6,6 +6,6 @@ razorwing_hammer_heroic;Razorwing Hammer
 frostback_hammer_heroic;Frostmaul
 deadeye_hammer_heroic;Deadeye Hammer
 bloodfire_hammer_heroic;Bloodfire Hammer
-shrowd_hammer_heroic;Mooncrusher
+shrowd_hammer_heroic;Shrowdmaul
 rezakiri_hammer_heroic;Rezacrusher
-moonreaver_hammer_heroic;Shrowdmaul
+moonreaver_hammer_heroic;Mooncrusher
