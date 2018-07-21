@@ -180,6 +180,8 @@
     </widget>
     <addaction name="menuNumberOfResults"/>
     <addaction name="menuLanguage"/>
+    <addaction name="separator"/>
+    <addaction name="actionClearSkills"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -192,7 +194,6 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionUpdates"/>
     <addaction name="actionAboutQt"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -261,6 +262,11 @@
   <action name="actionUpdates">
    <property name="text">
     <string>get Updates</string>
+   </property>
+  </action>
+  <action name="actionClearSkills">
+   <property name="text">
+    <string>clear Skill search</string>
    </property>
   </action>
  </widget>

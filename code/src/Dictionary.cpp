@@ -88,7 +88,7 @@ void Dictionary::loadLanguage(const std::string &language)
                 coloumn = 1; // load English as default
             if (tmp[coloumn].empty() || tmp[0].empty())
                 continue;
-            dict[util::string::toLower(tmp[0])] = tmp[coloumn];
+            dict[util::string::toLowerCopy(tmp[0])] = tmp[coloumn];
         }
     }
 }

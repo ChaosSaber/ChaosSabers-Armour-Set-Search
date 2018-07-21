@@ -24,9 +24,10 @@ class SkillSelector : public QObject
     void getSkill(std::vector<Gear::Skill> &skills) const;
     void set(const Options::SkillSearch &search);
     Options::SkillSearch getSearchSettings() const;
+    void clear();
 
   private:
-    const std::string &getSkillName() const;
+    std::string getSkillName() const;
     void setSkillTypeFilter();
     void filterChanged(Gear::SkillType filter);
 

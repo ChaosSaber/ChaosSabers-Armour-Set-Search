@@ -41,7 +41,6 @@ menu_about;About
 menu_about_qt;About Qt
 about_version;version
 menu_license;License
-menu_updates;Get Updates
 cell_slot_power;Power cell slot
 cell_slot_technique;Technique cell slot
 cell_slot_mobility;Mobility cell slot
@@ -58,3 +57,8 @@ button_export;Export
 button_organize;Organize
 button_save;Save
 unsaved_changes_export;You have unsaved changes. Do you want to export anyway?
+update_searching;Searching for updates
+update_failed;Searching for updates failed
+update_current_version;You have the current version
+update_new_version;There is a new version available
+menu_clear_skills;Clear Search

@@ -17,8 +17,8 @@ class Armoury
     std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill> &skills,
                                             WeaponType type) const;
     std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type) const;
-    const Armour &getArmour(const std::string &name) const;
-    const Weapon &getWeapon(const std::string &name) const;
+    const Armour &getArmour(std::string name) const;
+    const Weapon &getWeapon(std::string name) const;
     std::vector<const SkillInfo *> getSkills(SkillType filter) const;
     SkillType getSkillTypeFor(const std::string &skillName) const;
 

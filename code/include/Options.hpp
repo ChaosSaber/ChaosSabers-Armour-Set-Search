@@ -28,9 +28,9 @@ class Options
   public:
     struct SkillSearch
     {
-        Gear::SkillType filter;
-        std::string skillName;
-        int skillLevel;
+        Gear::SkillType filter = Gear::SkillType::None;
+        std::string skillName = "";
+        int skillLevel = 0;
     };
     void loadConfiguration(const Gear::Armoury &armoury,
                            const std::string &fileName = CONFIG_FILE_NAME);
@@ -48,7 +48,7 @@ class Options
     std::unordered_map<Gear::Cell, int> cells;
     std::array<SkillSearch, NUMBER_OF_SKILLSELECTORS> skillSearches;
     std::vector<Gear::ArmourSet> armourSets;
-    Gear::WeaponType weaponType;
+    Gear::WeaponType weaponType = Gear::WeaponType::Sword;
     QString lastSaveLocation = QDir::currentPath();
     int cellUsage = 0;
 

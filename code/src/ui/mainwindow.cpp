@@ -7,19 +7,22 @@
 #include "ui/Translation.hpp"
 #include "ui/mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include <iostream>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QUrl>
+#include <iostream>
 #include <sstream>
 
 MainWindow::~MainWindow()
 {
     saveSearchSettings();
     options.save();
+    if (manager)
+        delete manager;
     delete ui;
 }
 
@@ -78,10 +81,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             [this](bool) { QMessageBox::aboutQt(this, getTranslation(dict, "menu_about_qt")); });
     connect(ui->actionAbout, &QAction::triggered, [this](bool) { about(); });
 
-    connect(ui->actionUpdates, &QAction::triggered, [](bool) {
-        QDesktopServices::openUrl(
-            QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest"));
-    });
     showLoadedSearch();
     connect(ui->actionLoadSearch, &QAction::triggered, [this](bool) { loadSearch(); });
     connect(ui->actionSaveSearch, &QAction::triggered, [this](bool) { saveSearch(); });
@@ -95,6 +94,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->comboBoxCellUsage->setCurrentIndex(options.cellUsage);
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
+
+    auto updateLabel = new QLabel();
+    updateLabel->setText(getTranslation(dict, "update_searching") + " ");
+    ui->menuBar->setCornerWidget(updateLabel);
+    manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished,
+            [this](QNetworkReply *reply) { updateNetworkReply(reply); });
+    manager->get(QNetworkRequest(
+        QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
+
+    connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
 }
 
 void MainWindow::setupTranslation()
@@ -118,9 +128,9 @@ void MainWindow::setupTranslation()
     ui->menuHelp->setTitle(getTranslation(dict, "menu_help"));
     ui->actionAbout->setText(getTranslation(dict, "menu_about"));
     ui->actionAboutQt->setText(getTranslation(dict, "menu_about_qt"));
-    ui->actionUpdates->setText(getTranslation(dict, "menu_updates"));
     ui->groupBoxCells->setTitle(getTranslation(dict, "label_cells"));
     ui->pushButtonOrganizeCells->setText(getTranslation(dict, "button_organize"));
+    ui->actionClearSkills->setText(getTranslation(dict, "menu_clear_skills"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -151,17 +161,17 @@ void MainWindow::advancedSearch()
     AdvancedSearch search((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
                           options, getWantedSkills(), this);
     connect(&search, &AdvancedSearch::armourSetSearch, this,
-                [this](ArmourSetSearch ass) { armourSetSearch(ass); });
+            [this](ArmourSetSearch ass) { armourSetSearch(ass); });
     search.setModal(true);
     search.exec();
 }
 
 void MainWindow::armourSetSearch(ArmourSetSearch &ass)
-{   
+{
     Gear::CellList cells;
     for (const auto &skill : ass.getWantedSkills())
     {
-        for (size_t i = 1; i <= 3; ++i)
+        for (int i = 1; i <= 3; ++i)
         {
             Gear::Cell cell(Gear::Skill(skill.getName(), i),
                             armoury.getSkillTypeFor(skill.getName()));
@@ -247,7 +257,8 @@ void MainWindow::showLoadedSearch()
     ui->comboBoxWeaponType->setCurrentIndex(options.weaponType);
     for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
         skillSelectors[i]->set(options.skillSearches[i]);
-    showArmourSets(options.armourSets);
+    if (options.armourSets.size() > 0)
+        showArmourSets(options.armourSets);
 }
 
 void MainWindow::saveSearchSettings()
@@ -295,4 +306,50 @@ void MainWindow::loadSearch()
     showLoadedSearch();
     QFileInfo info(fileName);
     options.lastSaveLocation = info.path();
+}
+
+void MainWindow::updateNetworkReply(QNetworkReply *reply)
+{
+    auto label = dynamic_cast<QLabel *>(ui->menuBar->cornerWidget());
+    auto attr = reply->attribute(QNetworkRequest::Attribute::RedirectionTargetAttribute);
+    if (reply->error() != QNetworkReply::NoError || !attr.isValid() ||
+        (attr.userType() != QMetaType::QUrl))
+    {
+        label->setText(getTranslation(dict, "update_failed") + " ");
+    }
+    else
+    {
+        auto url = attr.toUrl();
+        if (url.isRelative())
+        {
+            url = reply->url().resolved(url);
+        }
+        if (url.toString().endsWith(PROGRAM_VERSION))
+        {
+            label->setText(getTranslation(dict, "update_current_version") + " ");
+        }
+        else
+        {
+            QString text = "<a href=\"";
+            text += url.toString();
+            text += "\">";
+            text += getTranslation(dict, "update_new_version");
+            text += " </a>";
+            label->setText(text);
+            label->setTextFormat(Qt::RichText);
+            label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+            label->setOpenExternalLinks(true);
+        }
+    }
+    ui->menuBar->setCornerWidget(label);
+    reply->deleteLater();
+}
+
+void MainWindow::clearSearch()
+{
+    for (auto selector : skillSelectors)
+        selector->clear();
+    options.checkedGear.clear();
+    options.armourSets.clear();
+    ui->listWidgetArmourSets->clear();
 }

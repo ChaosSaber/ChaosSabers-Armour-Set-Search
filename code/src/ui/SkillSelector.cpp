@@ -54,7 +54,7 @@ void SkillSelector::getSkill(std::vector<Gear::Skill> &skills) const
     skills.push_back(skill);
 }
 
-const std::string &SkillSelector::getSkillName() const
+std::string SkillSelector::getSkillName() const
 {
     if (skillname->currentIndex() == 0)
         return "";
@@ -85,4 +85,11 @@ Options::SkillSearch SkillSelector::getSearchSettings() const
     search.skillName = getSkillName();
     search.skillLevel = skillValue->value();
     return search;
+}
+
+void SkillSelector::clear()
+{
+    skillType->setCurrentIndex(0);
+    skillValue->setValue(0);
+    skillname->setCurrentIndex(0);
 }

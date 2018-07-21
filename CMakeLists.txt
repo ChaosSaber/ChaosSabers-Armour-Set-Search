@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-Project(ChaosSabers-Armour-Set-Search VERSION 0.9.0 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.9.1 LANGUAGES CXX)
 ######## acquire QT
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
@@ -7,10 +7,24 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(OpenSSL REQUIRED)
 
-# SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules ${CMAKE_MODULE_PATH}")
-# message(${CMAKE_MODULE_PATH})
-# include(windeployqt)
+SET(OPENSSL_ROOT_DIR ${OPENSSL_INCLUDE_DIR}\\..)
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
+find_library(SSL_EAY_DLL
+	NAMES
+		ssleay32
+	PATHS
+		${OPENSSL_ROOT_DIR}/bin
+)
+find_library(LIB_EAY_DLL
+	NAMES
+		libeay32
+	PATHS
+		${OPENSSL_ROOT_DIR}/bin
+)
+INSTALL(FILES ${SSL_EAY_DLL} ${LIB_EAY_DLL} DESTINATION .)
 
 add_subdirectory(code)
 install(DIRECTORY language data DESTINATION .)

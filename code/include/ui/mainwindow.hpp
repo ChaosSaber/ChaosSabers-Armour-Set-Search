@@ -15,6 +15,9 @@ namespace Ui
 class MainWindow;
 }
 
+class QNetworkReply;
+class QNetworkAccessManager;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -38,6 +41,8 @@ class MainWindow : public QMainWindow
     void saveSearchSettings();
     void saveSearch();
     void loadSearch();
+    void updateNetworkReply(QNetworkReply *);
+    void clearSearch();
 
     Options options;
     std::vector<SkillSelector *> skillSelectors;
@@ -45,6 +50,7 @@ class MainWindow : public QMainWindow
     Dictionary dict;
     Gear::Armoury armoury;
     std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> skills;
+    QNetworkAccessManager *manager = NULL;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP
