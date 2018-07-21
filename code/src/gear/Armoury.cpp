@@ -93,7 +93,7 @@ std::vector<Gear::SkillInfo> Gear::Armoury::loadSkillInfos(const std::string &fi
             try
             {
                 auto type = std::stoi(tmp[1]);
-                skills.push_back(SkillInfo(tmp[0], (SkillType)type));
+                skills.push_back(SkillInfo(util::string::toLower(tmp[0]), (SkillType)type));
             }
             catch (std::invalid_argument)
             {
@@ -138,7 +138,7 @@ std::vector<Gear::Armour> Gear::Armoury::loadArmour(const std::string &fileName,
         }
         try
         {
-            auto name = tmp[0];
+            auto name = util::string::toLower(tmp[0]);
             auto defense = std::stoi(tmp[1]);
             auto elems = util::string::split(tmp[2], '|');
             if (elems.size() != 5)
@@ -149,8 +149,8 @@ std::vector<Gear::Armour> Gear::Armoury::loadArmour(const std::string &fileName,
             elementalResistance.Shock = std::stoi(elems[2]);
             elementalResistance.Radiant = std::stoi(elems[3]);
             elementalResistance.Umbral = std::stoi(elems[4]);
-            Skill skill1(tmp[3], std::stoi(tmp[4]));
-            Skill skill2(tmp[5], std::stoi(tmp[6]));
+            Skill skill1(util::string::toLower(tmp[3]), std::stoi(tmp[4]));
+            Skill skill2(util::string::toLower(tmp[5]), std::stoi(tmp[6]));
             SkillType cellType = (SkillType)std::stoi(tmp[7]);
             armours.push_back(
                 Armour(type, name, defense, elementalResistance, skill1, skill2, cellType));
@@ -193,7 +193,7 @@ std::vector<Gear::Weapon> Gear::Armoury::loadWeapons(const std::string &fileName
         }
         try
         {
-            auto name = tmp[0];
+            auto name = util::string::toLower(tmp[0]);
             auto damage = std::stoi(tmp[1]);
             auto elems = util::string::split(tmp[2], '|');
             if (elems.size() != 5)
@@ -204,8 +204,8 @@ std::vector<Gear::Weapon> Gear::Armoury::loadWeapons(const std::string &fileName
             elementalDamage.Shock = std::stoi(elems[2]);
             elementalDamage.Radiant = std::stoi(elems[3]);
             elementalDamage.Umbral = std::stoi(elems[4]);
-            Skill skill1(tmp[3], std::stoi(tmp[4]));
-            Skill skill2(tmp[5], std::stoi(tmp[6]));
+            Skill skill1(util::string::toLower(tmp[3]), std::stoi(tmp[4]));
+            Skill skill2(util::string::toLower(tmp[5]), std::stoi(tmp[6]));
             SkillType cellType1 = (SkillType)std::stoi(tmp[7]);
             SkillType cellType2 = (SkillType)std::stoi(tmp[8]);
             weapons.push_back(
