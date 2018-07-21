@@ -91,3 +91,10 @@ std::string ArmourSetSearch::toString(const Dictionary &dict)
 }
 
 const std::vector<Gear::ArmourSet> &ArmourSetSearch::getArmourSets() const { return armourSets; }
+
+void ArmourSetSearch::setAvaiableCells(Gear::CellList availableCells)
+{
+    this->availableCells = std::move(availableCells);
+}
+
+const std::vector<Gear::Skill> &ArmourSetSearch::getWantedSkills() const { return wantedSkills; }

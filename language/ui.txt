@@ -34,7 +34,6 @@ label_head_armour;Head Armours
 label_torsos_armour;Torso Armours
 label_arms_armour;Arm Armours
 label_legs_armour;Leg Armours
-label_cells;Cells
 button_cancel;Cancel
 title_advanced_search;Advanced Search
 menu_help;Help

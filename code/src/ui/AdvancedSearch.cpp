@@ -16,7 +16,6 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     ui->labelTorsos->setText(getTranslation(dict, "label_torsos_armour"));
     ui->labelArms->setText(getTranslation(dict, "label_arms_armour"));
     ui->labelLegs->setText(getTranslation(dict, "label_legs_armour"));
-    ui->labelCells->setText(getTranslation(dict, "label_cells"));
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
 
@@ -35,7 +34,6 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
     ui->listWidgetTorsos->clear();
     ui->listWidgetArms->clear();
     ui->listWidgetLegs->clear();
-    ui->listWidgetCells->clear();
     for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType))
     {
         auto checkbox = new QCheckBox();
@@ -56,49 +54,11 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
     addArmours(Gear::ArmourType::Arms, ui->listWidgetArms);
     addArmours(Gear::ArmourType::Legs, ui->listWidgetLegs);
 
-    ui->listWidgetCells->setStyleSheet("QListWidget::item { border-bottom: 1px solid black; }");
-    for (const auto &skill : wantedSkills)
-    {
-        auto layout = new QGridLayout();
-        auto widget = new QWidget();
-        widget->setLayout(layout);
-        auto label = new QLabel();
-        label->setText(getTranslation(dict, skill.getName()));
-        layout->addWidget(label, 0, 0, 1, 2);
-        int row = 1;
-        for (int i = 3; i > 0; --i)
-        {
-            Gear::Cell cell(Gear::Skill(skill.getName(), i),
-                            armoury.getSkillInfoFor(skill.getName()).getType());
-
-            auto spinBox = new QSpinBox();
-            cells.insert({spinBox, cell});
-            layout->addWidget(spinBox, row, 1);
-            spinBox->setMinimum(0);
-            if (options.cells.count(cell) > 0)
-                spinBox->setValue(options.cells.at(cell));
-            else
-                spinBox->setValue(6 / cell.getSkill().getSkillPoints());
-
-            auto label = new QLabel();
-            std::stringstream ss;
-            ss << "+" << i;
-            label->setText(QString::fromStdString(ss.str()));
-            layout->addWidget(label, row, 0);
-
-            ++row;
-            connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-                    [this, cell](int value) { options.cells[cell] = value; });
-        }
-        addItem(widget, ui->listWidgetCells);
-    }
-
     ui->listWidgetWeapons->setMinimumWidth(ui->listWidgetWeapons->sizeHintForColumn(0));
     ui->listWidgetHeads->setMinimumWidth(ui->listWidgetHeads->sizeHintForColumn(0));
     ui->listWidgetTorsos->setMinimumWidth(ui->listWidgetTorsos->sizeHintForColumn(0));
     ui->listWidgetArms->setMinimumWidth(ui->listWidgetArms->sizeHintForColumn(0));
     ui->listWidgetLegs->setMinimumWidth(ui->listWidgetLegs->sizeHintForColumn(0));
-    ui->listWidgetCells->setMinimumWidth(ui->listWidgetCells->sizeHintForColumn(0));
 }
 
 void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
@@ -147,9 +107,6 @@ void AdvancedSearch::search()
     std::vector<Gear::Armour> torsos = getArmour(Gear::ArmourType::Torso);
     std::vector<Gear::Armour> arms = getArmour(Gear::ArmourType::Arms);
     std::vector<Gear::Armour> legs = getArmour(Gear::ArmourType::Legs);
-    Gear::CellList cells;
-    for (const auto &cell : this->cells)
-        cells += cell.second * cell.first->value();
     close();
-    emit(armourSetSearch(ArmourSetSearch(weapons, heads, torsos, arms, legs, wantedSkills, cells)));
+    emit(armourSetSearch(ArmourSetSearch(weapons, heads, torsos, arms, legs, wantedSkills)));
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>856</width>
-    <height>433</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
        <item>
         <widget class="QListWidget" name="listWidgetWeapons">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -56,7 +56,7 @@
        <item>
         <widget class="QListWidget" name="listWidgetHeads">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -84,7 +84,7 @@
        <item>
         <widget class="QListWidget" name="listWidgetTorsos">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -112,7 +112,7 @@
        <item>
         <widget class="QListWidget" name="listWidgetArms">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -140,35 +140,7 @@
        <item>
         <widget class="QListWidget" name="listWidgetLegs">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="Line" name="line_5">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QLabel" name="labelCells">
-         <property name="text">
-          <string>Cells</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="listWidgetCells">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>

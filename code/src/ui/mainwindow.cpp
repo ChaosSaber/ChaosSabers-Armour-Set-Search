@@ -7,6 +7,7 @@
 #include "ui/Translation.hpp"
 #include "ui/mainwindow.hpp"
 #include "ui_mainwindow.h"
+#include <iostream>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -141,21 +142,8 @@ void MainWindow::search()
     std::vector<Gear::Skill> wantedSkills = getWantedSkills();
     if (wantedSkills.empty())
         return;
-    Gear::CellList cells;
-    for (auto skill : wantedSkills)
-    {
-        cells += Gear::Cell(Gear::Skill(skill.getName(), 3),
-                            armoury.getSkillInfoFor(skill.getName()).getType()) *
-                 2;
-        cells += Gear::Cell(Gear::Skill(skill.getName(), 2),
-                            armoury.getSkillInfoFor(skill.getName()).getType()) *
-                 3;
-        cells += Gear::Cell(Gear::Skill(skill.getName(), 1),
-                            armoury.getSkillInfoFor(skill.getName()).getType()) *
-                 6;
-    }
     armourSetSearch(ArmourSetSearch(
-        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills, cells));
+        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills));
 }
 
 void MainWindow::advancedSearch()
@@ -169,7 +157,29 @@ void MainWindow::advancedSearch()
 }
 
 void MainWindow::armourSetSearch(ArmourSetSearch &ass)
-{
+{   
+    Gear::CellList cells;
+    for (const auto &skill : ass.getWantedSkills())
+    {
+        for (size_t i = 1; i <= 3; ++i)
+        {
+            Gear::Cell cell(Gear::Skill(skill.getName(), i),
+                            armoury.getSkillTypeFor(skill.getName()));
+            if (options.cellUsage == 0) // bestCells
+            {
+                cells += cell * (6 / i);
+            }
+            else if (options.cellUsage == 1) // own cells
+            {
+                cells += cell * options.cells[cell];
+            }
+            else
+            {
+                std::cout << "unknown cell usage option" << options.cellUsage;
+            }
+        }
+    }
+    ass.setAvaiableCells(cells);
     setSearchButtonsState(false);
     ass.search(armoury, [this](unsigned long long count, unsigned long long max) {
         ui->progressBarSearch->setValue(100 * count / max);
