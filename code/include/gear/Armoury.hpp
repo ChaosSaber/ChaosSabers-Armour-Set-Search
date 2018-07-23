@@ -19,10 +19,14 @@ class Armoury
     std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type) const;
     const Armour &getArmour(std::string name) const;
     const Weapon &getWeapon(std::string name) const;
+
+    // returns the skill info to all skills of the specified type
+    // filters out unique skills
     std::vector<const SkillInfo *> getSkills(SkillType filter) const;
     SkillType getSkillTypeFor(const std::string &skillName) const;
 
   private:
+    Skill getSkill(const std::string &name, const std::string &points);
     std::vector<Weapon> loadWeapons(const std::string &fileName, WeaponType type);
     std::vector<Armour> loadArmour(const std::string &fileName, ArmourType type);
     std::vector<SkillInfo> loadSkillInfos(const std::string &fileName);

@@ -5,6 +5,7 @@
 
 Gear::Armoury::Armoury() : notFound("", None)
 {
+    skillInfos = loadSkillInfos("data/Skills.txt");
     weapons[Sword] = loadWeapons("data/Swords.txt", Sword);
     weapons[Hammer] = loadWeapons("data/Hammer.txt", Hammer);
     weapons[Chainblades] = loadWeapons("data/Chainblades.txt", Chainblades);
@@ -14,7 +15,6 @@ Gear::Armoury::Armoury() : notFound("", None)
     armours[Torso] = loadArmour("data/Torsos.txt", Torso);
     armours[Arms] = loadArmour("data/Arms.txt", Arms);
     armours[Legs] = loadArmour("data/Legs.txt", Legs);
-    skillInfos = loadSkillInfos("data/Skills.txt");
 }
 
 const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) const
@@ -149,9 +149,14 @@ std::vector<Gear::Armour> Gear::Armoury::loadArmour(const std::string &fileName,
             elementalResistance.Shock = std::stoi(elems[2]);
             elementalResistance.Radiant = std::stoi(elems[3]);
             elementalResistance.Umbral = std::stoi(elems[4]);
-            Skill skill1(util::string::toLowerCopy(tmp[3]), std::stoi(tmp[4]));
-            Skill skill2(util::string::toLowerCopy(tmp[5]), std::stoi(tmp[6]));
+            Skill skill1 = getSkill(tmp[3], tmp[4]);
+            Skill skill2 = getSkill(tmp[5], tmp[6]);
             SkillType cellType = (SkillType)std::stoi(tmp[7]);
+            if (cellType < None || cellType >= Unique)
+            {
+                std::cout << "unknwon cell type: " << line << std::endl;
+                continue;
+            }
             armours.push_back(
                 Armour(type, name, defense, elementalResistance, skill1, skill2, cellType));
         }
@@ -204,8 +209,9 @@ std::vector<Gear::Weapon> Gear::Armoury::loadWeapons(const std::string &fileName
             elementalDamage.Shock = std::stoi(elems[2]);
             elementalDamage.Radiant = std::stoi(elems[3]);
             elementalDamage.Umbral = std::stoi(elems[4]);
-            Skill skill1(util::string::toLowerCopy(tmp[3]), std::stoi(tmp[4]));
-            Skill skill2(util::string::toLowerCopy(tmp[5]), std::stoi(tmp[6]));
+            
+            Skill skill1 = getSkill(tmp[3], tmp[4]);
+            Skill skill2 = getSkill(tmp[5], tmp[6]);
             SkillType cellType1 = (SkillType)std::stoi(tmp[7]);
             SkillType cellType2 = (SkillType)std::stoi(tmp[8]);
             weapons.push_back(
@@ -229,7 +235,7 @@ std::vector<const Gear::SkillInfo *> Gear::Armoury::getSkills(SkillType filter) 
 {
     std::vector<const SkillInfo *> skills;
     for (const auto &skill : skillInfos)
-        if (filter == None || filter == skill.getType())
+        if ((filter == None && skill.getType() != SkillType::Unique) || filter == skill.getType())
             skills.push_back(&skill);
     return skills;
 }
@@ -261,4 +267,10 @@ const Gear::Weapon &Gear::Armoury::getWeapon(std::string name) const
     std::stringstream ss;
     ss << "There is no weapon with the key " << name;
     throw std::exception(ss.str().c_str());
+}
+
+Gear::Skill Gear::Armoury::getSkill(const std::string &name, const std::string &points)
+{
+    auto skillName = util::string::toLowerCopy(name);
+    Skill skill1(skillName, std::stoi(points), getSkillTypeFor(skillName) == SkillType::Unique);
 }

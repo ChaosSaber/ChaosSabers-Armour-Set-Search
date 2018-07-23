@@ -20,6 +20,8 @@ CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dic
     ui->scrollAreaCells->setWidget(widget);
     for (const auto &skill : armoury.getSkills(Gear::SkillType::None))
     {
+        if (skill->getType() == Gear::SkillType::Unique)
+            continue; // no cells for unique skills
         auto layout = new QGridLayout();
         auto widget = new QWidget();
         widget->setLayout(layout);

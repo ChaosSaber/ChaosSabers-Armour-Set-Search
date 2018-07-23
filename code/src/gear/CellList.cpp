@@ -52,6 +52,9 @@ int Gear::CellList::getOptimalCellLevel(const Skill &skill, int existingSkillpoi
     switch (skill.getSkillPoints() - existingSkillpoints)
     {
     case 6:
+        // 3 level 2 cells are cheaper then one of each cell level
+        if (levels[3] < 2 && levels[2] >= 3)
+            return 2;
     case 5: return getHighestCellLevel(levels, skill.getSkillPoints() - existingSkillpoints); break;
     case 4:
         // for 4 Skill points we need anyway 2 cells, so we try to use 2 level 2 cells instead of a

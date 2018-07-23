@@ -88,7 +88,14 @@ void Dictionary::loadLanguage(const std::string &language)
                 coloumn = 1; // load English as default
             if (tmp[coloumn].empty() || tmp[0].empty())
                 continue;
-            dict[util::string::toLowerCopy(tmp[0])] = tmp[coloumn];
+            dict[util::string::toLowerCopy(tmp[0])] = exchangeSpecialCharacter(tmp[coloumn]);
         }
     }
+}
+
+std::string Dictionary::exchangeSpecialCharacter(std::string str)
+{
+    util::string::replace(str, "\\n", "\n");
+    util::string::replace(str, "\\t", "\t");
+    return str;
 }

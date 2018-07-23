@@ -109,4 +109,6 @@ void AdvancedSearch::search()
     std::vector<Gear::Armour> legs = getArmour(Gear::ArmourType::Legs);
     close();
     emit(armourSetSearch(ArmourSetSearch(weapons, heads, torsos, arms, legs, wantedSkills)));
+    // TODO: return with accepted and rejected
+    // and then let the mainwindow acces the ass with a method
 }

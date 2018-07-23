@@ -20,3 +20,23 @@ std::string util::string::toLowerCopy(std::string str)
     toLower(str);
     return str;
 }
+
+// taken from SO: https://stackoverflow.com/a/4643526
+void util::string::replace(std::string &str, const std::string &subString,
+                           const std::string &replaceString)
+{
+    size_t index = 0;
+    while (true)
+    {
+        /* Locate the substring to replace. */
+        index = str.find(subString, index);
+        if (index == std::string::npos)
+            break;
+
+        /* Make the replacement. */
+        str.replace(index, subString.length(), replaceString);
+
+        /* Advance index forward so the next iteration doesn't pick it up as well. */
+        index += replaceString.length();
+    }
+}

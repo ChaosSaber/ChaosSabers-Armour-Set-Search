@@ -26,9 +26,10 @@ std::vector<std::string> split(const std::string &s, char delim);
 
 bool isComment(const std::string &line);
 
- void toLower(std::string &str);
+void toLower(std::string &str);
 std::string toLowerCopy(std::string str);
 
+void replace(std::string &str, const std::string &subString, const std::string &replaceString);
 
 } // namespace string
 } // namespace util

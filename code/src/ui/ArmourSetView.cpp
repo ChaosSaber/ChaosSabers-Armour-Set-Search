@@ -4,7 +4,8 @@
 #include <QLabel>
 #include <sstream>
 
-ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set, QWidget *parent)
+ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
+                             const Gear::Armoury &armoury, QWidget *parent)
     : QWidget(parent), ui(new Ui::ArmourSetView), dict(dict)
 {
     ui->setupUi(this);
@@ -22,9 +23,31 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
 
     auto skills = set.getSkills();
     skills.sort();
+    std::vector<Gear::Skill> uniqueSkills;
     for (const auto &skill : skills)
+    {
+        if (armoury.getSkillTypeFor(skill.getName()) == Gear::SkillType::Unique)
+        {
+            uniqueSkills.push_back(skill);
+        }
+        else
         if (skill.getSkillPoints() > 0)
             addSkill(skill);
+    }
+    if (uniqueSkills.size() > 0)
+    {
+        auto label = new QLabel();
+        label->setText(getTranslation(dict, "label_unique_effects"));
+        ui->verticalLayoutSkills->addWidget(label);
+        for (const auto &skill : uniqueSkills)
+        {
+            auto label = new QLabel();
+            label->setText(getTranslation(dict, skill.getName()));
+            label->setWordWrap(true);
+            label->setIndent(10);
+            ui->verticalLayoutSkills->addWidget(label);
+        }
+    }
 }
 
 ArmourSetView::~ArmourSetView() { delete ui; }

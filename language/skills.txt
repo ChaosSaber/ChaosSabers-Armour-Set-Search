@@ -40,3 +40,23 @@ vampiric;Vampiric
 warmth;Warmth
 weighted_strikes;Weighted Strikes
 wild_frenzy;Wild Frenzy
+unique_shockjaw_scp;5% Lifesteal vs wounded parts
+unique_shockjaw_h;Heal for 300 whenever a behemoth is staggered
+unique_shockjaw_a;Heal for 200 on perfectly charged vertical attacks
+unique_razorwing_a;Combo finishers deal 200 bonus damage
+unique_razorwing_h;Restore 30 stamina after reloading a shell
+unique_bloodfire_a;The 4th hit in a row deals +250 part damage
+unique_bloodfire_c;The 10th hit in a row deals +150 part damage
+unique_bloodfire_h1;The 5th hit in a row deals +150% stagger damage
+unique_bloodfire_h2;25% Attack speed for 8 seconds after landing a hammer blast
+unique_bloodfire_s;The 7th hit in a row deals +250% part damage
+unique_bloodfire_p1;The 7th hit in a row deals +300 wound damage
+unique_bloodfire_p2;30% Attack speed for 4-10 seconds after landing a missile
+unique_moonreaver;+60 Part damage on next hit after a dodge
+unique_rezakiri2;10% chance for attacks to Hit twice
+unique_rezakiri_s;The 7th hit in a row deals +200% part damage
+unique_rezakiri_h;The 5th hit in a row deals +100% stagger damage
+unique_rezakiri_c;The 10th hit in a row deals +150 Part damage
+unique_rezakiri_a;The 4th hit in a row deals +150 Part damage
+unique_rezakiri_p;The 7th hit in a row deals +200 Wound damage
+unique_shrowd;When under 20% health, deal 150% damage

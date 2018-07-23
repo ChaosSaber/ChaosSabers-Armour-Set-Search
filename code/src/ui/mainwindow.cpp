@@ -171,10 +171,12 @@ void MainWindow::armourSetSearch(ArmourSetSearch &ass)
     Gear::CellList cells;
     for (const auto &skill : ass.getWantedSkills())
     {
+        auto type = armoury.getSkillTypeFor(skill.getName());
+        if (type == Gear::SkillType::Unique)
+            continue; // no cells for unique skills
         for (int i = 1; i <= 3; ++i)
         {
-            Gear::Cell cell(Gear::Skill(skill.getName(), i),
-                            armoury.getSkillTypeFor(skill.getName()));
+            Gear::Cell cell(Gear::Skill(skill.getName(), i), type);
             if (options.cellUsage == 0) // bestCells
             {
                 cells += cell * (6 / i);
@@ -244,7 +246,7 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
         if (count > options.numberOfResults)
             break;
         auto item = new QListWidgetItem();
-        auto view = new ArmourSetView(dict, set);
+        auto view = new ArmourSetView(dict, set, armoury);
         item->setSizeHint(view->sizeHint());
         ui->listWidgetArmourSets->addItem(item);
         ui->listWidgetArmourSets->setItemWidget(item, view);

@@ -18,7 +18,6 @@ power;Power
 sword;Sword
 technique;Technique
 utility;Utility
-unique;Unique skill(Placeholder)
 free_power_cell_slot;free Power cell slot
 free_technique_cell_slot;free Technique cell slot
 free_mobility_cell_slot;free Mobility cell slot
@@ -62,3 +61,4 @@ update_failed;Searching for updates failed
 update_current_version;You have the current version
 update_new_version;There is a new version available
 menu_clear_skills;Clear Search
+label_unique_effects;Unique effects:

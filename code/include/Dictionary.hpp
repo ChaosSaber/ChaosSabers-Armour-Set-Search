@@ -13,6 +13,7 @@ class Dictionary
     void loadLanguage(const std::string &language);
 
   private:
+    std::string exchangeSpecialCharacter(std::string str);
     std::unordered_map<std::string, std::string> dict;
     std::unordered_map<std::string, int> languages;
 };

@@ -26,4 +26,4 @@ you have two possibilities
 ## Building the program
 - This software use cmake to organize the building process
 - It needs Qt to be compiled
-- It needs openssl to be executed
+- It needs openssl to be executed (optional only feature which use this is the check if a new version is available)

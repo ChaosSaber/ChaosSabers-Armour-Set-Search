@@ -1,0 +1,30 @@
+Version 0.9.1: 21.07.2018:
+- removed the cells from the advanced search to an dedicated window
+- added exporting and importing of your cells
+- new search option: use your own cells or best cells
+- programm now automatically searches for updates and notifies the user
+
+Version 0.9.0: 13.07.2018:
+- Added saving and loading of searches
+- if you open the programm it will now display the last search
+
+Version 0.8.4: 05.07.2018:
+- improved the cell window in the advanced search
+	- if none cell counts are saved yet a standard value will be used
+- all columns in the advanced search now start with their minimum size
+
+Version 0.8.3: 04.07.2018:
+- added the missing DLLs properly into the packaging process
+- added tooltip for weapons and armor to display skills and cell slots
+
+Version 0.8.2.1: 03.07.2018
+- quick fix adding missing DLLs manually
+
+Version 0.8.2: 03.07.2018
+- renamed application
+
+Version 0.8.1: 02.07.2018
+- adapted the update link to the github download page
+
+Version 0.8.0: 02.07.2018
+-initial release

@@ -1,4 +1,4 @@
-#name;Skill type(1:Power, 2:Technique, 3:Mobility, 4:Defense, 5:Utility)
+#name;Skill type(1:Power, 2:Technique, 3:Mobility, 4:Defense, 5:Utility, 6:Unique skill)
 acidic;2
 aetherborne;5
 aetherhunter;1
@@ -40,3 +40,23 @@ vampiric;5
 warmth;4
 weighted_strikes;2
 wild_frenzy;2
+unique_shockjaw_scp;6
+unique_shockjaw_h;6
+unique_shockjaw_a;6
+unique_razorwing_a;6
+unique_razorwing_h;6
+unique_bloodfire_a;6
+unique_bloodfire_c;6
+unique_bloodfire_h1;6
+unique_bloodfire_h1;6
+unique_bloodfire_s;6
+unique_bloodfire_p1;6
+unique_bloodfire_p2;6
+unique_moonreaver;6
+unique_rezakiri2;6
+unique_rezakiri_s;6
+unique_rezakiri_h;6
+unique_rezakiri_c;6
+unique_rezakiri_a;6
+unique_rezakiri_p;6
+unique_shrowd;6
