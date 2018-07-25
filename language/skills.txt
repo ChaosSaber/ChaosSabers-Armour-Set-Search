@@ -60,3 +60,8 @@ unique_rezakiri_c;The 10th hit in a row deals +150 Part damage
 unique_rezakiri_a;The 4th hit in a row deals +150 Part damage
 unique_rezakiri_p;The 7th hit in a row deals +200 Wound damage
 unique_shrowd;When under 20% health, deal 150% damage
+unique_hunger_1;Deal up to 25% increased damage as your meter increases.
+unique_hunger_2;Activate at max meter to enter Feast, dealing 75% increased damage for 15 seconds, but taking damage after each hit.\nActivate again during Feast to unleash an Umbral attack that can regain lost health. 
+unique_godhand;Channel a beam that deals increasing damage, up to 200%, while it continues to hit a target.
+unique_tragic_echo;Upon your first death, become a shadow clone that deals 100% increased damage for 15 seconds.
+unique_prismatic_graze;After reviving another player, grant them a Radiant Prism that blocks incoming damage for 5 seconds.\nThe first time you take lethal damage, gain a Radiant Prism that blocks incoming damage for 10 seconds.\nWhile active, reviving another player fully restores both players but removes the Prism even at full danger. 

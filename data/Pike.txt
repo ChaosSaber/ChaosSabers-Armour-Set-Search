@@ -9,4 +9,5 @@ bloodfire_pike_heroic;430;40|0|0|0|0;unique_bloodfire_p1;1;unique_bloodfire_p2;1
 moonreaver_pike_heroic;430;0|0|0|0|0;evasive_fury;1;unique_moonreaver;2;2;3
 rezakiri_pike_heroic;430;0|0|0|40|0;unique_rezakiri_p;1;unique_rezakiri2;2;2;1
 shrowd_pike_heroic;430;0|0|0|0|40;cunning;3;unique_shrowd;1;2;5
+godhand;430;0|0|0|40|0;unique_godhand;1;;;1;2
 #;430;0|0|0|0|0;;;;;;

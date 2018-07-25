@@ -39,11 +39,12 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
                                        Gear::SkillType::None));
 }
 
-void ArmourSetSearch::search(const Gear::Armoury &armoury,
-                             std::function<void(unsigned long long, unsigned long long)> progress)
+void ArmourSetSearch::search(const Gear::Armoury &armoury, bool *cancel,
+                             std::function<void(int)> progress)
 {
     // TODO: maximum number of found sets to prevent out of memory
-    // TODO: cancel function
+    progress(0);
+    int lastProgress = 0;
     unsigned long long numberOfCombinations =
         heads.size() * torsos.size() * arms.size() * legs.size() * weapons.size();
     unsigned long long count = 0;
@@ -53,10 +54,16 @@ void ArmourSetSearch::search(const Gear::Armoury &armoury,
                 for (const auto &leg : legs)
                     for (const auto &weapon : weapons)
                     {
+                        if (*cancel)
+                            return;
                         checkSet(Gear::ArmourSet(head, torso, arm, leg, weapon), armoury);
                         ++count;
-                        if (progress)
-                            progress(count, numberOfCombinations);
+                        int currentProgress = 100 * count / numberOfCombinations;
+                        if (currentProgress != lastProgress)
+                        {
+                            progress(currentProgress);
+                            lastProgress = currentProgress;
+                        }
                     }
 }
 
@@ -98,3 +105,5 @@ void ArmourSetSearch::setAvaiableCells(Gear::CellList availableCells)
 }
 
 const std::vector<Gear::Skill> &ArmourSetSearch::getWantedSkills() const { return wantedSkills; }
+
+std::vector<Gear::ArmourSet> &&ArmourSetSearch::moveArmourSets() { return std::move(armourSets); }

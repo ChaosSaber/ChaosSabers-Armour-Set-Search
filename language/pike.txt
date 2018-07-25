@@ -9,3 +9,4 @@ bloodfire_pike_heroic;Bloodfire Pike
 moonreaver_pike_heroic;Moonpike
 rezakiri_pike_heroic;Rezakiller
 shrowd_pike_heroic;Shrowdpike
+godhand;The Godhand

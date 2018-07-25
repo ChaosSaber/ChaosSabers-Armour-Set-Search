@@ -7,6 +7,7 @@
 #include "gear/Armoury.hpp"
 #include "ui/SkillSelector.hpp"
 #include <QComboBox>
+#include <QFutureWatcher>
 #include <QMainWindow>
 #include <unordered_map>
 
@@ -25,6 +26,14 @@ class MainWindow : public QMainWindow
   public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void closeEvent(QCloseEvent *event) override;
+
+  private slots:
+    void setProgress(int progress);
+    void finishedSearch(ArmourSetSearch *ass);
+  signals:
+    void setProgressMainThread(int progress);
+    void finishedSearchMainThread(ArmourSetSearch *ass);
 
   private:
     void setupTranslation();
@@ -32,7 +41,7 @@ class MainWindow : public QMainWindow
     void search();
     void advancedSearch();
     void setSearchButtonsState(bool enable);
-    void armourSetSearch(ArmourSetSearch &ass);
+    void armourSetSearch(ArmourSetSearch *ass);
     void setNumberOfResults(QAction *action);
     void setLanguage(QAction *action);
     void about();
@@ -51,6 +60,8 @@ class MainWindow : public QMainWindow
     Gear::Armoury armoury;
     std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> skills;
     QNetworkAccessManager *manager = NULL;
+    bool cancel = false;
+    QFutureWatcher<void> *searchWatcher = new QFutureWatcher<void>();
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP

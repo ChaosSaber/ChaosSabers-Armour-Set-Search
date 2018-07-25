@@ -9,13 +9,21 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSettings>
 #include <QUrl>
+#include <QtConcurrent>
 #include <iostream>
 #include <sstream>
+
+#define ORG "Chaos Org."
+#define APP_NAME "ChaosSaber's ASS"
+#define GEOMETRY "mainWindowGeometry"
+#define STATE "mainWindowState"
 
 MainWindow::~MainWindow()
 {
@@ -23,12 +31,17 @@ MainWindow::~MainWindow()
     options.save();
     if (manager)
         delete manager;
+    delete searchWatcher;
     delete ui;
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QSettings settings(ORG, APP_NAME);
+    restoreGeometry(settings.value(GEOMETRY).toByteArray());
+    // create docks, toolbars, etc…
+    restoreState(settings.value(STATE).toByteArray());
     options.load(armoury);
     dict.loadLanguage(options.language);
     setupTranslation();
@@ -57,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
     connect(ui->pushButtonAdvancedSearch, &QPushButton::clicked, [this]() { advancedSearch(); });
+    connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { cancel = true; });
 
     ui->listWidgetArmourSets->setStyleSheet(
         "QListWidget::item { border-bottom: 1px solid black; }");
@@ -105,6 +119,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
+    ui->widgetSearch->setMaximumWidth(ui->widgetSearch->sizeHint().width() * 1.1);
+
+    connect(this, &MainWindow::setProgressMainThread, this, &MainWindow::setProgress);
+    connect(this, &MainWindow::finishedSearchMainThread, this, &MainWindow::finishedSearch);
 }
 
 void MainWindow::setupTranslation()
@@ -131,6 +149,7 @@ void MainWindow::setupTranslation()
     ui->groupBoxCells->setTitle(getTranslation(dict, "label_cells"));
     ui->pushButtonOrganizeCells->setText(getTranslation(dict, "button_organize"));
     ui->actionClearSkills->setText(getTranslation(dict, "menu_clear_skills"));
+    ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -145,6 +164,7 @@ void MainWindow::setSearchButtonsState(bool enable)
 {
     ui->pushButtonSearch->setEnabled(enable);
     ui->pushButtonAdvancedSearch->setEnabled(enable);
+    ui->pushButtonCancel->setEnabled(!enable);
 }
 
 void MainWindow::search()
@@ -152,7 +172,7 @@ void MainWindow::search()
     std::vector<Gear::Skill> wantedSkills = getWantedSkills();
     if (wantedSkills.empty())
         return;
-    armourSetSearch(ArmourSetSearch(
+    armourSetSearch(new ArmourSetSearch(
         armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills));
 }
 
@@ -161,15 +181,15 @@ void MainWindow::advancedSearch()
     AdvancedSearch search((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
                           options, getWantedSkills(), this);
     connect(&search, &AdvancedSearch::armourSetSearch, this,
-            [this](ArmourSetSearch ass) { armourSetSearch(ass); });
+            [this](ArmourSetSearch *ass) { armourSetSearch(ass); });
     search.setModal(true);
     search.exec();
 }
 
-void MainWindow::armourSetSearch(ArmourSetSearch &ass)
+void MainWindow::armourSetSearch(ArmourSetSearch *ass)
 {
     Gear::CellList cells;
-    for (const auto &skill : ass.getWantedSkills())
+    for (const auto &skill : ass->getWantedSkills())
     {
         auto type = armoury.getSkillTypeFor(skill.getName());
         if (type == Gear::SkillType::Unique)
@@ -191,14 +211,16 @@ void MainWindow::armourSetSearch(ArmourSetSearch &ass)
             }
         }
     }
-    ass.setAvaiableCells(cells);
+    ass->setAvaiableCells(cells);
     setSearchButtonsState(false);
-    ass.search(armoury, [this](unsigned long long count, unsigned long long max) {
-        ui->progressBarSearch->setValue(100 * count / max);
-    });
-    showArmourSets(ass.getArmourSets());
-    options.armourSets = ass.getArmourSets();
-    setSearchButtonsState(true);
+    cancel = false;
+    connect(searchWatcher, &QFutureWatcher<void>::finished,
+            [this, ass]() { emit finishedSearchMainThread(ass); });
+    using namespace std::placeholders;
+    QFuture<void> future =
+        QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancel,
+                          [this](int progress) { emit setProgressMainThread(progress); });
+    searchWatcher->setFuture(future);
 }
 
 void MainWindow::setNumberOfResults(QAction *caller)
@@ -354,4 +376,23 @@ void MainWindow::clearSearch()
     options.checkedGear.clear();
     options.armourSets.clear();
     ui->listWidgetArmourSets->clear();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings(ORG, APP_NAME);
+    settings.setValue(GEOMETRY, saveGeometry());
+    settings.setValue(STATE, saveState());
+    QWidget::closeEvent(event);
+}
+
+void MainWindow::setProgress(int progress) { ui->progressBarSearch->setValue(progress); }
+
+void MainWindow::finishedSearch(ArmourSetSearch *ass)
+{
+    options.armourSets = ass->getArmourSets();
+    delete ass;
+    showArmourSets(options.armourSets);
+    setSearchButtonsState(true);
+    searchWatcher->disconnect();
 }

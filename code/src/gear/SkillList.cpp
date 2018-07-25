@@ -36,6 +36,8 @@ std::vector<Gear::Skill>::const_iterator Gear::SkillList::end() const { return s
 
 const Gear::SkillList &Gear::SkillList::operator+=(const Skill &skill)
 {
+    if (skill.getName() == "")
+        return *this;
     for (auto &skill_ : skills)
     {
         if (skill_.getName() == skill.getName())

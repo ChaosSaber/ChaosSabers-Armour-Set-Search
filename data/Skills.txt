@@ -60,3 +60,8 @@ unique_rezakiri_c;6
 unique_rezakiri_a;6
 unique_rezakiri_p;6
 unique_shrowd;6
+unique_hunger_1;6
+unique_hunger_2;6
+unique_godhand;6
+unique_tragic_echo;6
+unique_prismatic_graze;6

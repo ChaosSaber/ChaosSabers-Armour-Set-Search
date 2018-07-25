@@ -9,4 +9,5 @@ bloodfire_sword_heroic;430;40|0|0|0|0;wild_frenzy;1;unique_bloodfire_s;1;2;3
 moonreaver_sword_heroic;430;0|0|0|0|0;evasive_fury;1;unique_moonreaver;2;3;3
 rezakiri_sword_heroic;430;0|0|0|40|0;unique_rezakiri_s;1;unique_rezakiri2;2;2;5
 shrowd_sword_heroic;430;0|0|0|0|40;cunning;3;unique_shrowd;1;1;5
+hunger;430;0|0|0|0|40;unique_hunger_1;1;unique_hunger_1;1;1;5
 #;430;0|0|0|0|0;;;;;;

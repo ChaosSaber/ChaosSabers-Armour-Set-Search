@@ -9,3 +9,4 @@ bloodfire_sword_heroic;Bloodfire Saber
 moonreaver_sword_heroic;Moonsaber
 rezakiri_sword_heroic;Rezakatana
 shrowd_sword_heroic;Shrowd Slicer
+hunger;The Hunger

@@ -35,9 +35,10 @@ class Weapon : public Gear
     CellList getCells() const override;
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
+    virtual bool hasUniqueSkill() const override;
 
-	const Cell &getCell1() const;
-	const Cell &getCell2() const;
+    const Cell &getCell1() const;
+    const Cell &getCell2() const;
 
   private:
     WeaponType type;

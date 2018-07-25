@@ -30,8 +30,7 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
         {
             uniqueSkills.push_back(skill);
         }
-        else
-        if (skill.getSkillPoints() > 0)
+        else if (skill.getSkillPoints() > 0)
             addSkill(skill);
     }
     if (uniqueSkills.size() > 0)
@@ -42,9 +41,13 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
         for (const auto &skill : uniqueSkills)
         {
             auto label = new QLabel();
-            label->setText(getTranslation(dict, skill.getName()));
-            label->setWordWrap(true);
+            auto content = getTranslation(dict, skill.getName());
+            QFontMetrics metrics(label->font());
+            QString elidedText = metrics.elidedText(content, Qt::ElideRight, width() * 0.4); // currently the armoursetview is divided 50/50 into skills and gear/cells
+            label->setText(elidedText);
+            //label->setWordWrap(true);
             label->setIndent(10);
+            label->setToolTip(content);
             ui->verticalLayoutSkills->addWidget(label);
         }
     }

@@ -6,7 +6,9 @@ razorwing_head_heroic;108;0|0|0|0|0;endurance;2;deconstruction;1;3
 frostback_head_heroic;108;-5|10|0|0|0;knockout_king;1;warmth;2;1
 bloodfire_head_heroic;108;10|0|-5|0|0;evasive_fury;1;fireproof;2;3
 deadeye_head_heroic;108;0|0|0|0|0;barbed;1;shellshock_resist;2;4
-shrowd_head_heroic;108;0|0|0|-5|10;rage;1;medic;2;1
-rezakiri_head_heroic;108;0|0|0|10|-5;cunning;1;energized;2;2
 moonreaver_head_heroic;108;0|0|0|0|0;evasion;2;weighted_strikes;1;2
+rezakiri_head_heroic;108;0|0|0|10|-5;cunning;1;energized;2;2
+shrowd_head_heroic;108;0|0|0|-5|10;rage;1;medic;2;1
+prismatic_graze;108;0|0|0|10|-5;unique_prismatic_graze;1;;;2
+tragic_echo;108;0|0|0|-5|10;unique_tragic_echo;1;;;1
 #;108;0|0|0|0|0;;;;;

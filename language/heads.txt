@@ -9,3 +9,5 @@ deadeye_head_heroic;Deadeye Mask
 shrowd_head_heroic;Shrowd Hood
 rezakiri_head_heroic;Reza Helm
 moonreaver_head_heroic;Reaver Crest
+prismatic_graze;Prismatic Grace
+tragic_echo;Tragic Echo

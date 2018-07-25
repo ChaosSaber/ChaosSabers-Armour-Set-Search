@@ -95,7 +95,7 @@ void Dictionary::loadLanguage(const std::string &language)
 
 std::string Dictionary::exchangeSpecialCharacter(std::string str)
 {
-    util::string::replace(str, "\\n", "\n");
+    util::string::replace(str, "\\n", "\n\r");
     util::string::replace(str, "\\t", "\t");
     return str;
 }

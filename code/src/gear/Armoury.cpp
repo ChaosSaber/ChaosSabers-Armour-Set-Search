@@ -272,5 +272,7 @@ const Gear::Weapon &Gear::Armoury::getWeapon(std::string name) const
 Gear::Skill Gear::Armoury::getSkill(const std::string &name, const std::string &points)
 {
     auto skillName = util::string::toLowerCopy(name);
-    Skill skill1(skillName, std::stoi(points), getSkillTypeFor(skillName) == SkillType::Unique);
+    if (skillName == "")
+        return Skill();
+    return  Skill(skillName, std::stoi(points), getSkillTypeFor(skillName) == SkillType::Unique);
 }

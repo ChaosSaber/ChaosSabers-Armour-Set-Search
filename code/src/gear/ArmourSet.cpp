@@ -1,4 +1,5 @@
 #include "gear/ArmourSet.hpp"
+#include <iostream>
 #include <sstream>
 
 Gear::ArmourSet::ArmourSet(Armour head, Armour torso, Armour arms, Armour legs, Weapon weapon,
@@ -27,13 +28,18 @@ void Gear::swap(ArmourSet &first, ArmourSet &second)
     swap(first.legs, second.legs);
     swap(first.weapon, second.weapon);
     swap(first.lantern, second.lantern);
-    swap(first.gear, second.gear);
 }
 
 Gear::ArmourSet &Gear::ArmourSet::operator=(ArmourSet other)
 {
     swap(*this, other);
     return *this;
+}
+
+Gear::ArmourSet::ArmourSet(ArmourSet &&other)
+    : ArmourSet(std::move(other.head), std::move(other.torso), std::move(other.arms),
+                std::move(other.legs), std::move(other.weapon), std::move(other.lantern))
+{
 }
 
 bool Gear::ArmourSet::hasFreeCellSlotFor(SkillType type) const
@@ -120,3 +126,11 @@ const Gear::Armour &Gear::ArmourSet::getLegs() const { return legs; }
 const Gear::Weapon &Gear::ArmourSet::getWeapon() const { return weapon; }
 
 const Gear::Cell &Gear::ArmourSet::getLantern() const { return lantern; }
+
+bool Gear::ArmourSet::hasUniqueSkill() const
+{
+    for (auto gear : this->gear)
+        if (gear->hasUniqueSkill())
+            return true;
+    return false;
+}

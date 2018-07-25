@@ -58,7 +58,10 @@ const std::string &Gear::Weapon::getName() const { return name; }
 std::string Gear::Weapon::getToolTip(const Dictionary &dict) const
 {
     std::stringstream ss;
-    ss << skill1.toString(dict) << std::endl << skill2.toString(dict) << std::endl;
+    if (skill1.getName() != "")
+        ss << skill1.toString(dict) << std::endl;
+    if (skill2.getName() != "")
+        ss << skill2.toString(dict) << std::endl;
     if (cell1.getCellType() == cell2.getCellType())
         ss << "2 " << dict.getTranslationFor(cellSlotToStringKey(cell1.getCellType()));
     else
@@ -69,3 +72,5 @@ std::string Gear::Weapon::getToolTip(const Dictionary &dict) const
 
 const Gear::Cell &Gear::Weapon::getCell1() const { return cell1; }
 const Gear::Cell &Gear::Weapon::getCell2() const { return cell2; }
+
+bool Gear::Weapon::hasUniqueSkill() const { return skill1.isUnique() || skill2.isUnique(); }

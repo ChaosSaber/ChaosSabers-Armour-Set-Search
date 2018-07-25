@@ -10,16 +10,17 @@ you have two possibilities
 - you can copy the settings.json and myCells.json files from your old installation over to your new installation (if they don't exist they were not yet created)
 
 ## Currently implemented
-- Search function: Input the Skills and Weapontype you want and the app searchs for possible armour combinations (it assumes you are standing in goodl relations to RNGesus)
-- Advanced search funtion: like normal search function but you can input what cells you have and filter out armour which is currently not in rotation
+- Search function: Input the Skills and Weapontype you want and the app searchs for possible armour combinations
+- Advanced search funtion: like normal search function but you can filter out armour which is currently not in rotation
 - Currently only supports heroic Maelstrom
 - Save/load of searches
 - manage your available cells
+- partly integrated unique skills (only in the search results)
 
 ## planned features 
-- maybe saving/loading of single sets
+- saving/loading/comparing of single sets
 - Sorting filtering of search results
-- Integrating unique skills
+- completely Integrate unique skills (search)
 - Add pre heroic Maelstrom equipment
 - maybe some kind of export function to something like https://www.dauntless-builder.com
 

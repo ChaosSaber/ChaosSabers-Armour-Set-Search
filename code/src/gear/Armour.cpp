@@ -59,8 +59,12 @@ const std::string &Gear::Armour::getName() const { return name; }
 std::string Gear::Armour::getToolTip(const Dictionary &dict) const
 {
     std::stringstream ss;
-    ss << skill1.toString(dict) << std::endl
-       << skill2.toString(dict) << std::endl
-       << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType()));
+    if (skill1.getName() != "")
+        ss << skill1.toString(dict) << std::endl;
+    if (skill2.getName() != "")
+        ss << skill2.toString(dict) << std::endl;
+    ss << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType()));
     return ss.str();
 }
+
+bool Gear::Armour::hasUniqueSkill() const { return skill1.isUnique() || skill2.isUnique(); }

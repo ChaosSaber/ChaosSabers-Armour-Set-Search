@@ -26,7 +26,7 @@ class AdvancedSearch : public QDialog
     ~AdvancedSearch();
     void set(Gear::WeaponType weaponType, std::vector<Gear::Skill> wantedSkills);
   signals:
-    void armourSetSearch(ArmourSetSearch &ass);
+    void armourSetSearch(ArmourSetSearch *ass);
 
   private:
     void addItem(QWidget *widget, QListWidget *list);

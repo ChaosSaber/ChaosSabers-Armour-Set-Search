@@ -16,6 +16,7 @@ class ArmourSet : public Gear
     ArmourSet(const ArmourSet &other);
     friend void swap(ArmourSet &first, ArmourSet &second);
     ArmourSet &operator=(ArmourSet other);
+    ArmourSet(ArmourSet &&other);
 
     /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
@@ -32,6 +33,7 @@ class ArmourSet : public Gear
     // returns the cells on the gear
     CellList getCells() const override;
     virtual std::string getToolTip(const Dictionary &dict) const override { return ""; }
+    virtual bool hasUniqueSkill() const override;
 
     const Armour &getHead() const;
     const Armour &getTorso() const;

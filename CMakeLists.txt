@@ -8,6 +8,7 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 SET(OPENSSL_ROOT_DIR ${OPENSSL_INCLUDE_DIR}\\..)
