@@ -1,3 +1,8 @@
+Version 0.9.2: 29.07.2018:
+- unique effect will now be properly displayed in the search results
+- implemented filtering of search results after the weapon and free cell slots
+- searches can now be canceled
+
 Version 0.9.1: 21.07.2018:
 - removed the cells from the advanced search to an dedicated window
 - added exporting and importing of your cells
