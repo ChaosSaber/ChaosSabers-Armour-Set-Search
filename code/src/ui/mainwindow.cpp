@@ -268,6 +268,7 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
     ui->comboBoxFilterFreeCells->addItem("");
     ui->comboBoxFilterWeapon->clear();
     ui->comboBoxFilterWeapon->addItem("");
+    filter.clear();
     std::stringstream ss;
     // TODO: add translation
     ss << "Found " << armoursets.size() << " Results";
@@ -468,4 +469,10 @@ void MainWindow::applyFilter()
         if (!hide)
             ++count;
     }
+}
+
+void Filter::clear()
+{
+    weapons.clear();
+    cellSlots.clear();
 }

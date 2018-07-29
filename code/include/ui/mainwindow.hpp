@@ -26,6 +26,7 @@ class Filter
   public:
     std::set<std::string> weapons;
     std::set<Gear::SkillType> cellSlots;
+    void clear();
 };
 
 class MainWindow : public QMainWindow
