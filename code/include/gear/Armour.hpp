@@ -18,6 +18,7 @@ class Armour : public Gear
   public:
     Armour(ArmourType type, std::string name, unsigned int defense, Elements elementalResistance,
            Skill skill1, Skill skill2, SkillType cellType);
+
     unsigned int getDefense() const;
     const Elements &getElementalResistance() const;
     bool hasSkill(const std::string &skill) const;

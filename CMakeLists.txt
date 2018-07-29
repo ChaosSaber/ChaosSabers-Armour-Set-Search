@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-Project(ChaosSabers-Armour-Set-Search VERSION 0.9.1 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.9.2 LANGUAGES CXX)
 ######## acquire QT
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
@@ -30,6 +30,10 @@ INSTALL(FILES ${SSL_EAY_DLL} ${LIB_EAY_DLL} DESTINATION .)
 add_subdirectory(code)
 install(DIRECTORY language data DESTINATION .)
 install(FILES README.md LICENSE LICENSE-3RD-PARTY Troubleshooting.txt Changelog.txt DESTINATION .)
+
+# SET(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
+# SET(CMAKE_INSTALL_UCRT_LIBRARIES ON)
+# include(InstallRequiredSystemLibraries)
 
 set(CPACK_GENERATOR "ZIP")
 set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})

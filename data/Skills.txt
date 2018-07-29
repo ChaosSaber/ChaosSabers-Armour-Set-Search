@@ -48,7 +48,7 @@ unique_razorwing_h;6
 unique_bloodfire_a;6
 unique_bloodfire_c;6
 unique_bloodfire_h1;6
-unique_bloodfire_h1;6
+unique_bloodfire_h2;6
 unique_bloodfire_s;6
 unique_bloodfire_p1;6
 unique_bloodfire_p2;6
@@ -65,3 +65,4 @@ unique_hunger_2;6
 unique_godhand;6
 unique_tragic_echo;6
 unique_prismatic_graze;6
+unique_bloodfire_h2;6

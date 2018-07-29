@@ -9,6 +9,7 @@
 #include <QComboBox>
 #include <QFutureWatcher>
 #include <QMainWindow>
+#include <set>
 #include <unordered_map>
 
 namespace Ui
@@ -18,6 +19,14 @@ class MainWindow;
 
 class QNetworkReply;
 class QNetworkAccessManager;
+class QListWidgetItem;
+
+class Filter
+{
+  public:
+    std::set<std::string> weapons;
+    std::set<Gear::SkillType> cellSlots;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -52,6 +61,7 @@ class MainWindow : public QMainWindow
     void loadSearch();
     void updateNetworkReply(QNetworkReply *);
     void clearSearch();
+    void applyFilter();
 
     Options options;
     std::vector<SkillSelector *> skillSelectors;
@@ -62,6 +72,9 @@ class MainWindow : public QMainWindow
     QNetworkAccessManager *manager = NULL;
     bool cancel = false;
     QFutureWatcher<void> *searchWatcher = new QFutureWatcher<void>();
+    Filter filter;
+    bool isCreatingArmourSets = false;
+    std::vector<QListWidgetItem *> armourSetItems;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP

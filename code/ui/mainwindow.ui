@@ -88,14 +88,14 @@
              <widget class="QComboBox" name="comboBoxFilterFreeCells"/>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="labelFilterUniqueSkills">
+             <widget class="QLabel" name="labelFilterWeapon">
               <property name="text">
                <string>TextLabel</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QComboBox" name="comboBoxFilterUniqueSkills"/>
+             <widget class="QComboBox" name="comboBoxFilterWeapon"/>
             </item>
            </layout>
           </widget>
@@ -184,7 +184,17 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidgetArmourSets"/>
+     <widget class="QListWidget" name="listWidgetArmourSets">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

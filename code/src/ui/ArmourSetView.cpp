@@ -4,9 +4,11 @@
 #include <QLabel>
 #include <sstream>
 
+QSize Ui::ElidingLabel::sizeHint() const { return QSize(0, QLabel::sizeHint().height()); }
+
 ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
-                             const Gear::Armoury &armoury, QWidget *parent)
-    : QWidget(parent), ui(new Ui::ArmourSetView), dict(dict)
+                             const Gear::Armoury &armoury, int scrollBarWidth, QWidget *parent)
+    : QWidget(parent), ui(new Ui::ArmourSetView), dict(dict), scrollBarWidth(scrollBarWidth)
 {
     ui->setupUi(this);
 
@@ -40,17 +42,16 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
         ui->verticalLayoutSkills->addWidget(label);
         for (const auto &skill : uniqueSkills)
         {
-            auto label = new QLabel();
+            auto label = new Ui::ElidingLabel();
             auto content = getTranslation(dict, skill.getName());
-            QFontMetrics metrics(label->font());
-            QString elidedText = metrics.elidedText(content, Qt::ElideRight, width() * 0.4); // currently the armoursetview is divided 50/50 into skills and gear/cells
-            label->setText(elidedText);
-            //label->setWordWrap(true);
+            uniqueSkillLabels[label] = content;
             label->setIndent(10);
             label->setToolTip(content);
+            setElidedSkill(label, content);
             ui->verticalLayoutSkills->addWidget(label);
         }
     }
+    constructing = false;
 }
 
 ArmourSetView::~ArmourSetView() { delete ui; }
@@ -77,4 +78,31 @@ void ArmourSetView::addSkill(const Gear::Skill &skill)
     QLabel *label = new QLabel();
     label->setText(QString::fromStdString(skill.toString(dict)));
     ui->verticalLayoutSkills->addWidget(label);
+}
+
+int ArmourSetView::getGearViewWidth() const { return ui->widgetGears->sizeHint().width(); }
+
+void ArmourSetView::setGearViewWidth(int width)
+{
+    ui->widgetGears->setMaximumWidth(width);
+    ui->widgetGears->setMinimumWidth(width);
+}
+
+void ArmourSetView::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    for (const auto &skillLabel : uniqueSkillLabels)
+        setElidedSkill(skillLabel.first, skillLabel.second);
+}
+
+void ArmourSetView::setElidedSkill(QLabel *label, const QString &text)
+{
+    int skillWidth = ui->widgetSkills->width();
+    if (constructing)
+        skillWidth = ui->widgetSkills->sizeHint().width();
+    QFontMetrics metrics(label->font());
+    QString elidedText = metrics.elidedText(
+        text, Qt::ElideRight,
+        skillWidth - label->indent() - ui->verticalLayoutSkills->spacing() * 2 - scrollBarWidth);
+    label->setText(elidedText);
 }

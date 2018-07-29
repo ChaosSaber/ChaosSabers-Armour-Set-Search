@@ -27,7 +27,9 @@
     <number>6</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayoutGearParts"/>
+    <widget class="QWidget" name="widgetGears" native="true">
+     <layout class="QVBoxLayout" name="verticalLayoutGearParts"/>
+    </widget>
    </item>
    <item>
     <widget class="Line" name="line">
@@ -37,7 +39,15 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayoutSkills"/>
+    <widget class="QWidget" name="widgetSkills" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutSkills"/>
+    </widget>
    </item>
   </layout>
  </widget>

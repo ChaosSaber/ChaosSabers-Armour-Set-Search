@@ -62,3 +62,5 @@ update_current_version;You have the current version
 update_new_version;There is a new version available
 menu_clear_skills;Clear Search
 label_unique_effects;Unique effects:
+label_filter_cells; Free cell slots
+label_filter_weapon; Weapon
