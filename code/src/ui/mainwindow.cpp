@@ -269,6 +269,7 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
     ui->comboBoxFilterWeapon->clear();
     ui->comboBoxFilterWeapon->addItem("");
     filter.clear();
+    armourSetItems.clear();
     std::stringstream ss;
     // TODO: add translation
     ss << "Found " << armoursets.size() << " Results";
