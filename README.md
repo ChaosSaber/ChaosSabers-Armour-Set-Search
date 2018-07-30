@@ -4,6 +4,9 @@ This Software is distributed under the MIT license(see LICENSE.txt) and uses thi
 You can find the current version on: https://github.com/ChaosSaber/Dauntless-Armour-Set-Search
 If you encounter any error please refer at first to troubleshooting.txt for general troubleshooting
 
+## Caution
+I will change the saving and loading feature heavily in the coming version 0.10. I can't garanty that i can keep it backwards compatible. But i will try my best so you don't loose any precious data.
+
 ## updating from an older version
 you have two possibilities
 - you can either copy the new files over your old files
