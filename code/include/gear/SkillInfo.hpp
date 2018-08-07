@@ -3,19 +3,25 @@
 
 #include "gear/SkillType.hpp"
 #include <string>
+#include <vector>
 
 namespace Gear
 {
 class SkillInfo
 {
   public:
-    SkillInfo(std::string name, SkillType type);
+    SkillInfo(std::string name, std::string description, SkillType type,
+              std::vector<std::string> effects);
     const std::string &getName() const;
     SkillType getType() const;
+    const std::string &getDescription() const;
+    const std::string &getEffectForLevel(int level) const;
 
   private:
     std::string name;
+    std::string description;
     SkillType type;
+    std::vector<std::string> effects;
 };
 } // namespace Gear
 

@@ -20,6 +20,7 @@ class MainWindow;
 class QNetworkReply;
 class QNetworkAccessManager;
 class QListWidgetItem;
+class ArmourSetView;
 
 class Filter
 {
@@ -55,7 +56,9 @@ class MainWindow : public QMainWindow
     void setNumberOfResults(QAction *action);
     void setLanguage(QAction *action);
     void about();
-    void showArmourSets(const std::vector<Gear::ArmourSet> &armoursets);
+    void showArmourSets();
+    ArmourSetView *createArmourSetView(const Gear::ArmourSet &set);
+    void createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view);
     void showLoadedSearch();
     void saveSearchSettings();
     void saveSearch();
@@ -75,7 +78,9 @@ class MainWindow : public QMainWindow
     QFutureWatcher<void> *searchWatcher = new QFutureWatcher<void>();
     Filter filter;
     bool isCreatingArmourSets = false;
-    std::vector<QListWidgetItem *> armourSetItems;
+    //std::vector<QListWidgetItem *> armourSetItems;
+    std::unordered_map<const Gear::ArmourSet *, QListWidgetItem *> armourSetItems;
+    int armourSetViewGearWidth = 0;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP

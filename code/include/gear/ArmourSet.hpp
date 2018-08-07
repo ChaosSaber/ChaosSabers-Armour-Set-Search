@@ -34,6 +34,7 @@ class ArmourSet : public Gear
     CellList getCells() const override;
     virtual std::string getToolTip(const Dictionary &dict) const override { return ""; }
     virtual bool hasUniqueSkill() const override;
+    std::vector<std::string> getUniqueSkills() const override;
 
     const Armour &getHead() const;
     const Armour &getTorso() const;

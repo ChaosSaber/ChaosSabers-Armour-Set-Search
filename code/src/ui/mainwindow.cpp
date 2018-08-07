@@ -14,17 +14,17 @@
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QScrollBar>
 #include <QSettings>
 #include <QUrl>
 #include <QtConcurrent>
 #include <iostream>
 #include <sstream>
-#include <QScrollBar>
 
-#define ORG "Chaos Org."
+#define ORG "ChaosFoundary"
 #define APP_NAME "ChaosSaber's ASS"
-#define GEOMETRY "mainWindowGeometry"
-#define STATE "mainWindowState"
+#define GEOMETRY "MainWindow/Geometry"
+#define STATE "MainWindow/State"
 
 MainWindow::~MainWindow()
 {
@@ -39,7 +39,7 @@ MainWindow::~MainWindow()
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QSettings settings(ORG, APP_NAME);
+    QSettings settings;
     restoreGeometry(settings.value(GEOMETRY).toByteArray());
     // create docks, toolbars, etc…
     restoreState(settings.value(STATE).toByteArray());
@@ -199,8 +199,6 @@ void MainWindow::armourSetSearch(ArmourSetSearch *ass)
     for (const auto &skill : ass->getWantedSkills())
     {
         auto type = armoury.getSkillTypeFor(skill.getName());
-        if (type == Gear::SkillType::Unique)
-            continue; // no cells for unique skills
         for (int i = 1; i <= 3; ++i)
         {
             Gear::Cell cell(Gear::Skill(skill.getName(), i), type);
@@ -260,7 +258,7 @@ void MainWindow::about()
     about->exec();
 }
 
-void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
+void MainWindow::showArmourSets()
 {
     isCreatingArmourSets = true;
     ui->listWidgetArmourSets->clear();
@@ -272,37 +270,28 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
     armourSetItems.clear();
     std::stringstream ss;
     // TODO: add translation
-    ss << "Found " << armoursets.size() << " Results";
-    if (armoursets.size() > options.numberOfResults)
+    ss << "Found " << options.armourSets.size() << " Results";
+    if (options.armourSets.size() > options.numberOfResults)
         ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
     ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
-    std::vector<ArmourSetView *> views;
+    std::unordered_map<const Gear::ArmourSet *, ArmourSetView *> views;
     int maxWidth = 0;
-    for (const auto &set : armoursets)
+    for (const auto &set : options.armourSets)
     {
-        auto view = new ArmourSetView(dict, set, armoury,
-                                      ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
-        views.push_back(view);
-        if (view->getGearViewWidth() > maxWidth)
-            maxWidth = view->getGearViewWidth();
         filter.weapons.insert(set.getWeapon().getName());
         for (const auto &cell : set.getCells())
             if (cell.first.isEmpty())
                 filter.cellSlots.insert(cell.first.getCellType());
+        if (views.size() > options.numberOfResults)
+            continue;
+        auto view = createArmourSetView(set);
+        views.insert({&set, view});
+        if (view->getGearViewWidth() > maxWidth)
+            maxWidth = view->getGearViewWidth();
     }
-    for (auto view : views)
-    {
-        view->setGearViewWidth(maxWidth);
-        auto item = new QListWidgetItem();
-        armourSetItems.push_back(item);
-        item->setSizeHint(view->sizeHint());
-        ui->listWidgetArmourSets->addItem(item);
-        if (armourSetItems.size() <= options.numberOfResults)
-            item->setHidden(false);
-        else
-            item->setHidden(true);
-        ui->listWidgetArmourSets->setItemWidget(item, view);
-    }
+    armourSetViewGearWidth = maxWidth;
+    for (auto setView : views)
+        createArmourSetItem(setView.first, setView.second);
     ui->listWidgetArmourSets->setMinimumWidth(ui->listWidgetArmourSets->sizeHintForColumn(0));
     for (const auto &weapon : filter.weapons)
         ui->comboBoxFilterWeapon->addItem(getTranslation(dict, weapon));
@@ -318,7 +307,7 @@ void MainWindow::showLoadedSearch()
     for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
         skillSelectors[i]->set(options.skillSearches[i]);
     if (options.armourSets.size() > 0)
-        showArmourSets(options.armourSets);
+        showArmourSets();
 }
 
 void MainWindow::saveSearchSettings()
@@ -416,7 +405,7 @@ void MainWindow::clearSearch()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings settings(ORG, APP_NAME);
+    QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());
     settings.setValue(STATE, saveState());
     QWidget::closeEvent(event);
@@ -428,7 +417,7 @@ void MainWindow::finishedSearch(ArmourSetSearch *ass)
 {
     options.armourSets = ass->moveArmourSets();
     delete ass;
-    showArmourSets(options.armourSets);
+    showArmourSets();
     setSearchButtonsState(true);
     searchWatcher->disconnect();
 }
@@ -447,13 +436,8 @@ void MainWindow::applyFilter()
             *std::next(filter.cellSlots.begin(), ui->comboBoxFilterFreeCells->currentIndex() - 1);
 
     size_t count = 0;
-    for (int i = 0; i < armourSetItems.size(); ++i)
+    for (int i = 0; i < armourSetItems.size() && i < options.numberOfResults; ++i)
     {
-        if (count >= options.numberOfResults)
-        {
-            armourSetItems[i]->setHidden(true);
-            continue;
-        }
         bool hide = false;
         if (weapon != "" && weapon != options.armourSets[i].getWeapon().getName())
             hide = true;
@@ -466,7 +450,15 @@ void MainWindow::applyFilter()
             if (!foundCell)
                 hide = true;
         }
-        armourSetItems[i]->setHidden(hide);
+        const auto &set = options.armourSets[i];
+        if (armourSetItems.count(&set) > 0)
+        {
+            armourSetItems.at(&set)->setHidden(hide);
+        }
+        else
+        {
+            createArmourSetItem(&set, createArmourSetView(set));
+        }
         if (!hide)
             ++count;
     }
@@ -476,4 +468,20 @@ void Filter::clear()
 {
     weapons.clear();
     cellSlots.clear();
+}
+
+void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view)
+{
+    view->setGearViewWidth(armourSetViewGearWidth);
+    auto item = new QListWidgetItem();
+    armourSetItems.insert({set, item});
+    item->setSizeHint(view->sizeHint());
+    ui->listWidgetArmourSets->addItem(item);
+    ui->listWidgetArmourSets->setItemWidget(item, view);
+}
+
+ArmourSetView* MainWindow::createArmourSetView(const Gear::ArmourSet &set)
+{
+    return new ArmourSetView(dict, set, armoury,
+                             ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
 }

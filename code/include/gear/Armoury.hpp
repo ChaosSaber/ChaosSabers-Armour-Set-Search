@@ -4,6 +4,7 @@
 #include "gear/Armour.hpp"
 #include "gear/SkillInfo.hpp"
 #include "gear/Weapon.hpp"
+#include <QJsonObject>
 #include <vector>
 
 namespace Gear
@@ -26,10 +27,17 @@ class Armoury
     SkillType getSkillTypeFor(const std::string &skillName) const;
 
   private:
-    Skill getSkill(const std::string &name, const std::string &points);
-    std::vector<Weapon> loadWeapons(const std::string &fileName, WeaponType type);
-    std::vector<Armour> loadArmour(const std::string &fileName, ArmourType type);
-    std::vector<SkillInfo> loadSkillInfos(const std::string &fileName);
+    void load(const std::string &fileName = "data/data.json");
+    void setElement(Elements &element, const std::string &name, int value);
+    SkillType getSkillType(const std::string &type) const;
+    ArmourType getArmourType(const std::string &type) const;
+    WeaponType getWeaponType(const std::string &type) const;
+    Rarity getRarity(const QJsonObject &gear) const;
+
+    //Skill getSkill(const std::string &name, const std::string &points);
+    //std::vector<Weapon> loadWeapons(const std::string &fileName, WeaponType type);
+    //std::vector<Armour> loadArmour(const std::string &fileName, ArmourType type);
+    //std::vector<SkillInfo> loadSkillInfos(const std::string &fileName);
 
     std::unordered_map<WeaponType, std::vector<Weapon>> weapons;
     std::unordered_map<ArmourType, std::vector<Armour>> armours;

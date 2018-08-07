@@ -1,30 +1,37 @@
 #include "gear/Armour.hpp"
 #include <sstream>
 
-Gear::Armour::Armour(ArmourType type, std::string name, unsigned int defense,
-                     Elements elementalResistance, Skill skill1, Skill skill2, SkillType cellType)
-    : type(type), name(name), defense(defense), elementalResistance(std::move(elementalResistance)),
-      skill1(std::move(skill1)), skill2(std::move(skill2)), cell(cellType)
+Gear::Armour::Armour(ArmourType type, std::string name, std::string description, int tier,
+                     unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
+                     std::vector<Skill> skills, std::vector<std::string> uniqueSkills,
+                     SkillType cellType, Rarity rarity)
+    : type(type), name(std::move(name)), tier(tier), description(std::move(description)),
+      minDefense(minDefense), maxDefense(maxDefense),
+      elementalResistance(std::move(elementalResistance)), skills(std::move(skills)),
+      uniqueSkills(std::move(uniqueSkills)), cell(cellType), rarity(rarity)
 {
 }
 
-unsigned int Gear::Armour::getDefense() const { return defense; }
+unsigned int Gear::Armour::getMinDefense() const { return minDefense; }
+
+unsigned int Gear::Armour::getMaxDefense() const { return maxDefense; }
 
 const Gear::Elements &Gear::Armour::getElementalResistance() const { return elementalResistance; }
 
 bool Gear::Armour::hasSkill(const std::string &skill) const
 {
-    return skill1.getName() == skill || skill2.getName() == skill;
+    for (const auto &skill_ : skills)
+        if (skill_.getName() == skill)
+            return true;
+    return false;
 }
 
 int Gear::Armour::getSkillPointsFor(const std::string &skill) const
 {
-    if (skill1.getName() == skill)
-        return skill1.getSkillPoints();
-    else if (skill2.getName() == skill)
-        return skill2.getSkillPoints();
-    else
-        return 0;
+    for (const auto &skill_ : skills)
+        if (skill_.getName() == skill)
+            return skill_.getSkillPoints();
+    return 0;
 }
 
 bool Gear::Armour::addCell(Cell cell)
@@ -50,7 +57,7 @@ std::string Gear::Armour::getGearInfo(const Dictionary &dict) const
     return dict.getTranslationFor(name);
 }
 
-Gear::SkillList Gear::Armour::getSkills() const { return skill1 + skill2 + cell.getSkill(); }
+Gear::SkillList Gear::Armour::getSkills() const { return skills + cell.getSkill(); }
 
 Gear::CellList Gear::Armour::getCells() const { return cell; }
 
@@ -59,12 +66,17 @@ const std::string &Gear::Armour::getName() const { return name; }
 std::string Gear::Armour::getToolTip(const Dictionary &dict) const
 {
     std::stringstream ss;
-    if (skill1.getName() != "")
-        ss << skill1.toString(dict) << std::endl;
-    if (skill2.getName() != "")
-        ss << skill2.toString(dict) << std::endl;
+    ss << description << std::endl;
+    for (const auto &skill : skills)
+        ss << skill.toString(dict) << std::endl;
+    for (const auto &skill : uniqueSkills)
+        ss << skill << std::endl;
     ss << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType()));
     return ss.str();
 }
 
-bool Gear::Armour::hasUniqueSkill() const { return skill1.isUnique() || skill2.isUnique(); }
+bool Gear::Armour::hasUniqueSkill() const { return uniqueSkills.size() != 0; }
+
+std::vector<std::string> Gear::Armour::getUniqueSkills() const { return uniqueSkills; }
+
+bool Gear::Armour::isExotic() const { return rarity == Exotic; }

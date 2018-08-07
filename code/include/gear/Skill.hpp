@@ -11,18 +11,16 @@ class Skill
 {
   public:
     Skill();
-    Skill(std::string name, int skillPoints, bool unique = false);
+    Skill(std::string name, int skillPoints);
 
     const std::string &getName() const;
     int getSkillPoints() const;
     std::string toString(const Dictionary &dict) const;
-    bool isUnique() const;
     friend class SkillList;
 
   private:
     std::string name;
     int skillPoints;
-    bool unique;
 };
 } // namespace Gear
 

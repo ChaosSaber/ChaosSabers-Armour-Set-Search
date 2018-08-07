@@ -31,6 +31,8 @@ std::string toLowerCopy(std::string str);
 
 void replace(std::string &str, const std::string &subString, const std::string &replaceString);
 
+std::string vectorJoin(const std::vector<std::string> &vector, const std::string &separator);
+
 } // namespace string
 } // namespace util
 

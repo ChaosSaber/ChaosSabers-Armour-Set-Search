@@ -4,6 +4,7 @@
 #include "gear/Cell.hpp"
 #include "gear/Elements.hpp"
 #include "gear/Gear.hpp"
+#include "gear/Rarity.hpp"
 #include "gear/Skill.hpp"
 #include "gear/SkillType.hpp"
 #include <string>
@@ -16,8 +17,10 @@ enum WeaponType { Sword, Hammer, Chainblades, Axe, Pike };
 class Weapon : public Gear
 {
   public:
-    Weapon(WeaponType type, std::string name, unsigned int damage, Elements elementalDamage,
-           Skill skill1, Skill skill2, SkillType cellType1, SkillType cellType2);
+    Weapon(WeaponType type, std::string name, std::string description, int tier,
+           unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
+           std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType1,
+           SkillType cellType2, Rarity rarity);
 
     /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
@@ -36,17 +39,23 @@ class Weapon : public Gear
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
     virtual bool hasUniqueSkill() const override;
+    std::vector<std::string> getUniqueSkills() const override;
+    bool isExotic() const;
 
     const Cell &getCell1() const;
     const Cell &getCell2() const;
 
   private:
     WeaponType type;
+    int tier;
     std::string name;
-    unsigned int damage;
+    std::string description;
+    unsigned int minDamage, maxDamage;
     Elements elementalDamage;
-    Skill skill1, skill2;
+    std::vector<Skill> skills;
+    std::vector<std::string> uniqueSkills;
     Cell cell1, cell2;
+    Rarity rarity;
 };
 } // namespace Gear
 

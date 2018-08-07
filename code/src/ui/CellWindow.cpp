@@ -6,13 +6,18 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QResizeEvent>
+#include <QSettings>
 #include <sstream>
+
+#define GEOMETRY "CellWindow/Geometry"
 
 CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dictionary &dict,
                        QWidget *parent)
     : QDialog(parent), options(options), ui(new Ui::CellWindow), dict(dict), armoury(armoury)
 {
     ui->setupUi(this);
+    QSettings settings;
+    restoreGeometry(settings.value(GEOMETRY).toByteArray());
 
     auto widget = new QWidget();
     gridLayout = new QGridLayout();
@@ -20,8 +25,6 @@ CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dic
     ui->scrollAreaCells->setWidget(widget);
     for (const auto &skill : armoury.getSkills(Gear::SkillType::None))
     {
-        if (skill->getType() == Gear::SkillType::Unique)
-            continue; // no cells for unique skills
         auto layout = new QGridLayout();
         auto widget = new QWidget();
         widget->setLayout(layout);
@@ -116,8 +119,13 @@ void CellWindow::closeEvent(QCloseEvent *event)
         if (reply != QMessageBox::Yes)
         {
             event->ignore();
+            return;
         }
     }
+
+    QSettings settings;
+    settings.setValue(GEOMETRY, saveGeometry());
+    QDialog::closeEvent(event);
 }
 
 void CellWindow::save()
@@ -129,9 +137,9 @@ void CellWindow::save()
 
 void CellWindow::importCells()
 {
-    auto fileName = QFileDialog::getOpenFileName(this, getTranslation(dict, "button_import"),
-                                                 options.lastSaveLocation,
-                                                 "Cells (*.cells);;All Files(*.*)");
+    auto fileName =
+        QFileDialog::getOpenFileName(this, getTranslation(dict, "button_import"),
+                                     options.lastSaveLocation, "Cells (*.cells);;All Files(*.*)");
     if (fileName.isEmpty())
         return;
     try
