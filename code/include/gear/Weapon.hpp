@@ -20,7 +20,7 @@ class Weapon : public Gear
     Weapon(WeaponType type, std::string name, std::string description, int tier,
            unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
            std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType1,
-           SkillType cellType2, Rarity rarity);
+           SkillType cellType2, Rarity rarity, bool heroic = false);
 
     /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
@@ -56,6 +56,7 @@ class Weapon : public Gear
     std::vector<std::string> uniqueSkills;
     Cell cell1, cell2;
     Rarity rarity;
+    bool heroic;
 };
 } // namespace Gear
 

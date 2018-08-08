@@ -43,6 +43,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     restoreGeometry(settings.value(GEOMETRY).toByteArray());
     // create docks, toolbars, etc…
     restoreState(settings.value(STATE).toByteArray());
+
+    // TODO: Download Data files if not exist?
+
+
+
     options.load(armoury);
     dict.loadLanguage(options.language);
     setupTranslation();
@@ -110,14 +115,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
 
-    auto updateLabel = new QLabel();
-    updateLabel->setText(getTranslation(dict, "update_searching") + " ");
-    ui->menuBar->setCornerWidget(updateLabel);
-    manager = new QNetworkAccessManager(this);
-    connect(manager, &QNetworkAccessManager::finished,
-            [this](QNetworkReply *reply) { updateNetworkReply(reply); });
-    manager->get(QNetworkRequest(
-        QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
+    // TODO: move to background thread
+
+    //auto updateLabel = new QLabel();
+    //updateLabel->setText(getTranslation(dict, "update_searching") + " ");
+    //ui->menuBar->setCornerWidget(updateLabel);
+    //manager = new QNetworkAccessManager(this);
+    //connect(manager, &QNetworkAccessManager::finished,
+    //        [this](QNetworkReply *reply) { updateNetworkReply(reply); });
+    //manager->get(QNetworkRequest(
+    //    QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
     ui->widgetSearch->setMaximumWidth(ui->widgetSearch->sizeHint().width() * 1.1);
@@ -321,15 +328,15 @@ void MainWindow::saveSearch()
 {
     QString filter = "Armour Set Searches (*.ass)";
     auto fileName = QFileDialog::getSaveFileName(this, getTranslation(dict, "menu_save"),
-                                                 options.lastSaveLocation, filter, &filter);
+                                                 options.lastSearchSaveLocation, filter, &filter);
     if (fileName.isEmpty())
         return;
     saveSearchSettings();
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastSearchSaveLocation = info.path();
     try
     {
-        options.saveSearch(fileName.toStdString());
+        options.saveSearch(fileName);
     }
     catch (const OptionsIoException &e)
     {
@@ -340,13 +347,13 @@ void MainWindow::saveSearch()
 void MainWindow::loadSearch()
 {
     auto fileName = QFileDialog::getOpenFileName(this, getTranslation(dict, "menu_load"),
-                                                 options.lastSaveLocation,
+                                                 options.lastSearchSaveLocation,
                                                  "Armour Set Searches (*.ass);;All Files(*.*)");
     if (fileName.isEmpty())
         return;
     try
     {
-        options.loadSearch(armoury, fileName.toStdString());
+        options.loadSearch(armoury, fileName);
     }
     catch (const OptionsIoException &e)
     {
@@ -354,7 +361,7 @@ void MainWindow::loadSearch()
     }
     showLoadedSearch();
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastSearchSaveLocation = info.path();
 }
 
 void MainWindow::updateNetworkReply(QNetworkReply *reply)
@@ -485,3 +492,5 @@ ArmourSetView* MainWindow::createArmourSetView(const Gear::ArmourSet &set)
     return new ArmourSetView(dict, set, armoury,
                              ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
 }
+
+void MainWindow::saveDataFiles(QNetworkReply *reply, const QString &fileName) {}

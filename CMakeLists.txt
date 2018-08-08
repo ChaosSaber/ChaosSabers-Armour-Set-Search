@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-Project(ChaosSabers-Armour-Set-Search VERSION 0.9.4 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.10.0 LANGUAGES CXX)
 ######## acquire QT
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)

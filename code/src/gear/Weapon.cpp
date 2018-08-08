@@ -4,10 +4,11 @@
 Gear::Weapon::Weapon(WeaponType type, std::string name, std::string description, int tier,
                      unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
                      std::vector<Skill> skills, std::vector<std::string> uniqueSkills,
-                     SkillType cellType1, SkillType cellType2, Rarity rarity)
+                     SkillType cellType1, SkillType cellType2, Rarity rarity, bool heroic)
     : type(type), name(std::move(name)), description(std::move(description)), minDamage(minDamage),
       maxDamage(maxDamage), elementalDamage(std::move(elementalDamage)), skills(std::move(skills)),
-      uniqueSkills(std::move(uniqueSkills)), cell1(cellType1), cell2(cellType2), rarity(rarity)
+      uniqueSkills(std::move(uniqueSkills)), cell1(cellType1), cell2(cellType2), rarity(rarity),
+      heroic(heroic)
 {
 }
 
@@ -34,7 +35,10 @@ bool Gear::Weapon::addCell(Cell cell)
 
 std::string Gear::Weapon::getGearInfo(const Dictionary &dict) const
 {
-    return dict.getTranslationFor(name);
+    auto str = dict.getTranslationFor(name);
+    if (heroic)
+        str += " (H)";
+    return str;
 }
 
 Gear::SkillList Gear::Weapon::getSkills() const

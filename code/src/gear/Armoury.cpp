@@ -10,16 +10,6 @@
 
 Gear::Armoury::Armoury() : notFound("", "", None, std::vector<std::string>())
 {
-    // skillInfos = loadSkillInfos("data/Skills.txt");
-    // weapons[Sword] = loadWeapons("data/Swords.txt", Sword);
-    // weapons[Hammer] = loadWeapons("data/Hammer.txt", Hammer);
-    // weapons[Chainblades] = loadWeapons("data/Chainblades.txt", Chainblades);
-    // weapons[Axe] = loadWeapons("data/Axe.txt", Axe);
-    // weapons[Pike] = loadWeapons("data/Pike.txt", Pike);
-    // armours[Head] = loadArmour("data/Heads.txt", Head);
-    // armours[Torso] = loadArmour("data/Torsos.txt", Torso);
-    // armours[Arms] = loadArmour("data/Arms.txt", Arms);
-    // armours[Legs] = loadArmour("data/Legs.txt", Legs);
     load();
 }
 
@@ -78,167 +68,6 @@ std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Sk
     return armours;
 }
 
-// std::vector<Gear::SkillInfo> Gear::Armoury::loadSkillInfos(const std::string &fileName)
-//{
-//    std::vector<SkillInfo> skills;
-//    std::ifstream file(fileName);
-//    if (!file.is_open())
-//    {
-//        // TODO: errorhandling
-//        std::cout << "couldn't open file " << fileName << std::endl;
-//        return skills;
-//    }
-//    std::string line;
-//    while (std::getline(file, line))
-//    {
-//        if (util::string::isComment(line))
-//            continue;
-//        auto tmp = util::string::split(line, ';');
-//        if (tmp.size() >= 2)
-//        {
-//            try
-//            {
-//                auto type = std::stoi(tmp[1]);
-//                skills.push_back(SkillInfo(util::string::toLowerCopy(tmp[0]), (SkillType)type));
-//            }
-//            catch (std::invalid_argument)
-//            {
-//                // TODO: errorhandling
-//                std::cout << "Couldn't convert line: " << line;
-//            }
-//            catch (std::out_of_range)
-//            {
-//                // TODO: errorhandling
-//                std::cout << "Couldn't convert line: " << line;
-//            }
-//        }
-//        else
-//        {
-//            // errorhandling or just ignore?
-//            std::cout << "Couldn't convert line: " << line;
-//        }
-//    }
-//    return skills;
-//}
-
-// std::vector<Gear::Armour> Gear::Armoury::loadArmour(const std::string &fileName, ArmourType type)
-//{
-//    std::vector<Armour> armours;
-//    std::ifstream file(fileName);
-//    if (!file.is_open())
-//    {
-//        // TODO: errorhandling
-//        std::cout << "couldn't open file " << fileName << std::endl;
-//        return armours;
-//    }
-//    std::string line;
-//    while (std::getline(file, line))
-//    {
-//        if (util::string::isComment(line))
-//            continue;
-//        auto tmp = util::string::split(line, ';');
-//        if (tmp.size() < 8)
-//        {
-//            std::cout << "Couldn't convert line: " << line;
-//            continue;
-//        }
-//        try
-//        {
-//            auto name = util::string::toLowerCopy(tmp[0]);
-//            auto defense = std::stoi(tmp[1]);
-//            auto elems = util::string::split(tmp[2], '|');
-//            if (elems.size() != 5)
-//                continue;
-//            Elements elementalResistance;
-//            elementalResistance.Fire = std::stoi(elems[0]);
-//            elementalResistance.Ice = std::stoi(elems[1]);
-//            elementalResistance.Shock = std::stoi(elems[2]);
-//            elementalResistance.Radiant = std::stoi(elems[3]);
-//            elementalResistance.Umbral = std::stoi(elems[4]);
-//            Skill skill1 = getSkill(tmp[3], tmp[4]);
-//            Skill skill2 = getSkill(tmp[5], tmp[6]);
-//            SkillType cellType = (SkillType)std::stoi(tmp[7]);
-//            if (cellType < None || cellType >= Unique)
-//            {
-//                std::cout << "unknwon cell type: " << line << std::endl;
-//                continue;
-//            }
-//            armours.push_back(
-//                Armour(type, name, defense, elementalResistance, skill1, skill2, cellType));
-//        }
-//        catch (std::invalid_argument)
-//        {
-//            // TODO: errorhandling
-//            std::cout << "Couldn't convert line: " << line;
-//        }
-//        catch (std::out_of_range)
-//        {
-//            // TODO: errorhandling
-//            std::cout << "Couldn't convert line: " << line;
-//        }
-//    }
-//    return armours;
-//}
-//
-// std::vector<Gear::Weapon> Gear::Armoury::loadWeapons(const std::string &fileName, WeaponType
-// type)
-//{
-//    std::vector<Weapon> weapons;
-//    std::ifstream file(fileName);
-//    if (!file.is_open())
-//    {
-//        // TODO: errorhandling
-//        std::cout << "couldn't open file " << fileName << std::endl;
-//        return weapons;
-//    }
-//    std::string line;
-//    while (std::getline(file, line))
-//    {
-//        if (util::string::isComment(line))
-//            continue;
-//        auto tmp = util::string::split(line, ';');
-//        if (tmp.size() < 9)
-//        {
-//            // TODO: errorhandling
-//            std::cout << "Couldn't convert line: " << line;
-//            continue;
-//        }
-//        try
-//        {
-//            auto name = util::string::toLowerCopy(tmp[0]);
-//            auto damage = std::stoi(tmp[1]);
-//            auto elems = util::string::split(tmp[2], '|');
-//            if (elems.size() != 5)
-//                continue;
-//            Elements elementalDamage;
-//            elementalDamage.Fire = std::stoi(elems[0]);
-//            elementalDamage.Ice = std::stoi(elems[1]);
-//            elementalDamage.Shock = std::stoi(elems[2]);
-//            elementalDamage.Radiant = std::stoi(elems[3]);
-//            elementalDamage.Umbral = std::stoi(elems[4]);
-//
-//            Skill skill1 = getSkill(tmp[3], tmp[4]);
-//            Skill skill2 = getSkill(tmp[5], tmp[6]);
-//            SkillType cellType1 = (SkillType)std::stoi(tmp[7]);
-//            SkillType cellType2 = (SkillType)std::stoi(tmp[8]);
-//            weapons.push_back(
-//                Weapon(type, name, damage, elementalDamage, skill1, skill2, cellType1,
-//                cellType2));
-//        }
-//        catch (std::invalid_argument)
-//        {
-//            // TODO: errorhandling
-//            std::cout << "Couldn't convert line: " << line;
-//        }
-//        catch (std::out_of_range)
-//        {
-//            // TODO: errorhandling
-//            std::cout << "Couldn't convert line: " << line;
-//        }
-//    }
-//    return weapons;
-//}
-
 std::vector<const Gear::SkillInfo *> Gear::Armoury::getSkills(SkillType filter) const
 {
     std::vector<const SkillInfo *> skills;
@@ -255,7 +84,6 @@ Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string &skillName) con
 
 const Gear::Armour &Gear::Armoury::getArmour(std::string name) const
 {
-    util::string::toLower(name);
     for (const auto &armours : this->armours)
         for (const auto &armour : armours.second)
             if (armour.getName() == name)
@@ -267,7 +95,6 @@ const Gear::Armour &Gear::Armoury::getArmour(std::string name) const
 
 const Gear::Weapon &Gear::Armoury::getWeapon(std::string name) const
 {
-    util::string::toLower(name);
     for (const auto &weapons : this->weapons)
         for (const auto &weapon : weapons.second)
             if (weapon.getName() == name)
@@ -276,14 +103,6 @@ const Gear::Weapon &Gear::Armoury::getWeapon(std::string name) const
     ss << "There is no weapon with the key " << name;
     throw std::exception(ss.str().c_str());
 }
-//
-// Gear::Skill Gear::Armoury::getSkill(const std::string &name, const std::string &points)
-//{
-//    auto skillName = util::string::toLowerCopy(name);
-//    if (skillName == "")
-//        return Skill();
-//    return Skill(skillName, std::stoi(points), getSkillTypeFor(skillName) == SkillType::Unique);
-//}
 
 #define JSON_ARMOURS "armours"
 #define JSON_PERKS "perks"
@@ -407,16 +226,17 @@ void Gear::Armoury::load(const std::string &fileName)
                     for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
                         util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
                                                       util::json::jsonToUniqueSkill(jsonUnique));
+                bool heroic = false;
                 if (rarity != Exotic)
                 {
                     armours[type].push_back(Armour(type, name, description, 5, minDef, maxDef,
                                                    elementalResistance, skills, uniqueSkills, cell,
-                                                   rarity));
-                    name += " (H)";
+                                                   rarity, heroic));
+                    heroic = true;
                 }
                 armours[type].push_back(Armour(type, name, description, 6, minDef, maxDefHeroic,
                                                elementalResistance, skillsHeroic,
-                                               uniqueSkillsHeroic, cell, rarity));
+                                               uniqueSkillsHeroic, cell, rarity, heroic));
             }
         }
         catch (const std::exception &e)
@@ -512,16 +332,17 @@ void Gear::Armoury::load(const std::string &fileName)
                     for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
                         util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
                                                       util::json::jsonToUniqueSkill(jsonUnique));
+                bool heroic = false;
                 if (rarity != Exotic)
                 {
                     weapons[type].push_back(Weapon(type, name, description, 5, minDamage, maxDamage,
                                                    elementalDamage, skills, uniqueSkills, cell1,
-                                                   cell2, rarity));
-                    name += " (H)";
+                                                   cell2, rarity, heroic));
+                    heroic = true;
                 }
                 weapons[type].push_back(Weapon(type, name, description, 6, minDamage,
                                                maxDamageHeroic, elementalDamage, skillsHeroic,
-                                               uniqueSkillsHeroic, cell1, cell2, rarity));
+                                               uniqueSkillsHeroic, cell1, cell2, rarity, heroic));
             }
         }
         catch (const std::exception &e)

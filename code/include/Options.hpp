@@ -4,16 +4,13 @@
 #include "gear/ArmourSet.hpp"
 #include "gear/Armoury.hpp"
 #include "gear/Cell.hpp"
+#include "util/files.hpp"
 #include <QDir>
 #include <QJsonObject>
 #include <array>
 #include <string>
 #include <unordered_map>
 
-#define CONFIG_FILE_NAME "setting.json"
-#define LAST_SEARCH "lastSearch.ass"
-#define MY_CELLS_OLD "data/myCells.json"
-#define MY_CELLS "data/myCells.cells"
 #define NUMBER_OF_SKILLSELECTORS 7
 
 class OptionsIoException
@@ -23,9 +20,21 @@ class OptionsIoException
     std::string what;
 };
 
+const QString CONFIG_FILE_NAME =
+    util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "setting.json");
+const QString LAST_SEARCH =
+    util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "lastSearch.ass");
+const QString STANDARD_CELL_SAVE_LOCATION =
+    util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "cells");
+const QString MY_CELLS = util::files::pathAppend(STANDARD_CELL_SAVE_LOCATION, "myCells.cells");
+const QString STANDARD_SEARCH_SAVE_LOCATION =
+    util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "searches");
+
 class Options
 {
+
   public:
+    Options();
     struct SkillSearch
     {
         Gear::SkillType filter = Gear::SkillType::None;
@@ -33,14 +42,14 @@ class Options
         int skillLevel = 0;
     };
     void loadConfiguration(const Gear::Armoury &armoury,
-                           const std::string &fileName = CONFIG_FILE_NAME);
-    void saveConfiguration(const std::string &fileName = CONFIG_FILE_NAME);
-    void loadSearch(const Gear::Armoury &armoury, const std::string &fileName = LAST_SEARCH);
-    void saveSearch(const std::string &fileName = LAST_SEARCH);
+                           const QString &fileName = CONFIG_FILE_NAME);
+    void saveConfiguration(const QString &fileName = CONFIG_FILE_NAME);
+    void loadSearch(const Gear::Armoury &armoury, const QString &fileName = LAST_SEARCH);
+    void saveSearch(const QString &fileName = LAST_SEARCH);
     void save();
     void load(const Gear::Armoury &armoury);
-    void saveCells(const std::string &fileName = MY_CELLS);
-    void loadCells(const Gear::Armoury &armoury, std::string fileName = MY_CELLS);
+    void saveCells(const QString &fileName = MY_CELLS);
+    void loadCells(const Gear::Armoury &armoury, const QString &fileName = MY_CELLS);
 
     int numberOfResults = 100;
     std::string language = "English";
@@ -49,12 +58,11 @@ class Options
     std::array<SkillSearch, NUMBER_OF_SKILLSELECTORS> skillSearches;
     std::vector<Gear::ArmourSet> armourSets;
     Gear::WeaponType weaponType = Gear::WeaponType::Sword;
-    QString lastSaveLocation = QDir::currentPath();
+    QString lastSearchSaveLocation = STANDARD_SEARCH_SAVE_LOCATION;
+    QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
     int cellUsage = 0;
 
   private:
-    int version;
-
     QJsonObject cellToJson(const Gear::Cell &cell);
     Gear::Cell jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury);
     QJsonObject armourToJson(const Gear::Armour &armour);

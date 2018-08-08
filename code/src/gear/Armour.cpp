@@ -4,11 +4,11 @@
 Gear::Armour::Armour(ArmourType type, std::string name, std::string description, int tier,
                      unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
                      std::vector<Skill> skills, std::vector<std::string> uniqueSkills,
-                     SkillType cellType, Rarity rarity)
+                     SkillType cellType, Rarity rarity, bool heroic)
     : type(type), name(std::move(name)), tier(tier), description(std::move(description)),
       minDefense(minDefense), maxDefense(maxDefense),
       elementalResistance(std::move(elementalResistance)), skills(std::move(skills)),
-      uniqueSkills(std::move(uniqueSkills)), cell(cellType), rarity(rarity)
+      uniqueSkills(std::move(uniqueSkills)), cell(cellType), rarity(rarity), heroic(heroic)
 {
 }
 
@@ -54,7 +54,10 @@ bool Gear::Armour::hasFreeCellSlotFor(SkillType type) const
 
 std::string Gear::Armour::getGearInfo(const Dictionary &dict) const
 {
-    return dict.getTranslationFor(name);
+    auto str = dict.getTranslationFor(name);
+    if (heroic)
+        str += " (H)";
+    return str;
 }
 
 Gear::SkillList Gear::Armour::getSkills() const { return skills + cell.getSkill(); }

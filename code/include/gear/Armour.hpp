@@ -20,7 +20,7 @@ class Armour : public Gear
     Armour(ArmourType type, std::string name, std::string description, int tier,
            unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
            std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType,
-           Rarity rarity);
+           Rarity rarity, bool heroic = false);
 
     unsigned int getMinDefense() const;
     unsigned int getMaxDefense() const;
@@ -52,6 +52,7 @@ class Armour : public Gear
     Cell cell;
     std::vector<std::string> uniqueSkills;
     Rarity rarity;
+    bool heroic;
 };
 
 } // namespace Gear

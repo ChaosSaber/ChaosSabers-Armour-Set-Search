@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow
     void updateNetworkReply(QNetworkReply *);
     void clearSearch();
     void applyFilter();
+    void saveDataFiles(QNetworkReply *reply, const QString &fileName);
 
     Options options;
     std::vector<SkillSelector *> skillSelectors;
