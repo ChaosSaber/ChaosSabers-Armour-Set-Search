@@ -2,12 +2,14 @@
 #include <sstream>
 
 ArmourSetSearch::ArmourSetSearch(const Gear::Armoury &armoury, Gear::WeaponType weaponType,
-                                 std::vector<Gear::Skill> skills, Gear::CellList availableCells)
-    : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType),
-                      armoury.getArmourWithSkill(skills, Gear::Head),
-                      armoury.getArmourWithSkill(skills, Gear::Torso),
-                      armoury.getArmourWithSkill(skills, Gear::Arms),
-                      armoury.getArmourWithSkill(skills, Gear::Legs), skills, availableCells)
+                                 std::vector<Gear::Skill> skills, const Options &options,
+                                 Gear::CellList availableCells)
+    : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
+                      armoury.getArmourWithSkill(skills, Gear::Head, options),
+                      armoury.getArmourWithSkill(skills, Gear::Torso, options),
+                      armoury.getArmourWithSkill(skills, Gear::Arms, options),
+                      armoury.getArmourWithSkill(skills, Gear::Legs, options), skills,
+                      availableCells)
 {
 }
 

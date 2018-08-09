@@ -79,7 +79,6 @@ class MainWindow : public QMainWindow
     QFutureWatcher<void> *searchWatcher = new QFutureWatcher<void>();
     Filter filter;
     bool isCreatingArmourSets = false;
-    //std::vector<QListWidgetItem *> armourSetItems;
     std::unordered_map<const Gear::ArmourSet *, QListWidgetItem *> armourSetItems;
     int armourSetViewGearWidth = 0;
 };

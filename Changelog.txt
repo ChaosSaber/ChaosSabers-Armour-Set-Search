@@ -1,6 +1,6 @@
 Version 0.10.0: 08.08.2018:
 - now working together with https://www.dauntless-builder.com/, we will use the same data sets (if you want to update your data go to https://www.dauntless-builder.com/data.json, download the data and place it in data/data.json in the install directory) (automatic updating will come in the future)
-- implemented pre Maeltrom gear with it.(no tier filtering yet)
+- implemented pre Maelstrom gear with it.(no tier filtering yet)
 - moved userdata to "Documents/ChaosSaber's Armour Set Search"
 - saving and loading adapted to the new data (no backwars compatibility yet)
 

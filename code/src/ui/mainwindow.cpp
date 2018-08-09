@@ -46,8 +46,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // TODO: Download Data files if not exist?
 
-
-
     options.load(armoury);
     dict.loadLanguage(options.language);
     setupTranslation();
@@ -117,13 +115,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // TODO: move to background thread
 
-    //auto updateLabel = new QLabel();
-    //updateLabel->setText(getTranslation(dict, "update_searching") + " ");
-    //ui->menuBar->setCornerWidget(updateLabel);
-    //manager = new QNetworkAccessManager(this);
-    //connect(manager, &QNetworkAccessManager::finished,
+    // auto updateLabel = new QLabel();
+    // updateLabel->setText(getTranslation(dict, "update_searching") + " ");
+    // ui->menuBar->setCornerWidget(updateLabel);
+    // manager = new QNetworkAccessManager(this);
+    // connect(manager, &QNetworkAccessManager::finished,
     //        [this](QNetworkReply *reply) { updateNetworkReply(reply); });
-    //manager->get(QNetworkRequest(
+    // manager->get(QNetworkRequest(
     //    QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
@@ -135,6 +133,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             [this](int) { applyFilter(); });
     connect(ui->comboBoxFilterWeapon, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int) { applyFilter(); });
+
+    ui->actionUseLowerTierArmour->setChecked(options.useLowerTierArmour);
+    connect(ui->actionUseLowerTierArmour, &QAction::triggered,
+            [this](bool checked) { options.useLowerTierArmour = checked; });
+
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t1"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t2"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t3"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t4"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t5"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t6"));
+    ui->comboBoxTier->setCurrentIndex(options.tier - 1);
+    connect(ui->comboBoxTier, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int index) { options.tier = index + 1; });
 }
 
 void MainWindow::setupTranslation()
@@ -164,6 +176,8 @@ void MainWindow::setupTranslation()
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
     ui->labelFilterFreeCells->setText(getTranslation(dict, "label_filter_cells"));
     ui->labelFilterWeapon->setText(getTranslation(dict, "label_filter_weapon"));
+    ui->actionUseLowerTierArmour->setText(getTranslation(dict, "use_lower_tier_gear"));
+    ui->labelTier->setText(getTranslation(dict, "label_tier"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -187,7 +201,7 @@ void MainWindow::search()
     if (wantedSkills.empty())
         return;
     armourSetSearch(new ArmourSetSearch(
-        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills));
+        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills, options));
 }
 
 void MainWindow::advancedSearch()
@@ -487,7 +501,7 @@ void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *
     ui->listWidgetArmourSets->setItemWidget(item, view);
 }
 
-ArmourSetView* MainWindow::createArmourSetView(const Gear::ArmourSet &set)
+ArmourSetView *MainWindow::createArmourSetView(const Gear::ArmourSet &set)
 {
     return new ArmourSetView(dict, set, armoury,
                              ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());

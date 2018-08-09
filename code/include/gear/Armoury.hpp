@@ -7,6 +7,8 @@
 #include <QJsonObject>
 #include <vector>
 
+class Options;
+
 namespace Gear
 {
 class Armoury
@@ -15,9 +17,10 @@ class Armoury
     Armoury();
 
     const SkillInfo &getSkillInfoFor(const std::string &name) const;
-    std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill> &skills,
-                                            WeaponType type) const;
-    std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type) const;
+    std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill> &skills, WeaponType type,
+                                            const Options &options) const;
+    std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type,
+                                           const Options &options) const;
     const Armour &getArmour(std::string name) const;
     const Weapon &getWeapon(std::string name) const;
 
@@ -33,11 +36,8 @@ class Armoury
     ArmourType getArmourType(const std::string &type) const;
     WeaponType getWeaponType(const std::string &type) const;
     Rarity getRarity(const QJsonObject &gear) const;
+    bool filterGear(const Gear &gear, const Options &options) const;
 
-    //Skill getSkill(const std::string &name, const std::string &points);
-    //std::vector<Weapon> loadWeapons(const std::string &fileName, WeaponType type);
-    //std::vector<Armour> loadArmour(const std::string &fileName, ArmourType type);
-    //std::vector<SkillInfo> loadSkillInfos(const std::string &fileName);
 
     std::unordered_map<WeaponType, std::vector<Weapon>> weapons;
     std::unordered_map<ArmourType, std::vector<Armour>> armours;

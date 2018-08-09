@@ -1,3 +1,4 @@
+#include "Options.hpp"
 #include "gear/Armoury.hpp"
 #include "util/json.hpp"
 #include "util/string.hpp"
@@ -8,10 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-Gear::Armoury::Armoury() : notFound("", "", None, std::vector<std::string>())
-{
-    load();
-}
+Gear::Armoury::Armoury() : notFound("", "", None, std::vector<std::string>()) { load(); }
 
 const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) const
 {
@@ -25,13 +23,16 @@ const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) c
 }
 
 std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<Skill> &skills,
-                                                             WeaponType type) const
+                                                             WeaponType type,
+                                                             const Options &options) const
 {
     std::vector<Weapon> weapons;
     if (this->weapons.count(type) == 0)
         return weapons;
     for (const auto &weapon : this->weapons.at(type))
     {
+        if (filterGear(weapon, options))
+            continue;
         for (const auto &skill : skills)
         {
             if (weapon.getSkillPointsFor(skill.getName()) > 0 ||
@@ -46,13 +47,16 @@ std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<S
 }
 
 std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Skill> &skills,
-                                                            ArmourType type) const
+                                                            ArmourType type,
+                                                            const Options &options) const
 {
     std::vector<Armour> armours;
     if (this->armours.count(type) == 0)
         return armours;
     for (const auto &armour : this->armours.at(type))
     {
+        if (filterGear(armour, options))
+            continue;
         for (const auto &skill : skills)
         {
             if (armour.getSkillPointsFor(skill.getName()) > 0 ||
@@ -226,17 +230,15 @@ void Gear::Armoury::load(const std::string &fileName)
                     for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
                         util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
                                                       util::json::jsonToUniqueSkill(jsonUnique));
-                bool heroic = false;
                 if (rarity != Exotic)
                 {
                     armours[type].push_back(Armour(type, name, description, 5, minDef, maxDef,
                                                    elementalResistance, skills, uniqueSkills, cell,
-                                                   rarity, heroic));
-                    heroic = true;
+                                                   rarity));
                 }
                 armours[type].push_back(Armour(type, name, description, 6, minDef, maxDefHeroic,
                                                elementalResistance, skillsHeroic,
-                                               uniqueSkillsHeroic, cell, rarity, heroic));
+                                               uniqueSkillsHeroic, cell, rarity));
             }
         }
         catch (const std::exception &e)
@@ -332,17 +334,15 @@ void Gear::Armoury::load(const std::string &fileName)
                     for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
                         util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
                                                       util::json::jsonToUniqueSkill(jsonUnique));
-                bool heroic = false;
                 if (rarity != Exotic)
                 {
                     weapons[type].push_back(Weapon(type, name, description, 5, minDamage, maxDamage,
                                                    elementalDamage, skills, uniqueSkills, cell1,
-                                                   cell2, rarity, heroic));
-                    heroic = true;
+                                                   cell2, rarity));
                 }
                 weapons[type].push_back(Weapon(type, name, description, 6, minDamage,
                                                maxDamageHeroic, elementalDamage, skillsHeroic,
-                                               uniqueSkillsHeroic, cell1, cell2, rarity, heroic));
+                                               uniqueSkillsHeroic, cell1, cell2, rarity));
             }
         }
         catch (const std::exception &e)
@@ -493,4 +493,18 @@ Gear::Rarity Gear::Armoury::getRarity(const QJsonObject &gear) const
     if (rarity == "exotic")
         return Rarity::Exotic;
     throw std::logic_error("Unknown rarity " + rarity);
+}
+
+bool Gear::Armoury::filterGear(const Gear &gear, const Options &options) const
+{
+    if (gear.getTier() > options.tier)
+        return true;
+    switch (options.tier)
+    {
+    case 6: return !options.useLowerTierArmour && gear.getTier() < 6;
+    case 5:
+        return !options.useLowerTierArmour &&
+               gear.getTier() < 4; // tier 4 is pretty equal to tier 5
+    default: return false;
+    }
 }

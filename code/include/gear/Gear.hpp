@@ -29,6 +29,7 @@ class Gear
     virtual CellList getCells() const = 0;
     virtual std::string getToolTip(const Dictionary &dict) const = 0;
     virtual bool hasUniqueSkill() const = 0;
+    virtual int getTier() const = 0;
 };
 } // namespace Gear
 

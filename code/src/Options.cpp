@@ -34,6 +34,8 @@ const QString LANTERN = "Lantern Cell";
 const QString LAST_SEARCH_SAVE_LOCATION = "Last search save location";
 const QString LAST_CELL_SAVE_LOCATION = "Last cell save location";
 const QString CELL_USAGE = "Cell usage";
+const QString LOWER_TIER = "Lower tier";
+const QString TIER = "Tier";
 
 Options::Options()
 {
@@ -103,6 +105,10 @@ void Options::loadConfiguration(const Gear::Armoury &armoury, const QString &fil
         lastCellSaveLocation = json[LAST_CELL_SAVE_LOCATION].toString();
     if (json.contains(CELL_USAGE) && json[CELL_USAGE].isDouble())
         cellUsage = json[CELL_USAGE].toInt();
+    if (json.contains(LOWER_TIER) && json[LOWER_TIER].isBool())
+        useLowerTierArmour = json[LOWER_TIER].toBool();
+    if (json.contains(TIER) && json[TIER].isDouble())
+        tier = json[TIER].toInt();
 }
 
 void Options::saveConfiguration(const QString &fileName)
@@ -122,6 +128,8 @@ void Options::saveConfiguration(const QString &fileName)
     json[LAST_SEARCH_SAVE_LOCATION] = lastSearchSaveLocation;
     json[LAST_CELL_SAVE_LOCATION] = lastCellSaveLocation;
     json[CELL_USAGE] = cellUsage;
+    json[LOWER_TIER] = useLowerTierArmour;
+    json[TIER] = tier;
     QJsonDocument jsonDoc(json);
     config.write(jsonDoc.toJson());
 }

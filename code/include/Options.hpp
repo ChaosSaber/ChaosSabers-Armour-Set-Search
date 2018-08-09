@@ -61,6 +61,8 @@ class Options
     QString lastSearchSaveLocation = STANDARD_SEARCH_SAVE_LOCATION;
     QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
     int cellUsage = 0;
+    bool useLowerTierArmour = true;
+    int tier = 6;
 
   private:
     QJsonObject cellToJson(const Gear::Cell &cell);

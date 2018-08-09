@@ -8,7 +8,7 @@
 
 namespace Gear
 {
-class ArmourSet : public Gear
+class ArmourSet
 {
   public:
     ArmourSet(Armour head, Armour torso, Armour arms, Armour legs, Weapon weapon,
@@ -20,21 +20,20 @@ class ArmourSet : public Gear
 
     /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
-    bool hasFreeCellSlotFor(SkillType type) const override;
+    bool hasFreeCellSlotFor(SkillType type) const;
     // adds a new Cell to the gear
     // returns if the cell could be inserted
-    bool addCell(Cell cell) override;
+    bool addCell(Cell cell);
     // returns the info of the gear as human readable string
-    std::string getGearInfo(const Dictionary &dict) const override;
+    std::string getGearInfo(const Dictionary &dict) const;
     // returns a list of all skills on the gear
-    SkillList getSkills() const override;
+    SkillList getSkills() const;
     // returns the skill points for a specific skill on that gear
-    int getSkillPointsFor(const std::string &skill) const override;
+    int getSkillPointsFor(const std::string &skill) const;
     // returns the cells on the gear
-    CellList getCells() const override;
-    virtual std::string getToolTip(const Dictionary &dict) const override { return ""; }
-    virtual bool hasUniqueSkill() const override;
-    std::vector<std::string> getUniqueSkills() const override;
+    CellList getCells() const;
+    virtual bool hasUniqueSkill() const;
+    std::vector<std::string> getUniqueSkills() const;
 
     const Armour &getHead() const;
     const Armour &getTorso() const;

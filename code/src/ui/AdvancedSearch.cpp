@@ -39,7 +39,7 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
     ui->listWidgetTorsos->clear();
     ui->listWidgetArms->clear();
     ui->listWidgetLegs->clear();
-    for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType))
+    for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(weapon.getName()) > 0)
@@ -76,7 +76,7 @@ void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
 
 void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget *list)
 {
-    for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type))
+    for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(armour.getName()) > 0)

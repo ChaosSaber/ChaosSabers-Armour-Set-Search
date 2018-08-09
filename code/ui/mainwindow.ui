@@ -48,6 +48,16 @@
          <item row="0" column="1">
           <widget class="QComboBox" name="comboBoxWeaponType"/>
          </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labelTier">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="comboBoxTier"/>
+         </item>
         </layout>
        </item>
        <item>
@@ -237,6 +247,8 @@
     <addaction name="menuLanguage"/>
     <addaction name="separator"/>
     <addaction name="actionClearSkills"/>
+    <addaction name="separator"/>
+    <addaction name="actionUseLowerTierArmour"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -322,6 +334,17 @@
   <action name="actionClearSkills">
    <property name="text">
     <string>clear Skill search</string>
+   </property>
+  </action>
+  <action name="actionUseLowerTierArmour">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>use lower Tier armor</string>
    </property>
   </action>
  </widget>
