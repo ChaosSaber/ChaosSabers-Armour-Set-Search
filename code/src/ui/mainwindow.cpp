@@ -36,7 +36,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), dict(Dictionary()), armoury(dict)
 {
     ui->setupUi(this);
     QSettings settings;
@@ -46,8 +47,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // TODO: Download Data files if not exist?
 
-    options.load(armoury);
+    // TODO: maybe a nothrow option?
+    try
+    {
+        options.loadConfiguration(armoury);
+    }
+    catch (OptionsIoException)
+    {
+    }
     dict.loadLanguage(options.language);
+    try
+    {
+        options.loadCells(armoury, dict);
+        options.loadSearch(armoury, dict);
+    }
+    catch (OptionsIoException)
+    {
+    }
+
     setupTranslation();
 
     skills[Gear::SkillType::None] = armoury.getSkills(Gear::SkillType::None);
@@ -113,15 +130,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
 
-    // TODO: move to background thread
-
-    // auto updateLabel = new QLabel();
-    // updateLabel->setText(getTranslation(dict, "update_searching") + " ");
-    // ui->menuBar->setCornerWidget(updateLabel);
-    // manager = new QNetworkAccessManager(this);
-    // connect(manager, &QNetworkAccessManager::finished,
+    //auto updateLabel = new QLabel();
+    //ui->menuBar->setCornerWidget(updateLabel);
+    //manager = new QNetworkAccessManager(this);
+    //connect(manager, &QNetworkAccessManager::finished,
     //        [this](QNetworkReply *reply) { updateNetworkReply(reply); });
-    // manager->get(QNetworkRequest(
+    //manager->get(QNetworkRequest(
     //    QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
@@ -355,6 +369,7 @@ void MainWindow::saveSearch()
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
 }
 
@@ -367,11 +382,12 @@ void MainWindow::loadSearch()
         return;
     try
     {
-        options.loadSearch(armoury, fileName);
+        options.loadSearch(armoury, dict, fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
     showLoadedSearch();
     QFileInfo info(fileName);
@@ -385,32 +401,26 @@ void MainWindow::updateNetworkReply(QNetworkReply *reply)
     if (reply->error() != QNetworkReply::NoError || !attr.isValid() ||
         (attr.userType() != QMetaType::QUrl))
     {
-        label->setText(getTranslation(dict, "update_failed") + " ");
+        return;
     }
-    else
+    auto url = attr.toUrl();
+    if (url.isRelative())
     {
-        auto url = attr.toUrl();
-        if (url.isRelative())
-        {
-            url = reply->url().resolved(url);
-        }
-        if (url.toString().endsWith(PROGRAM_VERSION))
-        {
-            label->setText(getTranslation(dict, "update_current_version") + " ");
-        }
-        else
-        {
-            QString text = "<a href=\"";
-            text += url.toString();
-            text += "\">";
-            text += getTranslation(dict, "update_new_version");
-            text += " </a>";
-            label->setText(text);
-            label->setTextFormat(Qt::RichText);
-            label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-            label->setOpenExternalLinks(true);
-        }
+        url = reply->url().resolved(url);
     }
+    if (!url.toString().endsWith(PROGRAM_VERSION))
+    {
+        QString text = "<a href=\"";
+        text += url.toString();
+        text += "\">";
+        text += getTranslation(dict, "update_new_version");
+        text += " </a>";
+        label->setText(text);
+        label->setTextFormat(Qt::RichText);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        label->setOpenExternalLinks(true);
+    }
+
     ui->menuBar->setCornerWidget(label);
     reply->deleteLater();
 }

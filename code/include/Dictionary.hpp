@@ -11,6 +11,7 @@ class Dictionary
     const std::string &getTranslationFor(const std::string &key) const;
     std::vector<std::string> getAvaiableLanguages() const;
     void loadLanguage(const std::string &language);
+    void addEntry(const std::string &key, const std::string &value);
 
   private:
     std::string exchangeSpecialCharacter(std::string str);

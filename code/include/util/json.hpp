@@ -28,7 +28,7 @@ struct JsonParameter
 bool parameterCheck(const QJsonObject &json, const std::vector<JsonParameter> &params);
 
 Gear::Skill jsonToSkill(const QJsonValueRef &json);
-std::string jsonToUniqueSkill(const QJsonValueRef &json);
+std::string jsonToUniqueSkill(const QJsonValueRef &json, Dictionary &dict);
 int getMaxValue(const QJsonObject &json);
 int getValueForLevel(const QJsonObject &json, const std::string &level);
 

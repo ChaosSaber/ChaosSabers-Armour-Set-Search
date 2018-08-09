@@ -9,7 +9,10 @@
 #include <fstream>
 #include <iostream>
 
-Gear::Armoury::Armoury() : notFound("", "", None, std::vector<std::string>()) { load(); }
+Gear::Armoury::Armoury(Dictionary &dict) : notFound("", "", None, std::vector<std::string>())
+{
+    load(dict);
+}
 
 const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) const
 {
@@ -18,7 +21,7 @@ const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) c
         if (skillInfo.getName() == name)
             return skillInfo;
     }
-    // TODO: errorhandling if a skill is not found
+    std::cout << "Couldn't find skill " << name << std::endl;
     return notFound;
 }
 
@@ -86,22 +89,22 @@ Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string &skillName) con
     return getSkillInfoFor(skillName).getType();
 }
 
-const Gear::Armour &Gear::Armoury::getArmour(std::string name) const
+const Gear::Armour &Gear::Armoury::getArmour(std::string name, bool heroic) const
 {
     for (const auto &armours : this->armours)
         for (const auto &armour : armours.second)
-            if (armour.getName() == name)
+            if (armour.getName() == name && (!heroic || armour.getTier() == 6))
                 return armour;
     std::stringstream ss;
     ss << "There is no armour with the key " << name;
     throw std::exception(ss.str().c_str());
 }
 
-const Gear::Weapon &Gear::Armoury::getWeapon(std::string name) const
+const Gear::Weapon &Gear::Armoury::getWeapon(std::string name, bool heroic) const
 {
     for (const auto &weapons : this->weapons)
         for (const auto &weapon : weapons.second)
-            if (weapon.getName() == name)
+            if (weapon.getName() == name && (!heroic || weapon.getTier() == 6))
                 return weapon;
     std::stringstream ss;
     ss << "There is no weapon with the key " << name;
@@ -146,7 +149,7 @@ const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_TYPE, QJsonValue::Type::String},
     {JSON_EFFECTS, QJsonValue::Type::Object}};
 
-void Gear::Armoury::load(const std::string &fileName)
+void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
 {
     weapons.clear();
     armours.clear();
@@ -211,7 +214,7 @@ void Gear::Armoury::load(const std::string &fileName)
                 std::vector<std::string> uniqueSkills;
                 if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
                     for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
-                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique));
+                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
                 armours[type].push_back(Armour(type, name, description, tier, minDef, maxDef,
                                                elementalResistance, skills, uniqueSkills, cell,
                                                rarity));
@@ -228,8 +231,9 @@ void Gear::Armoury::load(const std::string &fileName)
                 std::vector<std::string> uniqueSkills, uniqueSkillsHeroic;
                 if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
                     for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
-                        util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
-                                                      util::json::jsonToUniqueSkill(jsonUnique));
+                        util::json::addMaelstromSkill(
+                            uniqueSkills, uniqueSkillsHeroic, jsonUnique,
+                            util::json::jsonToUniqueSkill(jsonUnique, dict));
                 if (rarity != Exotic)
                 {
                     armours[type].push_back(Armour(type, name, description, 5, minDef, maxDef,
@@ -240,6 +244,8 @@ void Gear::Armoury::load(const std::string &fileName)
                                                elementalResistance, skillsHeroic,
                                                uniqueSkillsHeroic, cell, rarity));
             }
+            dict.addEntry(name, name);
+            dict.addEntry(description, description);
         }
         catch (const std::exception &e)
         {
@@ -315,7 +321,7 @@ void Gear::Armoury::load(const std::string &fileName)
                 std::vector<std::string> uniqueSkills;
                 if (weapon.contains(JSON_UNIQUE_EFFECT) && weapon[JSON_UNIQUE_EFFECT].isArray())
                     for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
-                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique));
+                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
                 weapons[type].push_back(Weapon(type, name, description, tier, minDamage, maxDamage,
                                                elementalDamage, skills, uniqueSkills, cell1, cell2,
                                                rarity));
@@ -332,8 +338,9 @@ void Gear::Armoury::load(const std::string &fileName)
                 std::vector<std::string> uniqueSkills, uniqueSkillsHeroic;
                 if (weapon.contains(JSON_UNIQUE_EFFECT) && weapon[JSON_UNIQUE_EFFECT].isArray())
                     for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
-                        util::json::addMaelstromSkill(uniqueSkills, uniqueSkillsHeroic, jsonUnique,
-                                                      util::json::jsonToUniqueSkill(jsonUnique));
+                        util::json::addMaelstromSkill(
+                            uniqueSkills, uniqueSkillsHeroic, jsonUnique,
+                            util::json::jsonToUniqueSkill(jsonUnique, dict));
                 if (rarity != Exotic)
                 {
                     weapons[type].push_back(Weapon(type, name, description, 5, minDamage, maxDamage,
@@ -344,6 +351,8 @@ void Gear::Armoury::load(const std::string &fileName)
                                                maxDamageHeroic, elementalDamage, skillsHeroic,
                                                uniqueSkillsHeroic, cell1, cell2, rarity));
             }
+            dict.addEntry(name, name);
+            dict.addEntry(description, description);
         }
         catch (const std::exception &e)
         {
@@ -403,7 +412,9 @@ void Gear::Armoury::load(const std::string &fileName)
                             break;
                         }
                     }
-                    effects.push_back(util::string::vectorJoin(descriptions, ". "));
+                    auto description = util::string::vectorJoin(descriptions, ". ");
+                    dict.addEntry(description, description);
+                    effects.push_back(description);
                 }
                 else
                 {
@@ -412,6 +423,8 @@ void Gear::Armoury::load(const std::string &fileName)
                 }
             }
             skillInfos.push_back(SkillInfo(name, description, type, effects));
+            dict.addEntry(name, name);
+            dict.addEntry(description, description);
         }
         catch (const std::exception &e)
         {
@@ -476,6 +489,8 @@ Gear::WeaponType Gear::Armoury::getWeaponType(const std::string &type) const
         return WeaponType::Sword;
     if (type == "War Pike")
         return WeaponType::Pike;
+    if (type == "Repeater")
+        return WeaponType::Reapeater;
     throw std::logic_error("Unknown weapon type " + type);
 }
 

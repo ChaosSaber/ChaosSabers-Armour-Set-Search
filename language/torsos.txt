@@ -1,7 +1,7 @@
 #internal_key(name);language 1;language 2;...
 ragetail_torso_heroic;Ragetail Cloak
 firebrand_torso_heroic;Firebrand Charrplate
-shockjaw_torso_heroic;Shockjaw Jacket
+shockjaw_torso_heroic;Shockjaw Vest
 razorwing_torso_heroic;Razorwing Plate
 frostback_torso_heroic;Frostplate
 bloodfire_torso_heroic;Bloodfire Plate

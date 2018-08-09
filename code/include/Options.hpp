@@ -1,6 +1,7 @@
 #ifndef DAUNTLESS_ASS_OPTIONS_HPP
 #define DAUNTLESS_ASS_OPTIONS_HPP
 
+#include "Dictionary.hpp"
 #include "gear/ArmourSet.hpp"
 #include "gear/Armoury.hpp"
 #include "gear/Cell.hpp"
@@ -44,12 +45,13 @@ class Options
     void loadConfiguration(const Gear::Armoury &armoury,
                            const QString &fileName = CONFIG_FILE_NAME);
     void saveConfiguration(const QString &fileName = CONFIG_FILE_NAME);
-    void loadSearch(const Gear::Armoury &armoury, const QString &fileName = LAST_SEARCH);
+    void loadSearch(const Gear::Armoury &armoury, const Dictionary &dict,
+                    const QString &fileName = LAST_SEARCH);
     void saveSearch(const QString &fileName = LAST_SEARCH);
     void save();
-    void load(const Gear::Armoury &armoury);
     void saveCells(const QString &fileName = MY_CELLS);
-    void loadCells(const Gear::Armoury &armoury, const QString &fileName = MY_CELLS);
+    void loadCells(const Gear::Armoury &armoury, const Dictionary &dict,
+                   const QString &fileName = MY_CELLS);
 
     int numberOfResults = 100;
     std::string language = "English";
@@ -66,11 +68,14 @@ class Options
 
   private:
     QJsonObject cellToJson(const Gear::Cell &cell);
-    Gear::Cell jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury);
+    Gear::Cell jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury,
+                          const Dictionary &dict, bool useDict);
     QJsonObject armourToJson(const Gear::Armour &armour);
-    Gear::Armour jsonToArmour(const QJsonObject &json, const Gear::Armoury &armoury);
+    Gear::Armour jsonToArmour(const QJsonObject &json, const Gear::Armoury &armoury,
+                              const Dictionary &dict, bool useDict);
     QJsonObject weaponToJson(const Gear::Weapon &weapon);
-    Gear::Weapon jsonToWeapon(const QJsonObject &json, const Gear::Armoury &armoury);
+    Gear::Weapon jsonToWeapon(const QJsonObject &json, const Gear::Armoury &armoury,
+                              const Dictionary &dict, bool useDict);
 };
 
 #endif // !DAUNTLESS_ASS_OPTIONS_HPP

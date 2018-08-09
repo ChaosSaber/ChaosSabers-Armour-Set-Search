@@ -17,7 +17,7 @@ Dictionary::Dictionary()
     if (!config.open(QIODevice::ReadOnly))
     {
         // leave presets
-        std::cout << "Couldn't open languages file";
+        std::cout << "Couldn't open languages file" << std::endl;
         return;
     }
     QByteArray configData = config.readAll();
@@ -99,3 +99,5 @@ std::string Dictionary::exchangeSpecialCharacter(std::string str)
     util::string::replace(str, "\\t", "\t");
     return str;
 }
+
+void Dictionary::addEntry(const std::string &key, const std::string &value) { dict[key] = value; }

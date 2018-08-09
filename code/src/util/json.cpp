@@ -19,14 +19,16 @@ Gear::Skill util::json::jsonToSkill(const QJsonValueRef &json)
     return Gear::Skill(perk[JSON_NAME].toString().toStdString(), perk[JSON_VALUE].toInt());
 }
 
-std::string util::json::jsonToUniqueSkill(const QJsonValueRef &json)
+std::string util::json::jsonToUniqueSkill(const QJsonValueRef &json, Dictionary &dict)
 {
     if (!json.isObject())
         throw std::logic_error("unique effect is no object");
     auto unique = json.toObject();
     if (!util::json::parameterCheck(unique, uniqueEffectsParameters))
         throw std::logic_error("unique effect is non conforming");
-    return unique[JSON_DESCRIPTION].toString().toStdString();
+    auto description =unique[JSON_DESCRIPTION].toString().toStdString();
+    dict.addEntry(description, description);
+    return description;
 }
 
 int util::json::getMaxValue(const QJsonObject &json)

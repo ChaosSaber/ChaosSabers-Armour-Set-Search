@@ -144,11 +144,12 @@ void CellWindow::importCells()
         return;
     try
     {
-        options.loadCells(armoury, fileName);
+        options.loadCells(armoury, dict, fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
     for (const auto &cellBox : cellSpinBoxen)
         cellBox.second->setValue(options.cells[cellBox.first]);
@@ -184,5 +185,6 @@ void CellWindow::exportCells()
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
 }

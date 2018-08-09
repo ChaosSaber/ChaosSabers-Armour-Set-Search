@@ -1,5 +1,5 @@
 #internal_key(name);language 1;language 2;...
-ragetail_arms_heroic;Ragetail Gloves
+ragetail_arms_heroic;Ragetail Grips
 firebrand_arms_heroic;Firebrand Gauntlets
 shockjaw_arms_heroic;Shockjaw Bracers
 razorwing_arms_heroic;Razorwing Bracers
