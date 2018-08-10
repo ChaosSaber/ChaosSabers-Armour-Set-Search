@@ -1,7 +1,10 @@
 #include "ui/AdvancedSearch.hpp"
 #include "ui/Translation.hpp"
 #include "ui_AdvancedSearch.h"
+#include <QSettings>
 #include <sstream>
+
+#define GEOMETRY "AdvancedSearch/Geometry"
 
 AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury &armoury,
                                const Dictionary &dict, Options &options,
@@ -10,6 +13,8 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
       wantedSkills(std::move(skills))
 {
     ui->setupUi(this);
+    QSettings settings;
+    restoreGeometry(settings.value(GEOMETRY).toByteArray());
     setWindowTitle(getTranslation(dict, "title_advanced_search"));
     ui->labelWeapons->setText(getTranslation(dict, "label_weapons"));
     ui->labelHeads->setText(getTranslation(dict, "label_head_armour"));
@@ -34,7 +39,7 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
     ui->listWidgetTorsos->clear();
     ui->listWidgetArms->clear();
     ui->listWidgetLegs->clear();
-    for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType))
+    for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(weapon.getName()) > 0)
@@ -71,7 +76,7 @@ void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
 
 void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget *list)
 {
-    for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type))
+    for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(armour.getName()) > 0)
@@ -111,4 +116,11 @@ void AdvancedSearch::search()
     emit(armourSetSearch(new ArmourSetSearch(weapons, heads, torsos, arms, legs, wantedSkills)));
     // TODO: return with accepted and rejected
     // and then let the mainwindow acces the ass with a method
+}
+
+void AdvancedSearch::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.setValue(GEOMETRY, saveGeometry());
+    QDialog::closeEvent(event);
 }

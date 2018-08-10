@@ -25,6 +25,8 @@ SET(SRCS
 	src/ui/About.cpp
 	src/ui/License.cpp
 	src/ui/CellWindow.cpp
+	src/util/json.cpp
+	src/util/files.cpp
 )
 
 SET(HDRS
@@ -52,6 +54,9 @@ SET(HDRS
 	include/ui/About.hpp
 	include/ui/License.hpp
 	include/ui/CellWindow.hpp
+	include/util/json.hpp
+	include/gear/Rarity.hpp
+	include/util/files.hpp
 )
 
 SET(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui/)

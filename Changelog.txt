@@ -1,3 +1,16 @@
+Version 0.10.1: 09.08.2018:
+- added filter for the current tier
+- added backwards compatibility for cells and searches
+- updated data with Koshai gear
+- known Issues: armour and weapons will only be saved(loaded as their non heroic version)
+
+Version 0.10.0: 08.08.2018:
+- now working together with https://www.dauntless-builder.com/, we will use the same data sets (if you want to update your data go to https://www.dauntless-builder.com/data.json, download the data and place it in data/data.json in the install directory) (automatic updating will come in the future)
+- implemented pre Maelstrom gear with it.(no tier filtering yet)
+- moved userdata to "Documents/ChaosSaber's Armour Set Search"
+- saving and loading adapted to the new data (no backwars compatibility yet)
+
+
 Version 0.9.2: 29.07.2018:
 - unique effect will now be properly displayed in the search results
 - implemented filtering of search results after the weapon and free cell slots

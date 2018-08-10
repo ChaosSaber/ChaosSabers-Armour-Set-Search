@@ -6,13 +6,18 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QResizeEvent>
+#include <QSettings>
 #include <sstream>
+
+#define GEOMETRY "CellWindow/Geometry"
 
 CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dictionary &dict,
                        QWidget *parent)
     : QDialog(parent), options(options), ui(new Ui::CellWindow), dict(dict), armoury(armoury)
 {
     ui->setupUi(this);
+    QSettings settings;
+    restoreGeometry(settings.value(GEOMETRY).toByteArray());
 
     auto widget = new QWidget();
     gridLayout = new QGridLayout();
@@ -20,8 +25,6 @@ CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dic
     ui->scrollAreaCells->setWidget(widget);
     for (const auto &skill : armoury.getSkills(Gear::SkillType::None))
     {
-        if (skill->getType() == Gear::SkillType::Unique)
-            continue; // no cells for unique skills
         auto layout = new QGridLayout();
         auto widget = new QWidget();
         widget->setLayout(layout);
@@ -116,8 +119,13 @@ void CellWindow::closeEvent(QCloseEvent *event)
         if (reply != QMessageBox::Yes)
         {
             event->ignore();
+            return;
         }
     }
+
+    QSettings settings;
+    settings.setValue(GEOMETRY, saveGeometry());
+    QDialog::closeEvent(event);
 }
 
 void CellWindow::save()
@@ -129,24 +137,25 @@ void CellWindow::save()
 
 void CellWindow::importCells()
 {
-    auto fileName = QFileDialog::getOpenFileName(this, getTranslation(dict, "button_import"),
-                                                 options.lastSaveLocation,
-                                                 "Cells (*.cells);;All Files(*.*)");
+    auto fileName =
+        QFileDialog::getOpenFileName(this, getTranslation(dict, "button_import"),
+                                     options.lastCellSaveLocation, "Cells (*.cells);;All Files(*.*)");
     if (fileName.isEmpty())
         return;
     try
     {
-        options.loadCells(armoury, fileName.toStdString());
+        options.loadCells(armoury, dict, fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
     for (const auto &cellBox : cellSpinBoxen)
         cellBox.second->setValue(options.cells[cellBox.first]);
     unsavedChanges = false;
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastCellSaveLocation = info.path();
 }
 
 void CellWindow::exportCells()
@@ -164,17 +173,18 @@ void CellWindow::exportCells()
     }
     QString filter = "Cells (*.cells)";
     auto fileName = QFileDialog::getSaveFileName(this, getTranslation(dict, "button_export"),
-                                                 options.lastSaveLocation, filter, &filter);
+                                                 options.lastCellSaveLocation, filter, &filter);
     if (fileName.isEmpty())
         return;
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastCellSaveLocation = info.path();
     try
     {
-        options.saveCells(fileName.toStdString());
+        options.saveCells(fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
 }

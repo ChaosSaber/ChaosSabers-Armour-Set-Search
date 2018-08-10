@@ -4,6 +4,12 @@
 
 Gear::SkillList::SkillList(Skill skill) { skills.push_back(skill); }
 
+Gear::SkillList::SkillList(const std::vector<Skill> &skills)
+{
+    for (const auto &skill : skills)
+       *this += skill;
+}
+
 bool Gear::skillSorter(const Skill &lhs, const Skill &rhs)
 {
     if (lhs.getSkillPoints() > rhs.getSkillPoints())

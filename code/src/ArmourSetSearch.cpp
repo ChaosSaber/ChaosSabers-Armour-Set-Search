@@ -2,12 +2,14 @@
 #include <sstream>
 
 ArmourSetSearch::ArmourSetSearch(const Gear::Armoury &armoury, Gear::WeaponType weaponType,
-                                 std::vector<Gear::Skill> skills, Gear::CellList availableCells)
-    : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType),
-                      armoury.getArmourWithSkill(skills, Gear::Head),
-                      armoury.getArmourWithSkill(skills, Gear::Torso),
-                      armoury.getArmourWithSkill(skills, Gear::Arms),
-                      armoury.getArmourWithSkill(skills, Gear::Legs), skills, availableCells)
+                                 std::vector<Gear::Skill> skills, const Options &options,
+                                 Gear::CellList availableCells)
+    : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
+                      armoury.getArmourWithSkill(skills, Gear::Head, options),
+                      armoury.getArmourWithSkill(skills, Gear::Torso, options),
+                      armoury.getArmourWithSkill(skills, Gear::Arms, options),
+                      armoury.getArmourWithSkill(skills, Gear::Legs, options), skills,
+                      availableCells)
 {
 }
 
@@ -22,21 +24,30 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
 
 {
     if (heads.empty())
-        heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", 0, Gear::Elements(),
-                                     Gear::Skill(), Gear::Skill(), Gear::SkillType::None));
+        heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", "any_hat", 0, 0, 0,
+                                     Gear::Elements(), std::vector<Gear::Skill>(),
+                                     std::vector<std::string>(), Gear::SkillType::None,
+                                     Gear::Rarity::Common));
     if (torsos.empty())
-        torsos.push_back(Gear::Armour(Gear::ArmourType::Torso, "any_torso", 0, Gear::Elements(),
-                                      Gear::Skill(), Gear::Skill(), Gear::SkillType::None));
+        torsos.push_back(Gear::Armour(Gear::ArmourType::Torso, "any_torso", "any_torso", 0, 0, 0,
+                                      Gear::Elements(), std::vector<Gear::Skill>(),
+                                      std::vector<std::string>(), Gear::SkillType::None,
+                                      Gear::Rarity::Common));
     if (arms.empty())
-        arms.push_back(Gear::Armour(Gear::ArmourType::Arms, "any_arms", 0, Gear::Elements(),
-                                    Gear::Skill(), Gear::Skill(), Gear::SkillType::None));
+        arms.push_back(Gear::Armour(Gear::ArmourType::Arms, "any_arms", "any_arms", 0, 0, 0,
+                                    Gear::Elements(), std::vector<Gear::Skill>(),
+                                    std::vector<std::string>(), Gear::SkillType::None,
+                                    Gear::Rarity::Common));
     if (legs.empty())
-        legs.push_back(Gear::Armour(Gear::ArmourType::Legs, "any_legs", 0, Gear::Elements(),
-                                    Gear::Skill(), Gear::Skill(), Gear::SkillType::None));
+        legs.push_back(Gear::Armour(Gear::ArmourType::Legs, "any_legs", "any_legs", 0, 0, 0,
+                                    Gear::Elements(), std::vector<Gear::Skill>(),
+                                    std::vector<std::string>(), Gear::SkillType::None,
+                                    Gear::Rarity::Common));
     if (weapons.empty())
-        weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_weapon", 0, Gear::Elements(),
-                                       Gear::Skill(), Gear::Skill(), Gear::SkillType::None,
-                                       Gear::SkillType::None));
+        weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_hat", "any_hat", 0, 0, 0,
+                                       Gear::Elements(), std::vector<Gear::Skill>(),
+                                       std::vector<std::string>(), Gear::SkillType::None,
+                                       Gear::SkillType::None, Gear::Rarity::Common));
 }
 
 void ArmourSetSearch::search(const Gear::Armoury &armoury, bool *cancel,

@@ -40,3 +40,15 @@ void util::string::replace(std::string &str, const std::string &subString,
         index += replaceString.length();
     }
 }
+std::string util::string::vectorJoin(const std::vector<std::string> &vector,
+                                     const std::string &separator)
+{
+    std::stringstream ss;
+    for (size_t i = 0; i < vector.size(); ++i)
+    {
+        ss << vector[i];
+        if (i != vector.size() - 1)
+            ss << separator;
+    }
+    return ss.str();
+}

@@ -14,17 +14,17 @@
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QScrollBar>
 #include <QSettings>
 #include <QUrl>
 #include <QtConcurrent>
 #include <iostream>
 #include <sstream>
-#include <QScrollBar>
 
-#define ORG "Chaos Org."
+#define ORG "ChaosFoundary"
 #define APP_NAME "ChaosSaber's ASS"
-#define GEOMETRY "mainWindowGeometry"
-#define STATE "mainWindowState"
+#define GEOMETRY "MainWindow/Geometry"
+#define STATE "MainWindow/State"
 
 MainWindow::~MainWindow()
 {
@@ -36,15 +36,35 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), dict(Dictionary()), armoury(dict)
 {
     ui->setupUi(this);
-    QSettings settings(ORG, APP_NAME);
+    QSettings settings;
     restoreGeometry(settings.value(GEOMETRY).toByteArray());
     // create docks, toolbars, etc…
     restoreState(settings.value(STATE).toByteArray());
-    options.load(armoury);
+
+    // TODO: Download Data files if not exist?
+
+    // TODO: maybe a nothrow option?
+    try
+    {
+        options.loadConfiguration(armoury);
+    }
+    catch (OptionsIoException)
+    {
+    }
     dict.loadLanguage(options.language);
+    try
+    {
+        options.loadCells(armoury, dict);
+        options.loadSearch(armoury, dict);
+    }
+    catch (OptionsIoException)
+    {
+    }
+
     setupTranslation();
 
     skills[Gear::SkillType::None] = armoury.getSkills(Gear::SkillType::None);
@@ -110,14 +130,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
 
-    auto updateLabel = new QLabel();
-    updateLabel->setText(getTranslation(dict, "update_searching") + " ");
-    ui->menuBar->setCornerWidget(updateLabel);
-    manager = new QNetworkAccessManager(this);
-    connect(manager, &QNetworkAccessManager::finished,
-            [this](QNetworkReply *reply) { updateNetworkReply(reply); });
-    manager->get(QNetworkRequest(
-        QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
+    //auto updateLabel = new QLabel();
+    //ui->menuBar->setCornerWidget(updateLabel);
+    //manager = new QNetworkAccessManager(this);
+    //connect(manager, &QNetworkAccessManager::finished,
+    //        [this](QNetworkReply *reply) { updateNetworkReply(reply); });
+    //manager->get(QNetworkRequest(
+    //    QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
     ui->widgetSearch->setMaximumWidth(ui->widgetSearch->sizeHint().width() * 1.1);
@@ -128,6 +147,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             [this](int) { applyFilter(); });
     connect(ui->comboBoxFilterWeapon, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int) { applyFilter(); });
+
+    ui->actionUseLowerTierArmour->setChecked(options.useLowerTierArmour);
+    connect(ui->actionUseLowerTierArmour, &QAction::triggered,
+            [this](bool checked) { options.useLowerTierArmour = checked; });
+
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t1"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t2"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t3"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t4"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t5"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "island_t6"));
+    ui->comboBoxTier->setCurrentIndex(options.tier - 1);
+    connect(ui->comboBoxTier, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int index) { options.tier = index + 1; });
 }
 
 void MainWindow::setupTranslation()
@@ -157,6 +190,8 @@ void MainWindow::setupTranslation()
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
     ui->labelFilterFreeCells->setText(getTranslation(dict, "label_filter_cells"));
     ui->labelFilterWeapon->setText(getTranslation(dict, "label_filter_weapon"));
+    ui->actionUseLowerTierArmour->setText(getTranslation(dict, "use_lower_tier_gear"));
+    ui->labelTier->setText(getTranslation(dict, "label_tier"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -180,7 +215,7 @@ void MainWindow::search()
     if (wantedSkills.empty())
         return;
     armourSetSearch(new ArmourSetSearch(
-        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills));
+        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills, options));
 }
 
 void MainWindow::advancedSearch()
@@ -199,8 +234,6 @@ void MainWindow::armourSetSearch(ArmourSetSearch *ass)
     for (const auto &skill : ass->getWantedSkills())
     {
         auto type = armoury.getSkillTypeFor(skill.getName());
-        if (type == Gear::SkillType::Unique)
-            continue; // no cells for unique skills
         for (int i = 1; i <= 3; ++i)
         {
             Gear::Cell cell(Gear::Skill(skill.getName(), i), type);
@@ -260,7 +293,7 @@ void MainWindow::about()
     about->exec();
 }
 
-void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
+void MainWindow::showArmourSets()
 {
     isCreatingArmourSets = true;
     ui->listWidgetArmourSets->clear();
@@ -272,37 +305,28 @@ void MainWindow::showArmourSets(const std::vector<Gear::ArmourSet> &armoursets)
     armourSetItems.clear();
     std::stringstream ss;
     // TODO: add translation
-    ss << "Found " << armoursets.size() << " Results";
-    if (armoursets.size() > options.numberOfResults)
+    ss << "Found " << options.armourSets.size() << " Results";
+    if (options.armourSets.size() > options.numberOfResults)
         ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
     ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
-    std::vector<ArmourSetView *> views;
+    std::unordered_map<const Gear::ArmourSet *, ArmourSetView *> views;
     int maxWidth = 0;
-    for (const auto &set : armoursets)
+    for (const auto &set : options.armourSets)
     {
-        auto view = new ArmourSetView(dict, set, armoury,
-                                      ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
-        views.push_back(view);
-        if (view->getGearViewWidth() > maxWidth)
-            maxWidth = view->getGearViewWidth();
         filter.weapons.insert(set.getWeapon().getName());
         for (const auto &cell : set.getCells())
             if (cell.first.isEmpty())
                 filter.cellSlots.insert(cell.first.getCellType());
+        if (views.size() > options.numberOfResults)
+            continue;
+        auto view = createArmourSetView(set);
+        views.insert({&set, view});
+        if (view->getGearViewWidth() > maxWidth)
+            maxWidth = view->getGearViewWidth();
     }
-    for (auto view : views)
-    {
-        view->setGearViewWidth(maxWidth);
-        auto item = new QListWidgetItem();
-        armourSetItems.push_back(item);
-        item->setSizeHint(view->sizeHint());
-        ui->listWidgetArmourSets->addItem(item);
-        if (armourSetItems.size() <= options.numberOfResults)
-            item->setHidden(false);
-        else
-            item->setHidden(true);
-        ui->listWidgetArmourSets->setItemWidget(item, view);
-    }
+    armourSetViewGearWidth = maxWidth;
+    for (auto setView : views)
+        createArmourSetItem(setView.first, setView.second);
     ui->listWidgetArmourSets->setMinimumWidth(ui->listWidgetArmourSets->sizeHintForColumn(0));
     for (const auto &weapon : filter.weapons)
         ui->comboBoxFilterWeapon->addItem(getTranslation(dict, weapon));
@@ -318,7 +342,7 @@ void MainWindow::showLoadedSearch()
     for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
         skillSelectors[i]->set(options.skillSearches[i]);
     if (options.armourSets.size() > 0)
-        showArmourSets(options.armourSets);
+        showArmourSets();
 }
 
 void MainWindow::saveSearchSettings()
@@ -332,40 +356,42 @@ void MainWindow::saveSearch()
 {
     QString filter = "Armour Set Searches (*.ass)";
     auto fileName = QFileDialog::getSaveFileName(this, getTranslation(dict, "menu_save"),
-                                                 options.lastSaveLocation, filter, &filter);
+                                                 options.lastSearchSaveLocation, filter, &filter);
     if (fileName.isEmpty())
         return;
     saveSearchSettings();
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastSearchSaveLocation = info.path();
     try
     {
-        options.saveSearch(fileName.toStdString());
+        options.saveSearch(fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
 }
 
 void MainWindow::loadSearch()
 {
     auto fileName = QFileDialog::getOpenFileName(this, getTranslation(dict, "menu_load"),
-                                                 options.lastSaveLocation,
+                                                 options.lastSearchSaveLocation,
                                                  "Armour Set Searches (*.ass);;All Files(*.*)");
     if (fileName.isEmpty())
         return;
     try
     {
-        options.loadSearch(armoury, fileName.toStdString());
+        options.loadSearch(armoury, dict, fileName);
     }
     catch (const OptionsIoException &e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
+        box.exec();
     }
     showLoadedSearch();
     QFileInfo info(fileName);
-    options.lastSaveLocation = info.path();
+    options.lastSearchSaveLocation = info.path();
 }
 
 void MainWindow::updateNetworkReply(QNetworkReply *reply)
@@ -375,32 +401,26 @@ void MainWindow::updateNetworkReply(QNetworkReply *reply)
     if (reply->error() != QNetworkReply::NoError || !attr.isValid() ||
         (attr.userType() != QMetaType::QUrl))
     {
-        label->setText(getTranslation(dict, "update_failed") + " ");
+        return;
     }
-    else
+    auto url = attr.toUrl();
+    if (url.isRelative())
     {
-        auto url = attr.toUrl();
-        if (url.isRelative())
-        {
-            url = reply->url().resolved(url);
-        }
-        if (url.toString().endsWith(PROGRAM_VERSION))
-        {
-            label->setText(getTranslation(dict, "update_current_version") + " ");
-        }
-        else
-        {
-            QString text = "<a href=\"";
-            text += url.toString();
-            text += "\">";
-            text += getTranslation(dict, "update_new_version");
-            text += " </a>";
-            label->setText(text);
-            label->setTextFormat(Qt::RichText);
-            label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-            label->setOpenExternalLinks(true);
-        }
+        url = reply->url().resolved(url);
     }
+    if (!url.toString().endsWith(PROGRAM_VERSION))
+    {
+        QString text = "<a href=\"";
+        text += url.toString();
+        text += "\">";
+        text += getTranslation(dict, "update_new_version");
+        text += " </a>";
+        label->setText(text);
+        label->setTextFormat(Qt::RichText);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        label->setOpenExternalLinks(true);
+    }
+
     ui->menuBar->setCornerWidget(label);
     reply->deleteLater();
 }
@@ -416,7 +436,7 @@ void MainWindow::clearSearch()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings settings(ORG, APP_NAME);
+    QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());
     settings.setValue(STATE, saveState());
     QWidget::closeEvent(event);
@@ -428,7 +448,7 @@ void MainWindow::finishedSearch(ArmourSetSearch *ass)
 {
     options.armourSets = ass->moveArmourSets();
     delete ass;
-    showArmourSets(options.armourSets);
+    showArmourSets();
     setSearchButtonsState(true);
     searchWatcher->disconnect();
 }
@@ -447,13 +467,8 @@ void MainWindow::applyFilter()
             *std::next(filter.cellSlots.begin(), ui->comboBoxFilterFreeCells->currentIndex() - 1);
 
     size_t count = 0;
-    for (int i = 0; i < armourSetItems.size(); ++i)
+    for (int i = 0; i < armourSetItems.size() && i < options.numberOfResults; ++i)
     {
-        if (count >= options.numberOfResults)
-        {
-            armourSetItems[i]->setHidden(true);
-            continue;
-        }
         bool hide = false;
         if (weapon != "" && weapon != options.armourSets[i].getWeapon().getName())
             hide = true;
@@ -466,7 +481,15 @@ void MainWindow::applyFilter()
             if (!foundCell)
                 hide = true;
         }
-        armourSetItems[i]->setHidden(hide);
+        const auto &set = options.armourSets[i];
+        if (armourSetItems.count(&set) > 0)
+        {
+            armourSetItems.at(&set)->setHidden(hide);
+        }
+        else
+        {
+            createArmourSetItem(&set, createArmourSetView(set));
+        }
         if (!hide)
             ++count;
     }
@@ -477,3 +500,21 @@ void Filter::clear()
     weapons.clear();
     cellSlots.clear();
 }
+
+void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view)
+{
+    view->setGearViewWidth(armourSetViewGearWidth);
+    auto item = new QListWidgetItem();
+    armourSetItems.insert({set, item});
+    item->setSizeHint(view->sizeHint());
+    ui->listWidgetArmourSets->addItem(item);
+    ui->listWidgetArmourSets->setItemWidget(item, view);
+}
+
+ArmourSetView *MainWindow::createArmourSetView(const Gear::ArmourSet &set)
+{
+    return new ArmourSetView(dict, set, armoury,
+                             ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
+}
+
+void MainWindow::saveDataFiles(QNetworkReply *reply, const QString &fileName) {}

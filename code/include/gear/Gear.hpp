@@ -21,12 +21,15 @@ class Gear
     virtual std::string getGearInfo(const Dictionary &dict) const = 0;
     // returns a list of all skills on the gear
     virtual SkillList getSkills() const = 0;
+    // returns a list of all unique skills on the gear
+    virtual std::vector<std::string> getUniqueSkills() const = 0;
     // returns the skill points for a specific skill on that gear
     virtual int getSkillPointsFor(const std::string &skill) const = 0;
     // returns the cells on the gear
     virtual CellList getCells() const = 0;
     virtual std::string getToolTip(const Dictionary &dict) const = 0;
     virtual bool hasUniqueSkill() const = 0;
+    virtual int getTier() const = 0;
 };
 } // namespace Gear
 

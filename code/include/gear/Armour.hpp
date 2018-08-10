@@ -4,6 +4,7 @@
 #include "gear/Cell.hpp"
 #include "gear/Elements.hpp"
 #include "gear/Gear.hpp"
+#include "gear/Rarity.hpp"
 #include "gear/Skill.hpp"
 #include "gear/SkillType.hpp"
 #include <string>
@@ -16,10 +17,13 @@ enum ArmourType { Head, Torso, Legs, Arms };
 class Armour : public Gear
 {
   public:
-    Armour(ArmourType type, std::string name, unsigned int defense, Elements elementalResistance,
-           Skill skill1, Skill skill2, SkillType cellType);
+    Armour(ArmourType type, std::string name, std::string description, int tier,
+           unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
+           std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType,
+           Rarity rarity);
 
-    unsigned int getDefense() const;
+    unsigned int getMinDefense() const;
+    unsigned int getMaxDefense() const;
     const Elements &getElementalResistance() const;
     bool hasSkill(const std::string &skill) const;
     int getSkillPointsFor(const std::string &skill) const override;
@@ -30,18 +34,25 @@ class Armour : public Gear
     std::string getGearInfo(const Dictionary &dict) const override;
     // returns a list of all skills on the gear
     SkillList getSkills() const override;
+    std::vector<std::string> getUniqueSkills() const override;
     CellList getCells() const override;
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
     virtual bool hasUniqueSkill() const override;
+    bool isExotic() const;
+    virtual int getTier() const override;
 
   private:
+    int tier;
     ArmourType type;
     std::string name;
-    unsigned int defense;
+    std::string description;
+    unsigned int minDefense, maxDefense;
     Elements elementalResistance;
-    Skill skill1, skill2;
+    std::vector<Skill> skills;
     Cell cell;
+    std::vector<std::string> uniqueSkills;
+    Rarity rarity;
 };
 
 } // namespace Gear

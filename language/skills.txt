@@ -5,7 +5,7 @@ aetherhunter;Aetherhunter
 aetheric_attunement;Aetheric Attunement
 aetheric_frenzy;Aetheric Frenzy
 agility;Agility
-assassins_vigor;Assassins Vigor
+assassins_vigor;Assassin's Vigour
 barbed;Barbed
 bladestorm;Bladestorm
 bloodless;Bloodless
@@ -24,7 +24,7 @@ knockout_king;Knockout King
 medic;Medic
 merciless;Merciless
 nimble;Nimble
-nine_lives;Nine lives
+nine_lives;Nine Lives
 overpower;Overpower
 pacifier;Pacifier
 rage;Rage
@@ -32,7 +32,7 @@ ragehunter;Ragehunter
 savagery;Savagery
 sharpened;Sharpened
 shellshock_resist;Shellshock Resist
-stunning_vigor;Stunning Vigor
+stunning_vigor;Stunning Vigour
 sturdy;Sturdy
 swift;Swift
 tough;Tough

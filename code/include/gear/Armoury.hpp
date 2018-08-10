@@ -1,24 +1,29 @@
 #ifndef DAUNTLESS_ASS_GEAR_ARMOURY_HPP
 #define DAUNTLESS_ASS_GEAR_ARMOURY_HPP
 
+#include "Dictionary.hpp"
 #include "gear/Armour.hpp"
 #include "gear/SkillInfo.hpp"
 #include "gear/Weapon.hpp"
+#include <QJsonObject>
 #include <vector>
+
+class Options;
 
 namespace Gear
 {
 class Armoury
 {
   public:
-    Armoury();
+    Armoury(Dictionary &dict);
 
     const SkillInfo &getSkillInfoFor(const std::string &name) const;
-    std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill> &skills,
-                                            WeaponType type) const;
-    std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type) const;
-    const Armour &getArmour(std::string name) const;
-    const Weapon &getWeapon(std::string name) const;
+    std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill> &skills, WeaponType type,
+                                            const Options &options) const;
+    std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type,
+                                           const Options &options) const;
+    const Armour &getArmour(std::string name, bool heroic) const;
+    const Weapon &getWeapon(std::string name, bool heroic) const;
 
     // returns the skill info to all skills of the specified type
     // filters out unique skills
@@ -26,10 +31,14 @@ class Armoury
     SkillType getSkillTypeFor(const std::string &skillName) const;
 
   private:
-    Skill getSkill(const std::string &name, const std::string &points);
-    std::vector<Weapon> loadWeapons(const std::string &fileName, WeaponType type);
-    std::vector<Armour> loadArmour(const std::string &fileName, ArmourType type);
-    std::vector<SkillInfo> loadSkillInfos(const std::string &fileName);
+    void load(Dictionary &dict, const std::string &fileName = "data/data.json");
+    void setElement(Elements &element, const std::string &name, int value);
+    SkillType getSkillType(const std::string &type) const;
+    ArmourType getArmourType(const std::string &type) const;
+    WeaponType getWeaponType(const std::string &type) const;
+    Rarity getRarity(const QJsonObject &gear) const;
+    bool filterGear(const Gear &gear, const Options &options) const;
+
 
     std::unordered_map<WeaponType, std::vector<Weapon>> weapons;
     std::unordered_map<ArmourType, std::vector<Armour>> armours;

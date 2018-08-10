@@ -28,6 +28,9 @@ class AdvancedSearch : public QDialog
   signals:
     void armourSetSearch(ArmourSetSearch *ass);
 
+  protected:
+    void closeEvent(QCloseEvent *event);
+
   private:
     void addItem(QWidget *widget, QListWidget *list);
     void addArmours(Gear::ArmourType type, QListWidget *list);

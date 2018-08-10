@@ -134,3 +134,14 @@ bool Gear::ArmourSet::hasUniqueSkill() const
             return true;
     return false;
 }
+
+std::vector<std::string> Gear::ArmourSet::getUniqueSkills() const
+{
+    std::vector<std::string> uniqueSkills;
+    for (auto gear : this->gear)
+    {
+        auto unique = gear->getUniqueSkills();
+        uniqueSkills.insert(uniqueSkills.end(), unique.begin(), unique.end());
+    }
+    return uniqueSkills;
+}

@@ -14,6 +14,7 @@ class SkillList
   public:
     SkillList() {}
     SkillList(Skill skill);
+    SkillList(const std::vector<Skill> &skills);
     std::string toString(const Dictionary &dict);
     void sort();
 

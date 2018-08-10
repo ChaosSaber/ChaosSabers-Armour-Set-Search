@@ -27,14 +27,8 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
     skills.sort();
     std::vector<Gear::Skill> uniqueSkills;
     for (const auto &skill : skills)
-    {
-        if (armoury.getSkillTypeFor(skill.getName()) == Gear::SkillType::Unique)
-        {
-            uniqueSkills.push_back(skill);
-        }
-        else if (skill.getSkillPoints() > 0)
+        if (skill.getSkillPoints() > 0)
             addSkill(skill);
-    }
     if (uniqueSkills.size() > 0)
     {
         auto label = new QLabel();
