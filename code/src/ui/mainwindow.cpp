@@ -130,13 +130,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
 
-    //auto updateLabel = new QLabel();
-    //ui->menuBar->setCornerWidget(updateLabel);
-    //manager = new QNetworkAccessManager(this);
-    //connect(manager, &QNetworkAccessManager::finished,
-    //        [this](QNetworkReply *reply) { updateNetworkReply(reply); });
-    //manager->get(QNetworkRequest(
-    //    QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
+    auto updateLabel = new QLabel();
+    ui->menuBar->setCornerWidget(updateLabel);
+    manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished,
+            [this](QNetworkReply *reply) { updateNetworkReply(reply); });
+    manager->get(QNetworkRequest(
+        QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
     connect(ui->actionClearSkills, &QAction::triggered, [this](bool) { clearSearch(); });
     ui->widgetSearch->setMaximumWidth(ui->widgetSearch->sizeHint().width() * 1.1);
