@@ -36,6 +36,7 @@ const QString LAST_CELL_SAVE_LOCATION = "Last cell save location";
 const QString CELL_USAGE = "Cell usage";
 const QString LOWER_TIER = "Lower tier";
 const QString TIER = "Tier";
+const QString HEROIC = "Heroic";
 
 Options::Options()
 {
@@ -421,6 +422,8 @@ QJsonObject Options::armourToJson(const Gear::Armour &armour)
 {
     QJsonObject json;
     json[NAME] = QString::fromStdString(armour.getName());
+    if (armour.getTier() == 6)
+        json[HEROIC] = true;
     if (!armour.getCell().isEmpty())
         json[CELL] = cellToJson(armour.getCell());
     return json;
@@ -432,10 +435,16 @@ Gear::Armour Options::jsonToArmour(const QJsonObject &json, const Gear::Armoury 
     // safeguard
     if (!(json.contains(NAME) && json[NAME].isString()))
         throw std::exception("Armour has no name");
+    bool heroic = false;
+    if (json.contains(HEROIC) && json[HEROIC].isBool())
+        heroic = json[HEROIC].toBool();
     auto name = json[NAME].toString().toStdString();
     if (useDict)
+    {
         name = dict.getTranslationFor(name);
-    auto armour = armoury.getArmour(name);
+        heroic = true;
+    }
+    auto armour = armoury.getArmour(name, heroic);
     if (json.contains(CELL) && json[CELL].isObject())
         if (!armour.addCell(jsonToCell(json[CELL].toObject(), armoury, dict, useDict)))
             throw std::runtime_error("Armour " + name + " cell does not fit");
@@ -446,6 +455,8 @@ QJsonObject Options::weaponToJson(const Gear::Weapon &weapon)
 {
     QJsonObject json;
     json[NAME] = QString::fromStdString(weapon.getName());
+    if (weapon.getTier() == 6)
+        json[HEROIC] = true;
     if (!weapon.getCell1().isEmpty())
         json[CELL1] = cellToJson(weapon.getCell1());
     if (!weapon.getCell2().isEmpty())
@@ -459,10 +470,16 @@ Gear::Weapon Options::jsonToWeapon(const QJsonObject &json, const Gear::Armoury 
     // safequard
     if (!(json.contains(NAME) && json[NAME].isString()))
         throw std::exception("Weapon has no name");
+    bool heroic = false;
+    if (json.contains(HEROIC) && json[HEROIC].isBool())
+        heroic = json[HEROIC].toBool();
     auto name = json[NAME].toString().toStdString();
     if (useDict)
+    {
         name = dict.getTranslationFor(name);
-    auto weapon = armoury.getWeapon(name);
+        heroic = true;
+    }
+    auto weapon = armoury.getWeapon(name, heroic);
     if (json.contains(CELL1) && json[CELL1].isObject())
         if (!weapon.addCell(jsonToCell(json[CELL1].toObject(), armoury, dict, useDict)))
             throw std::runtime_error("Weapon " + name + " cell 1 does not fit");

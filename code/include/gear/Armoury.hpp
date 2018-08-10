@@ -22,8 +22,8 @@ class Armoury
                                             const Options &options) const;
     std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type,
                                            const Options &options) const;
-    const Armour &getArmour(std::string name, bool heroic = false) const;
-    const Weapon &getWeapon(std::string name, bool heroic = false) const; // TODO: FIXME: implement tier saving
+    const Armour &getArmour(std::string name, bool heroic) const;
+    const Weapon &getWeapon(std::string name, bool heroic) const;
 
     // returns the skill info to all skills of the specified type
     // filters out unique skills
