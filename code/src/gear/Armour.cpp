@@ -82,7 +82,7 @@ std::string Gear::Armour::getToolTip(const Dictionary &dict) const
 
 bool Gear::Armour::hasUniqueSkill() const { return uniqueSkills.size() != 0; }
 
-std::vector<std::string> Gear::Armour::getUniqueSkills() const { return uniqueSkills; }
+const std::vector<std::string> &Gear::Armour::getUniqueSkills() const { return uniqueSkills; }
 
 bool Gear::Armour::isExotic() const { return rarity == Exotic; }
 

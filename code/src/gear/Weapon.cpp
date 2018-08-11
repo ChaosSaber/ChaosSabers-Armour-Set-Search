@@ -80,7 +80,7 @@ const Gear::Cell &Gear::Weapon::getCell2() const { return cell2; }
 
 bool Gear::Weapon::hasUniqueSkill() const { return !uniqueSkills.empty(); }
 
-std::vector<std::string> Gear::Weapon::getUniqueSkills() const { return uniqueSkills; }
+const std::vector<std::string> &Gear::Weapon::getUniqueSkills() const { return uniqueSkills; }
 
 bool Gear::Weapon::isExotic() const { return rarity == Exotic; }
 

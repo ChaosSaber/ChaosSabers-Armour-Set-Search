@@ -22,7 +22,7 @@ class Gear
     // returns a list of all skills on the gear
     virtual SkillList getSkills() const = 0;
     // returns a list of all unique skills on the gear
-    virtual std::vector<std::string> getUniqueSkills() const = 0;
+    virtual const std::vector<std::string> &getUniqueSkills() const = 0;
     // returns the skill points for a specific skill on that gear
     virtual int getSkillPointsFor(const std::string &skill) const = 0;
     // returns the cells on the gear

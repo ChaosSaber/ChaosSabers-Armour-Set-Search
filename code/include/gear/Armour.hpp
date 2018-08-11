@@ -34,7 +34,7 @@ class Armour : public Gear
     std::string getGearInfo(const Dictionary &dict) const override;
     // returns a list of all skills on the gear
     SkillList getSkills() const override;
-    std::vector<std::string> getUniqueSkills() const override;
+    const std::vector<std::string> &getUniqueSkills() const override;
     CellList getCells() const override;
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;

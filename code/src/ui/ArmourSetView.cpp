@@ -24,20 +24,20 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
         addCell(cell);
 
     auto skills = set.getSkills();
-    skills.sort();
-    std::vector<Gear::Skill> uniqueSkills;
     for (const auto &skill : skills)
         if (skill.getSkillPoints() > 0)
             addSkill(skill);
-    if (uniqueSkills.size() > 0)
+    skills.sort();
+    const auto &uniqueEffects = set.getUniqueSkills();
+    if (uniqueEffects.size() > 0)
     {
         auto label = new QLabel();
         label->setText(getTranslation(dict, "label_unique_effects"));
         ui->verticalLayoutSkills->addWidget(label);
-        for (const auto &skill : uniqueSkills)
+        for (const auto &effect : uniqueEffects)
         {
             auto label = new Ui::ElidingLabel();
-            auto content = getTranslation(dict, skill.getName());
+            auto content = getTranslation(dict, effect);
             uniqueSkillLabels[label] = content;
             label->setIndent(10);
             label->setToolTip(content);

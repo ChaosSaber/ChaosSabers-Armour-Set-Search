@@ -39,7 +39,7 @@ class Weapon : public Gear
     const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
     virtual bool hasUniqueSkill() const override;
-    std::vector<std::string> getUniqueSkills() const override;
+    const std::vector<std::string> &getUniqueSkills() const override;
     bool isExotic() const;
     virtual int getTier() const override;
 

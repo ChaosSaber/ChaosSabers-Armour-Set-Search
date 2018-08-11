@@ -213,7 +213,7 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
                         skills.push_back(util::json::jsonToSkill(jsonPerk));
                 std::vector<std::string> uniqueSkills;
                 if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
+                    for (const auto &jsonUnique : armour[JSON_UNIQUE_EFFECT].toArray())
                         uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
                 armours[type].push_back(Armour(type, name, description, tier, minDef, maxDef,
                                                elementalResistance, skills, uniqueSkills, cell,
@@ -230,7 +230,7 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
                                                       util::json::jsonToSkill(jsonPerk));
                 std::vector<std::string> uniqueSkills, uniqueSkillsHeroic;
                 if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : armour[JSON_PERKS].toArray())
+                    for (const auto &jsonUnique : armour[JSON_UNIQUE_EFFECT].toArray())
                         util::json::addMaelstromSkill(
                             uniqueSkills, uniqueSkillsHeroic, jsonUnique,
                             util::json::jsonToUniqueSkill(jsonUnique, dict));
