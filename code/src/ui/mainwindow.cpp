@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // TODO: Download Data files if not exist?
 
+
+    armoury.loadData();
     // TODO: maybe a nothrow option?
     try
     {
@@ -165,11 +167,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setupTranslation()
 {
+    setWindowTitle(QString("ChaosSaber's Armour Set Search v") + PROGRAM_VERSION);
     ui->labelWeaponType->setText(getTranslation(dict, "label_weapon_type"));
     ui->comboBoxWeaponType->addItems(
         QStringList() << getTranslation(dict, "sword") << getTranslation(dict, "hammer")
                       << getTranslation(dict, "chainblades") << getTranslation(dict, "axe")
-                      << getTranslation(dict, "pike"));
+                      << getTranslation(dict, "pike") << getTranslation(dict, "repeater"));
     ui->groupBoxWantedSkills->setTitle(getTranslation(dict, "label_wanted_skills"));
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonAdvancedSearch->setText(getTranslation(dict, "button_advanced_search"));

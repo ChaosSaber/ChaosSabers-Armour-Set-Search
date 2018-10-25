@@ -72,3 +72,4 @@ island_t3;T3: The Yonder Keys
 island_t4;T4: The Uncharted Reaches
 island_t5;T5: Maelstrom
 island_t6;T5: Maelstrom (Heroic)
+repeater;Repeater

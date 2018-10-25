@@ -1,5 +1,5 @@
-#include "Options.hpp"
 #include "gear/Armoury.hpp"
+#include "Options.hpp"
 #include "util/json.hpp"
 #include "util/string.hpp"
 #include <QFile>
@@ -9,9 +9,9 @@
 #include <fstream>
 #include <iostream>
 
-Gear::Armoury::Armoury(Dictionary &dict) : notFound("", "", None, std::vector<std::string>())
+Gear::Armoury::Armoury(Dictionary &dict)
+    : notFound("", "", None, std::vector<std::string>()), dict(dict)
 {
-    load(dict);
 }
 
 const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) const
@@ -93,7 +93,7 @@ const Gear::Armour &Gear::Armoury::getArmour(std::string name, bool heroic) cons
 {
     for (const auto &armours : this->armours)
         for (const auto &armour : armours.second)
-            if (armour.getName() == name && (!heroic || armour.getTier() == 6))
+            if (armour.getName() == name && isCorrectGear(armour, heroic))
                 return armour;
     std::stringstream ss;
     ss << "There is no armour with the key " << name;
@@ -104,7 +104,7 @@ const Gear::Weapon &Gear::Armoury::getWeapon(std::string name, bool heroic) cons
 {
     for (const auto &weapons : this->weapons)
         for (const auto &weapon : weapons.second)
-            if (weapon.getName() == name && (!heroic || weapon.getTier() == 6))
+            if (weapon.getName() == name && isCorrectGear(weapon, heroic))
                 return weapon;
     std::stringstream ss;
     ss << "There is no weapon with the key " << name;
@@ -139,9 +139,12 @@ const std::vector<util::json::JsonParameter> armourParameters = {
     {JSON_RESISTANCE, QJsonValue::Type::Object}, {JSON_RARITY, QJsonValue::Type::String}};
 
 const std::vector<util::json::JsonParameter> weaponParameters = {
-    {JSON_NAME, QJsonValue::Type::String},  {JSON_DESCRIPTION, QJsonValue::Type::String},
-    {JSON_TYPE, QJsonValue::Type::String},  {JSON_TIER, QJsonValue::Type::Double},
-    {JSON_POWER, QJsonValue::Type::Object}, {JSON_RARITY, QJsonValue::Type::String}};
+    {JSON_NAME, QJsonValue::Type::String},
+    {JSON_DESCRIPTION, QJsonValue::Type::String},
+    {JSON_TYPE, QJsonValue::Type::String},
+    {JSON_TIER, {QJsonValue::Type::Double, QJsonValue::Type::Array}},
+    {JSON_POWER, QJsonValue::Type::Object},
+    {JSON_RARITY, QJsonValue::Type::String}};
 
 const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_NAME, QJsonValue::Type::String},
@@ -149,8 +152,9 @@ const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_TYPE, QJsonValue::Type::String},
     {JSON_EFFECTS, QJsonValue::Type::Object}};
 
-void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
+void Gear::Armoury::load(const std::string &fileName)
 {
+    // TODO: implement fail safety, like loading backup data
     weapons.clear();
     armours.clear();
     skillInfos.clear();
@@ -167,7 +171,6 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
     auto json = jsonDoc.object();
     if (!util::json::parameterCheck(json, armouryParameters))
     {
-        // TODO: check backup files
         std::cout << "Error reading data files" << std::endl;
         return;
     }
@@ -273,7 +276,9 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
             auto type = getWeaponType(weapon[JSON_TYPE].toString().toStdString());
             std::string name = weapon[JSON_NAME].toString().toStdString();
             std::string description = weapon[JSON_DESCRIPTION].toString().toStdString();
-            unsigned int tier = weapon[JSON_TIER].toInt();
+            std::vector<int> tiers = getTiers(weapon);
+            if (tiers.size() == 0)
+                continue;
             auto rarity = getRarity(weapon);
             Elements elementalDamage;
             if (weapon.contains(JSON_ELEMENTAL) && weapon[JSON_ELEMENTAL].isString())
@@ -311,7 +316,7 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
             }
             auto damage = weapon[JSON_POWER].toObject();
             int minDamage = util::json::getValueForLevel(damage, "0");
-            if (tier < 5)
+            if (tiers.size() > 1 || tiers[0] < 5)
             {
                 int maxDamage = util::json::getMaxValue(damage);
                 std::vector<Skill> skills;
@@ -322,7 +327,7 @@ void Gear::Armoury::load(Dictionary &dict, const std::string &fileName)
                 if (weapon.contains(JSON_UNIQUE_EFFECT) && weapon[JSON_UNIQUE_EFFECT].isArray())
                     for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
                         uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
-                weapons[type].push_back(Weapon(type, name, description, tier, minDamage, maxDamage,
+                weapons[type].push_back(Weapon(type, name, description, tiers, minDamage, maxDamage,
                                                elementalDamage, skills, uniqueSkills, cell1, cell2,
                                                rarity));
             }
@@ -510,16 +515,107 @@ Gear::Rarity Gear::Armoury::getRarity(const QJsonObject &gear) const
     throw std::logic_error("Unknown rarity " + rarity);
 }
 
+std::vector<int> Gear::Armoury::getTiers(const QJsonObject &gear) const
+{
+    if (gear[JSON_TIER].type() == QJsonValue::Type::Double)
+        return {gear[JSON_TIER].toInt()};
+    else if (gear[JSON_TIER].type() == QJsonValue::Type::Array)
+    {
+        std::vector<int> tiers;
+        for (const auto &tier : gear[JSON_TIER].toArray())
+        {
+            if (tier.isDouble())
+                tiers.push_back(tier.toInt());
+            else
+            {
+                std::cout << "WARNING: non int tier!" << std::endl;
+            }
+        }
+        if (std::find(tiers.begin(), tiers.end(), 5) != tiers.end())
+            tiers.push_back(6); // if it has a maelstroem variant it probably also has a heroic variant (needed for filtering)
+
+        return tiers;
+    }
+    std::cout << "WARNING: unknown Tier type: " << gear[JSON_TIER].type() << std::endl;
+    return std::vector<int>();
+}
+
+bool Gear::Armoury::isCorrectGear(const Gear &gear, bool heroic) const
+{
+    if (!heroic)
+        return true;
+    if (gear.getTiers().size() > 1)
+    {
+        // modular repeater
+        // there is no distinction between heroic and not heroic here
+        return true;
+    }
+    else if (gear.getTiers().size() == 1)
+    {
+        return gear.getTiers()[0] == 6;
+    }
+    else
+    {
+        std::cout << "WARNING: Gear without tier!" << std::endl;
+        return false;
+    }
+}
+
 bool Gear::Armoury::filterGear(const Gear &gear, const Options &options) const
 {
-    if (gear.getTier() > options.tier)
+    if (gear.getTiers().size() == 1)
+    {
+        // we have a regular weapon which is only on 1 tier
+        auto tier = gear.getTiers()[0];
+        if (tier > options.tier)
+            return true;
+        if (!options.useLowerTierArmour && isLowerTier(tier, options))
+            return true;
+        return false;
+    }
+    else if (gear.getTiers().size() > 1)
+    {
+        // we have a modular repeater
+        bool available = false;
+        for (auto tier : gear.getTiers())
+        {
+            if (tier <= options.tier)
+            {
+                available = true;
+                break;
+            }
+        }
+        if (!available)
+            return true;
+        bool onCurrentTier = false;
+        for (auto tier : gear.getTiers())
+        {
+            if (!isLowerTier(tier, options))
+            {
+                onCurrentTier = true;
+                break;
+            }
+        }
+        if (!options.useLowerTierArmour && !onCurrentTier)
+            return true;
+        return false;
+    }
+    else
+    {
+        // we have something really strange here
+        std::cout << "WARNING: Gear without tier!" << std::endl;
         return true;
+    }
+}
+
+bool Gear::Armoury::isLowerTier(int gearTier, const Options &options) const
+{
     switch (options.tier)
     {
-    case 6: return !options.useLowerTierArmour && gear.getTier() < 6;
-    case 5:
-        return !options.useLowerTierArmour &&
-               gear.getTier() < 4; // tier 4 is pretty equal to tier 5
+    case 6: return gearTier < 6;
+    case 5: return gearTier < 4; // tier 4 is pretty equal to tier 5
     default: return false;
     }
 }
+
+void Gear::Armoury::loadData() { load(); }

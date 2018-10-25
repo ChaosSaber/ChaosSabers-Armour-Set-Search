@@ -21,6 +21,10 @@ class Weapon : public Gear
            unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
            std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType1,
            SkillType cellType2, Rarity rarity);
+    Weapon(WeaponType type, std::string name, std::string description, std::vector<int> tiers,
+           unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
+           std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType1,
+           SkillType cellType2, Rarity rarity);
 
     /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
@@ -36,20 +40,16 @@ class Weapon : public Gear
     int getSkillPointsFor(const std::string &skill) const override;
     // returns the cells on the gear
     CellList getCells() const override;
-    const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
     virtual bool hasUniqueSkill() const override;
     const std::vector<std::string> &getUniqueSkills() const override;
     bool isExotic() const;
-    virtual int getTier() const override;
 
     const Cell &getCell1() const;
     const Cell &getCell2() const;
 
   private:
     WeaponType type;
-    int tier;
-    std::string name;
     std::string description;
     unsigned int minDamage, maxDamage;
     Elements elementalDamage;

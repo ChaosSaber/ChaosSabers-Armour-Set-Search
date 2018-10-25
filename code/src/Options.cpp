@@ -422,8 +422,11 @@ QJsonObject Options::armourToJson(const Gear::Armour &armour)
 {
     QJsonObject json;
     json[NAME] = QString::fromStdString(armour.getName());
-    if (armour.getTier() == 6)
-        json[HEROIC] = true;
+    if (armour.getTiers().size() == 1)
+    {
+        if (armour.getTiers()[0] == 6)
+            json[HEROIC] = true;
+    }
     if (!armour.getCell().isEmpty())
         json[CELL] = cellToJson(armour.getCell());
     return json;
@@ -455,8 +458,11 @@ QJsonObject Options::weaponToJson(const Gear::Weapon &weapon)
 {
     QJsonObject json;
     json[NAME] = QString::fromStdString(weapon.getName());
-    if (weapon.getTier() == 6)
-        json[HEROIC] = true;
+    if (weapon.getTiers().size() == 1)
+    {
+        if (weapon.getTiers()[0] == 6)
+            json[HEROIC] = true;
+    }
     if (!weapon.getCell1().isEmpty())
         json[CELL1] = cellToJson(weapon.getCell1());
     if (!weapon.getCell2().isEmpty())

@@ -1,11 +1,15 @@
-#include <util/json.hpp>
-
+#include "util/json.hpp"
 
 bool util::json::parameterCheck(const QJsonObject &json, const std::vector<JsonParameter> &params)
 {
     for (const auto &param : params)
-        if (!json.contains(param.name) || json[param.name].type() != param.type)
+    {
+        if (!json.contains(param.name))
             return false;
+        if (std::find(param.types.begin(), param.types.end(), json[param.name].type()) ==
+            param.types.end())
+            return false;
+    }
     return true;
 }
 
@@ -26,7 +30,7 @@ std::string util::json::jsonToUniqueSkill(const QJsonValueRef &json, Dictionary 
     auto unique = json.toObject();
     if (!util::json::parameterCheck(unique, uniqueEffectsParameters))
         throw std::logic_error("unique effect is non conforming");
-    auto description =unique[JSON_DESCRIPTION].toString().toStdString();
+    auto description = unique[JSON_DESCRIPTION].toString().toStdString();
     dict.addEntry(description, description);
     return description;
 }

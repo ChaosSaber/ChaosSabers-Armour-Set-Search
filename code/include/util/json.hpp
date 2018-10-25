@@ -20,9 +20,16 @@ namespace json
 {
 struct JsonParameter
 {
-    JsonParameter(QString name, QJsonValue::Type type) : name(std::move(name)), type(type) {}
+    JsonParameter(QString name, QJsonValue::Type type)
+        : JsonParameter(std::move(name), std::vector<QJsonValue::Type>{type})
+    {
+    }
+    JsonParameter(QString name, std::vector<QJsonValue::Type> types)
+        : name(std::move(name)), types(types)
+    {
+    }
     QString name;
-    QJsonValue::Type type;
+    std::vector<QJsonValue::Type> types;
 };
 
 bool parameterCheck(const QJsonObject &json, const std::vector<JsonParameter> &params);

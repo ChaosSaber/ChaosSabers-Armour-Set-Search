@@ -27,6 +27,7 @@ SET(SRCS
 	src/ui/CellWindow.cpp
 	src/util/json.cpp
 	src/util/files.cpp
+	src/gear/Gear.cpp
 )
 
 SET(HDRS

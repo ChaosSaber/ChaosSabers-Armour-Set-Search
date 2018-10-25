@@ -5,9 +5,21 @@ Gear::Weapon::Weapon(WeaponType type, std::string name, std::string description,
                      unsigned int minDamage, unsigned int maxDamage, Elements elementalDamage,
                      std::vector<Skill> skills, std::vector<std::string> uniqueSkills,
                      SkillType cellType1, SkillType cellType2, Rarity rarity)
-    : type(type), name(std::move(name)), description(std::move(description)), minDamage(minDamage),
-      maxDamage(maxDamage), elementalDamage(std::move(elementalDamage)), skills(std::move(skills)),
-      uniqueSkills(std::move(uniqueSkills)), cell1(cellType1), cell2(cellType2), rarity(rarity), tier(tier)
+    : Weapon(type, std::move(name), std::move(description), std::vector<int>{tier}, minDamage, maxDamage,
+             std::move(elementalDamage), std::move(skills), std::move(uniqueSkills), cellType1,
+             cellType2, rarity)
+{
+}
+
+Gear::Weapon::Weapon(WeaponType type, std::string name, std::string description,
+                     std::vector<int> tiers, unsigned int minDamage, unsigned int maxDamage,
+                     Elements elementalDamage, std::vector<Skill> skills,
+                     std::vector<std::string> uniqueSkills, SkillType cellType1,
+                     SkillType cellType2, Rarity rarity)
+    : Gear(std::move(name), std::move(tiers)), type(type), description(std::move(description)),
+      minDamage(minDamage), maxDamage(maxDamage), elementalDamage(std::move(elementalDamage)),
+      skills(std::move(skills)), uniqueSkills(std::move(uniqueSkills)), cell1(cellType1),
+      cell2(cellType2), rarity(rarity)
 {
 }
 
@@ -34,11 +46,15 @@ bool Gear::Weapon::addCell(Cell cell)
 
 std::string Gear::Weapon::getGearInfo(const Dictionary &dict) const
 {
-    auto str = dict.getTranslationFor(name);
-    if (tier == 5)
-        str += " +5";
-    if (tier == 6 && !isExotic())
-        str += " +10";
+    auto str = dict.getTranslationFor(getName());
+    if (getTiers().size() == 1)
+    {
+        auto tier = getTiers()[0];
+        if (tier == 5)
+            str += " +5";
+        if (tier == 6 && !isExotic())
+            str += " +10";
+    }
     return str;
 }
 
@@ -56,8 +72,6 @@ int Gear::Weapon::getSkillPointsFor(const std::string &skill) const
 }
 
 Gear::CellList Gear::Weapon::getCells() const { return cell1 + cell2; }
-
-const std::string &Gear::Weapon::getName() const { return name; }
 
 std::string Gear::Weapon::getToolTip(const Dictionary &dict) const
 {
@@ -83,5 +97,3 @@ bool Gear::Weapon::hasUniqueSkill() const { return !uniqueSkills.empty(); }
 const std::vector<std::string> &Gear::Weapon::getUniqueSkills() const { return uniqueSkills; }
 
 bool Gear::Weapon::isExotic() const { return rarity == Exotic; }
-
-int Gear::Weapon::getTier() const { return tier; }

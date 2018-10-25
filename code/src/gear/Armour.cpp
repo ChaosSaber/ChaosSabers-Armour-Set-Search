@@ -5,10 +5,20 @@ Gear::Armour::Armour(ArmourType type, std::string name, std::string description,
                      unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
                      std::vector<Skill> skills, std::vector<std::string> uniqueSkills,
                      SkillType cellType, Rarity rarity)
-    : type(type), name(std::move(name)), tier(tier), description(std::move(description)),
-      minDefense(minDefense), maxDefense(maxDefense),
-      elementalResistance(std::move(elementalResistance)), skills(std::move(skills)),
-      uniqueSkills(std::move(uniqueSkills)), cell(cellType), rarity(rarity)
+    : Armour(type, std::move(name), std::move(description), std::vector<int>{tier}, minDefense, maxDefense,
+             std::move(elementalResistance), std::move(skills), std::move(uniqueSkills), cellType,
+             rarity)
+{
+}
+
+Gear::Armour::Armour(ArmourType type, std::string name, std::string description,
+                     std::vector<int> tiers, unsigned int minDefense, unsigned int maxDefense,
+                     Elements elementalResistance, std::vector<Skill> skills,
+                     std::vector<std::string> uniqueSkills, SkillType cellType, Rarity rarity)
+    : Gear(name, tiers), type(type), description(std::move(description)), minDefense(minDefense),
+      maxDefense(maxDefense), elementalResistance(std::move(elementalResistance)),
+      skills(std::move(skills)), uniqueSkills(std::move(uniqueSkills)), cell(cellType),
+      rarity(rarity)
 {
 }
 
@@ -54,19 +64,21 @@ bool Gear::Armour::hasFreeCellSlotFor(SkillType type) const
 
 std::string Gear::Armour::getGearInfo(const Dictionary &dict) const
 {
-    auto str = dict.getTranslationFor(name);
-    if (tier == 5)
-        str += " +5";
-    if (tier == 6 && !isExotic())
-        str += " +10";
+    auto str = dict.getTranslationFor(getName());
+    if (getTiers().size() == 1)
+    {
+        auto tier = getTiers()[0];
+        if (tier == 5)
+            str += " +5";
+        if (tier == 6 && !isExotic())
+            str += " +10";
+    }
     return str;
 }
 
 Gear::SkillList Gear::Armour::getSkills() const { return skills + cell.getSkill(); }
 
 Gear::CellList Gear::Armour::getCells() const { return cell; }
-
-const std::string &Gear::Armour::getName() const { return name; }
 
 std::string Gear::Armour::getToolTip(const Dictionary &dict) const
 {
@@ -85,5 +97,3 @@ bool Gear::Armour::hasUniqueSkill() const { return uniqueSkills.size() != 0; }
 const std::vector<std::string> &Gear::Armour::getUniqueSkills() const { return uniqueSkills; }
 
 bool Gear::Armour::isExotic() const { return rarity == Exotic; }
-
-int Gear::Armour::getTier() const { return tier; }

@@ -21,6 +21,10 @@ class Armour : public Gear
            unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
            std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType,
            Rarity rarity);
+    Armour(ArmourType type, std::string name, std::string description, std::vector<int> tiers,
+           unsigned int minDefense, unsigned int maxDefense, Elements elementalResistance,
+           std::vector<Skill> skills, std::vector<std::string> uniqueSkills, SkillType cellType,
+           Rarity rarity);
 
     unsigned int getMinDefense() const;
     unsigned int getMaxDefense() const;
@@ -36,16 +40,12 @@ class Armour : public Gear
     SkillList getSkills() const override;
     const std::vector<std::string> &getUniqueSkills() const override;
     CellList getCells() const override;
-    const std::string &getName() const;
     virtual std::string getToolTip(const Dictionary &dict) const override;
     virtual bool hasUniqueSkill() const override;
     bool isExotic() const;
-    virtual int getTier() const override;
 
   private:
-    int tier;
     ArmourType type;
-    std::string name;
     std::string description;
     unsigned int minDefense, maxDefense;
     Elements elementalResistance;

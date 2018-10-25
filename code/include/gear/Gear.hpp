@@ -12,6 +12,8 @@ namespace Gear
 class Gear
 {
   public:
+    Gear(std::string name, std::vector<int> tiers);
+
     // checks if the gear has free cell slots for a specific skill
     virtual bool hasFreeCellSlotFor(SkillType type) const = 0;
     // adds a new Cell to the gear
@@ -29,7 +31,14 @@ class Gear
     virtual CellList getCells() const = 0;
     virtual std::string getToolTip(const Dictionary &dict) const = 0;
     virtual bool hasUniqueSkill() const = 0;
-    virtual int getTier() const = 0;
+
+
+    const std::string &getName() const;
+    const std::vector<int> &getTiers() const;
+
+  private:
+    std::string name;
+    std::vector<int> tiers;
 };
 } // namespace Gear
 
