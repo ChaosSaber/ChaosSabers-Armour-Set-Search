@@ -3,18 +3,16 @@
 This Software is distributed under the MIT license(see LICENSE.txt) and uses third party libraries that are distributed under their own terms (see LICENSE-3RD-PARTY.txt)
 You can find the current version on: https://github.com/ChaosSaber/Dauntless-Armour-Set-Search
 If you encounter any error please refer at first to troubleshooting.txt for general troubleshooting
-
-## Caution
-I will change the saving and loading feature heavily in the coming version 0.10. I can't garanty that i can keep it backwards compatible. But i will try my best so you don't loose any precious data.
+You need the visual c++ runtime environment to run this programm. If you don't already have it installed, you can download it from here: https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 ## updating from an older version
-you have two possibilities
+Since Version 0.10 the data is in "my Documents/ChaosSaber's Armour Set Search" so you can just unzip the new version anywhere you want and can delete the old on without data loss. If you update from an older version you have two possibilities:
 - you can either copy the new files over your old files
 - you can copy the settings.json, lastSearch.ass and myCells.json/myCells.cells(depending on version) files from your old installation over to your new installation (if they don't exist they were not yet created)
 
 ## Currently implemented
 - Search function: Input the Skills and Weapontype you want and the app searchs for possible armour combinations
-- Advanced search funtion: like normal search function but you can filter out armour which is currently not in rotation
+- Advanced search funtion: like normal search function but you can filter out armour which you don't yet have
 - Save/load of searches
 - Manage your available cells
 - Partly integrated unique skills (only in the search results)
