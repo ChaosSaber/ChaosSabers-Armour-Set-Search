@@ -256,11 +256,16 @@
     </property>
     <addaction name="actionSaveSearch"/>
     <addaction name="actionLoadSearch"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionDownloadNewestData"/>
+    <addaction name="actionCheckForUpdates"/>
+    <addaction name="separator"/>
     <addaction name="actionAboutQt"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -345,6 +350,21 @@
    </property>
    <property name="text">
     <string>use lower Tier armor</string>
+   </property>
+  </action>
+  <action name="actionDownloadNewestData">
+   <property name="text">
+    <string>Download newest Data</string>
+   </property>
+  </action>
+  <action name="actionCheckForUpdates">
+   <property name="text">
+    <string>Check for updates</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

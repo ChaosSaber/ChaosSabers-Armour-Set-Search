@@ -8,13 +8,18 @@ Gear::Skill::Skill(std::string name, int skillPoints)
 {
 }
 
-const std::string &Gear::Skill::getName() const { return name; }
+const std::string& Gear::Skill::getName() const { return name; }
 
 int Gear::Skill::getSkillPoints() const { return skillPoints; }
 
-std::string Gear::Skill::toString(const Dictionary &dict) const
+std::string Gear::Skill::toString(const Dictionary& dict) const
 {
     std::stringstream ss;
     ss << dict.getTranslationFor(name) << " +" << skillPoints;
     return ss.str();
+}
+
+bool Gear::Skill::operator==(const Skill& other) const
+{
+    return name == other.name && skillPoints == other.skillPoints;
 }

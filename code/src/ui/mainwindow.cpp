@@ -46,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     restoreState(settings.value(STATE).toByteArray());
 
     // TODO: Download Data files if not exist?
-
+    ui->actionCheckForUpdates->setEnabled(false);
+    ui->actionDownloadNewestData->setEnabled(false);
 
     armoury.loadData();
     // TODO: maybe a nothrow option?
@@ -313,7 +314,8 @@ void MainWindow::showArmourSets()
         ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
     ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
     std::unordered_map<const Gear::ArmourSet *, ArmourSetView *> views;
-    int maxWidth = 0;
+    int maxWidthGear = 0;
+    int maxWidthCells = 0;
     for (const auto &set : options.armourSets)
     {
         filter.weapons.insert(set.getWeapon().getName());
@@ -324,10 +326,13 @@ void MainWindow::showArmourSets()
             continue;
         auto view = createArmourSetView(set);
         views.insert({&set, view});
-        if (view->getGearViewWidth() > maxWidth)
-            maxWidth = view->getGearViewWidth();
+        if (view->getGearViewWidth() > maxWidthGear)
+            maxWidthGear = view->getGearViewWidth();
+        if (view->getCellViewWidth() > maxWidthCells)
+            maxWidthCells = view->getCellViewWidth();
     }
-    armourSetViewGearWidth = maxWidth;
+    armourSetViewGearWidth = maxWidthGear;
+    armourSetViewCellWidth = maxWidthCells;
     for (auto setView : views)
         createArmourSetItem(setView.first, setView.second);
     ui->listWidgetArmourSets->setMinimumWidth(ui->listWidgetArmourSets->sizeHintForColumn(0));
@@ -507,6 +512,7 @@ void Filter::clear()
 void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view)
 {
     view->setGearViewWidth(armourSetViewGearWidth);
+    view->setCellViewWidth(armourSetViewCellWidth);
     auto item = new QListWidgetItem();
     armourSetItems.insert({set, item});
     item->setSizeHint(view->sizeHint());
@@ -517,7 +523,8 @@ void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *
 ArmourSetView *MainWindow::createArmourSetView(const Gear::ArmourSet &set)
 {
     return new ArmourSetView(dict, set, armoury,
-                             ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width());
+                             ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width(),
+                             Gear::SkillList(getWantedSkills()));
 }
 
 void MainWindow::saveDataFiles(QNetworkReply *reply, const QString &fileName) {}

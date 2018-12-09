@@ -125,7 +125,18 @@ const Gear::Armour &Gear::ArmourSet::getLegs() const { return legs; }
 
 const Gear::Weapon &Gear::ArmourSet::getWeapon() const { return weapon; }
 
-const Gear::Cell &Gear::ArmourSet::getLantern() const { return lantern; }
+const Gear::Cell& Gear::ArmourSet::getLantern() const { return lantern; }
+
+Gear::SkillList Gear::ArmourSet::getAdditionalSkills(const SkillList& wantedSkills) const
+{
+    SkillList skills;
+    for (const auto& skill : getSkills())
+    {
+        if (!wantedSkills.contains(skill))
+            skills += skill;
+    }
+    return skills;
+}
 
 bool Gear::ArmourSet::hasUniqueSkill() const
 {

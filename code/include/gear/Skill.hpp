@@ -18,6 +18,8 @@ class Skill
     std::string toString(const Dictionary &dict) const;
     friend class SkillList;
 
+    bool operator==(const Skill& other) const;
+
   private:
     std::string name;
     int skillPoints;

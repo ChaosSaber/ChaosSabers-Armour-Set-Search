@@ -81,6 +81,7 @@ class MainWindow : public QMainWindow
     bool isCreatingArmourSets = false;
     std::unordered_map<const Gear::ArmourSet *, QListWidgetItem *> armourSetItems;
     int armourSetViewGearWidth = 0;
+    int armourSetViewCellWidth = 0;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP

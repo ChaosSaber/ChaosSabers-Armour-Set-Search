@@ -18,7 +18,6 @@ class ArmourSet
     ArmourSet &operator=(ArmourSet other);
     ArmourSet(ArmourSet &&other);
 
-    /********** inherited from Gear ***************/
     // checks if the gear has free cell slots for a specific skill
     bool hasFreeCellSlotFor(SkillType type) const;
     // adds a new Cell to the gear
@@ -41,6 +40,13 @@ class ArmourSet
     const Armour &getLegs() const;
     const Weapon &getWeapon() const;
     const Cell &getLantern() const;
+
+    /**
+    * gathers all additional skills which are not in the given skill list
+    * @param wantedSkills The Skills which are wanted
+    * @return Returns a Skill list with all skills which are not in the wanted skills list
+    */
+    SkillList getAdditionalSkills(const SkillList& wantedSkills) const;
 
   private:
     Armour head, torso, legs, arms;

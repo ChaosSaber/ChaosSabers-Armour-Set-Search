@@ -1,8 +1,24 @@
+Version 0.10.5: 09.12.2018:
+- Added Rockfall Skarn and Valomyr gear/cells/skills
+- Reworked search result window:
+	- it now shows only additional or better skills then the searched skills
+	- due to the shorter skill list I moved the cells between the Armour and the skills to make it more compact
+
+Version 0.10.4: 25.10.2018:
+- Added Repeater Support
+- Added Riftstalker Support
+
+Version 0.10.3: 11.08.2018:
+- fixed unique skills not showing
+
+Version 0.10.2: 11.08.2018:
+- fixed Saving/loading of Maelstrom gear only as their non heroic variant
+
 Version 0.10.1: 09.08.2018:
 - added filter for the current tier
 - added backwards compatibility for cells and searches
 - updated data with Koshai gear
-- known Issues: armour and weapons will only be saved(loaded as their non heroic version)
+- known Issues: armour and weapons will only be saved/loaded as their non heroic version
 
 Version 0.10.0: 08.08.2018:
 - now working together with https://www.dauntless-builder.com/, we will use the same data sets (if you want to update your data go to https://www.dauntless-builder.com/data.json, download the data and place it in data/data.json in the install directory) (automatic updating will come in the future)

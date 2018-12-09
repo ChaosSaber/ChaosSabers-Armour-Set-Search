@@ -28,6 +28,7 @@ SET(SRCS
 	src/util/json.cpp
 	src/util/files.cpp
 	src/gear/Gear.cpp
+	# src/FileDownloader.cpp
 )
 
 SET(HDRS
@@ -58,6 +59,7 @@ SET(HDRS
 	include/util/json.hpp
 	include/gear/Rarity.hpp
 	include/util/files.hpp
+	# include/FileDownloader.hpp
 )
 
 SET(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui/)

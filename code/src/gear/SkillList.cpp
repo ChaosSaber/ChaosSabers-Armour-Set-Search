@@ -32,6 +32,36 @@ std::string Gear::SkillList::toString(const Dictionary &dict)
 
 void Gear::SkillList::sort() { std::sort(skills.begin(), skills.end(), skillSorter); }
 
+bool Gear::SkillList::contains(const Skill& skill) const
+{
+    return std::find(skills.begin(), skills.end(), skill) != skills.end();
+}
+
+bool Gear::SkillList::containsOrHasBetter(const Skill& skill) const
+{
+    for (auto& skill_ : skills)
+    {
+        if (skill_.getName() == skill.getName())
+        {
+            return skill_.skillPoints >= skill.skillPoints;
+        }
+    }
+    return false;
+}
+
+void Gear::SkillList::insert(const Skill& skill)
+{
+    if (contains(skill))
+        return;
+    skills.push_back(skill);
+}
+
+void Gear::SkillList::insert(const SkillList& skills)
+{
+    for (auto& skill : skills)
+        insert(skill);
+}
+
 std::vector<Gear::Skill>::iterator Gear::SkillList::begin() { return skills.begin(); }
 
 std::vector<Gear::Skill>::const_iterator Gear::SkillList::begin() const { return skills.cbegin(); }

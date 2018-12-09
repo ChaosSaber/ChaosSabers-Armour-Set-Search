@@ -7,7 +7,8 @@
 QSize Ui::ElidingLabel::sizeHint() const { return QSize(0, QLabel::sizeHint().height()); }
 
 ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
-                             const Gear::Armoury &armoury, int scrollBarWidth, QWidget *parent)
+                             const Gear::Armoury& armoury, int scrollBarWidth,
+                             Gear::SkillList& wantedSkills, QWidget* parent)
     : QWidget(parent), ui(new Ui::ArmourSetView), dict(dict), scrollBarWidth(scrollBarWidth)
 {
     ui->setupUi(this);
@@ -23,11 +24,11 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
     for (const auto &cell : cells)
         addCell(cell);
 
-    auto skills = set.getSkills();
+    auto skills = set.getAdditionalSkills(wantedSkills);
+    skills.sort();
     for (const auto &skill : skills)
         if (skill.getSkillPoints() > 0)
             addSkill(skill);
-    skills.sort();
     const auto &uniqueEffects = set.getUniqueSkills();
     if (uniqueEffects.size() > 0)
     {
@@ -64,7 +65,7 @@ void ArmourSetView::addCell(const std::pair<Gear::Cell, int> &cell)
     std::stringstream ss;
     ss << cell.second << "x " << cell.first.getCellInfo(dict);
     label->setText(QString::fromStdString(ss.str()));
-    ui->verticalLayoutGearParts->addWidget(label);
+    ui->verticalLayoutGearCells->addWidget(label);
 }
 
 void ArmourSetView::addSkill(const Gear::Skill &skill)
@@ -80,6 +81,14 @@ void ArmourSetView::setGearViewWidth(int width)
 {
     ui->widgetGears->setMaximumWidth(width);
     ui->widgetGears->setMinimumWidth(width);
+}
+
+int ArmourSetView::getCellViewWidth() const { return ui->widgetCells->sizeHint().width(); }
+
+void ArmourSetView::setCellViewWidth(int width)
+{
+    ui->widgetCells->setMaximumWidth(width);
+    ui->widgetCells->setMinimumWidth(width);
 }
 
 void ArmourSetView::resizeEvent(QResizeEvent *event)
