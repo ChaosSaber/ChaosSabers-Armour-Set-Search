@@ -66,10 +66,8 @@ label_filter_cells;Free cell slots
 label_filter_weapon;Weapon
 use_lower_tier_gear;Use lower tier gear
 label_tier;Current tier
-island_t1;T1: The Sheltered Frontier
-island_t2;T2: The Monstrous Verge
-island_t3;T3: The Yonder Keys
-island_t4;T4: The Uncharted Reaches
-island_t5;T5: Maelstrom
-island_t6;T5: Maelstrom (Heroic)
+tier_t1;The Sheltered Frontier
+tier_t2;Maelstrom
+tier_t3;Maelstrom (Heroic)
+tier_t4;Maelstrom (Heroic+)
 repeater;Repeater

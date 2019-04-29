@@ -14,6 +14,7 @@ class CellList
   public:
     CellList() {}
     CellList(const Cell &cell);
+    CellList(const std::vector<Cell> &cells);
 
     std::string toString(const Dictionary &dict);
     bool hasEnoughCellsFor(const Skill &skill, int allreadyExistingSkillPoints) const;

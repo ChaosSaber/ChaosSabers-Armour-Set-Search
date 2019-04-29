@@ -155,12 +155,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionUseLowerTierArmour, &QAction::triggered,
             [this](bool checked) { options.useLowerTierArmour = checked; });
 
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t1"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t2"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t3"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t4"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t5"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "island_t6"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t1"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t2"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t4"));
     ui->comboBoxTier->setCurrentIndex(options.tier - 1);
     connect(ui->comboBoxTier, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { options.tier = index + 1; });
@@ -319,7 +317,7 @@ void MainWindow::showArmourSets()
     for (const auto &set : options.armourSets)
     {
         filter.weapons.insert(set.getWeapon().getName());
-        for (const auto &cell : set.getCells())
+        for (const auto &cell : set.getCellList())
             if (cell.first.isEmpty())
                 filter.cellSlots.insert(cell.first.getCellType());
         if (views.size() > options.numberOfResults)
@@ -483,7 +481,7 @@ void MainWindow::applyFilter()
         if (type != Gear::SkillType::None)
         {
             bool foundCell = false;
-            for (const auto &cell : options.armourSets[i].getCells())
+            for (const auto &cell : options.armourSets[i].getCellList())
                 if (cell.first.isEmpty() && cell.first.getCellType() == type)
                     foundCell = true;
             if (!foundCell)

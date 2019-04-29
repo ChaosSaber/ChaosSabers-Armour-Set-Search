@@ -1,5 +1,6 @@
 
 ADD_DEFINITIONS(-DPROGRAM_VERSION="${PROJECT_VERSION}")
+SET(CMAKE_CXX_STANDARD 17)
 
 SET(SRCS
 	src/Dictionary.cpp
@@ -57,7 +58,6 @@ SET(HDRS
 	include/ui/License.hpp
 	include/ui/CellWindow.hpp
 	include/util/json.hpp
-	include/gear/Rarity.hpp
 	include/util/files.hpp
 	# include/FileDownloader.hpp
 )
@@ -79,7 +79,7 @@ include_directories(include/)
 add_executable(${PROJECT_NAME} ${SRCS} ${HDRS} ${UI})
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Network Qt5::Concurrent)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
-set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE true)
+# set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE true)
 
 IF(WIN32)
 	# find the windeployqt binary

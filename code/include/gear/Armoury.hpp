@@ -24,8 +24,8 @@ class Armoury
                                             const Options &options) const;
     std::vector<Armour> getArmourWithSkill(const std::vector<Skill> &skills, ArmourType type,
                                            const Options &options) const;
-    const Armour &getArmour(std::string name, bool heroic) const;
-    const Weapon &getWeapon(std::string name, bool heroic) const;
+    const Armour &getArmour(std::string name, int level) const;
+    const Weapon& getWeapon(std::string name, int level) const;
 
     // returns the skill info to all skills of the specified type
     // filters out unique skills
@@ -38,22 +38,11 @@ class Armoury
     SkillType getSkillType(const std::string &type) const;
     ArmourType getArmourType(const std::string &type) const;
     WeaponType getWeaponType(const std::string &type) const;
-    Rarity getRarity(const QJsonObject &gear) const;
-    std::vector<int> getTiers(const QJsonObject &gear) const;
-
-    /**
-    * looks up if the found gear is the correct one
-    * @param gear the gear to check
-    * @param heroic ???
-    * @return returns if it is the correct gear
-    */
-    bool isCorrectGear(const Gear &gear, bool heroic) const;
-
+	
     // filters out gear according to its tier
     // its filtered out if the tier is higher than the current progression and if its tier is too low and don't use lower tier gear is enabled
     // returns true if its filtered out
     bool filterGear(const Gear &gear, const Options &options) const;
-    bool isLowerTier(int gearTier, const Options &options) const;
 
 
     std::unordered_map<WeaponType, std::vector<Weapon>> weapons;

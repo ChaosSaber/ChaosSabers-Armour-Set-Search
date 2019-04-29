@@ -2,41 +2,54 @@
 #include <iostream>
 #include <sstream>
 
-Gear::ArmourSet::ArmourSet(Armour head, Armour torso, Armour arms, Armour legs, Weapon weapon,
-                           Cell lantern)
+Gear::ArmourSet::ArmourSet(const Armour& head, const Armour& torso, const Armour& arms,
+                           const Armour& legs, const Weapon& weapon,
+                           const Cell& lantern)
+    : head(head), torso(torso), legs(legs), arms(arms), weapon(weapon), lantern(lantern)
+{
+    init();
+}
+
+Gear::ArmourSet::ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs,
+                           Weapon&& weapon, Cell&& lantern)
     : head(std::move(head)), torso(std::move(torso)), legs(std::move(legs)), arms(std::move(arms)),
       weapon(std::move(weapon)), lantern(std::move(lantern))
 {
-    gear.push_back(&(this->head));
-    gear.push_back(&(this->torso));
-    gear.push_back(&(this->legs));
-    gear.push_back(&(this->arms));
-    gear.push_back(&(this->weapon));
+    init();
 }
 
-Gear::ArmourSet::ArmourSet(const ArmourSet &other)
+void Gear::ArmourSet::init()
+{
+    gear.push_back(&head);
+    gear.push_back(&torso);
+    gear.push_back(&legs);
+    gear.push_back(&arms);
+    gear.push_back(&weapon);
+}
+
+ Gear::ArmourSet::ArmourSet(const ArmourSet& other)
     : ArmourSet(other.head, other.torso, other.arms, other.legs, other.weapon, other.lantern)
 {
 }
 
-void Gear::swap(ArmourSet &first, ArmourSet &second)
-{
-    using std::swap;
-    swap(first.head, second.head);
-    swap(first.torso, second.torso);
-    swap(first.arms, second.arms);
-    swap(first.legs, second.legs);
-    swap(first.weapon, second.weapon);
-    swap(first.lantern, second.lantern);
-}
+// void Gear::swap(ArmourSet& first, ArmourSet& second)
+//{
+//    using std::swap;
+//    swap(first.head, second.head);
+//    swap(first.torso, second.torso);
+//    swap(first.arms, second.arms);
+//    swap(first.legs, second.legs);
+//    swap(first.weapon, second.weapon);
+//    swap(first.lantern, second.lantern);
+//}
 
-Gear::ArmourSet &Gear::ArmourSet::operator=(ArmourSet other)
-{
-    swap(*this, other);
-    return *this;
-}
+// Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet other)
+//{
+//    swap(*this, other);
+//    return *this;
+//}
 
-Gear::ArmourSet::ArmourSet(ArmourSet &&other)
+Gear::ArmourSet::ArmourSet(ArmourSet&& other)
     : ArmourSet(std::move(other.head), std::move(other.torso), std::move(other.arms),
                 std::move(other.legs), std::move(other.weapon), std::move(other.lantern))
 {
@@ -74,7 +87,7 @@ bool Gear::ArmourSet::addCell(Cell cell)
     return false;
 }
 
-std::string Gear::ArmourSet::getGearInfo(const Dictionary &dict) const
+std::string Gear::ArmourSet::getGearInfo(const Dictionary& dict) const
 {
     std::stringstream ss;
     ss << weapon.getGearInfo(dict) << std::endl
@@ -82,7 +95,7 @@ std::string Gear::ArmourSet::getGearInfo(const Dictionary &dict) const
        << torso.getGearInfo(dict) << std::endl
        << arms.getGearInfo(dict) << std::endl
        << legs.getGearInfo(dict) << std::endl
-       << getCells().toString(dict) << "Skills:" << std::endl
+       << getCellList().toString(dict) << "Skills:" << std::endl
        << getSkills().toString(dict);
     return ss.str();
 }
@@ -96,7 +109,7 @@ Gear::SkillList Gear::ArmourSet::getSkills() const
     return skills;
 }
 
-int Gear::ArmourSet::getSkillPointsFor(const std::string &skill) const
+int Gear::ArmourSet::getSkillPointsFor(const std::string& skill) const
 {
     int sum = 0;
     sum += lantern.getSkillPointsFor(skill);
@@ -105,25 +118,25 @@ int Gear::ArmourSet::getSkillPointsFor(const std::string &skill) const
     return sum;
 }
 
-Gear::CellList Gear::ArmourSet::getCells() const
+Gear::CellList Gear::ArmourSet::getCellList() const
 {
     CellList cells = lantern;
     for (const auto part : gear)
     {
-        cells += part->getCells();
+        cells += part->getCellList();
     }
     return cells;
 }
 
-const Gear::Armour &Gear::ArmourSet::getHead() const { return head; }
+const Gear::Armour& Gear::ArmourSet::getHead() const { return head; }
 
-const Gear::Armour &Gear::ArmourSet::getTorso() const { return torso; }
+const Gear::Armour& Gear::ArmourSet::getTorso() const { return torso; }
 
-const Gear::Armour &Gear::ArmourSet::getArms() const { return arms; }
+const Gear::Armour& Gear::ArmourSet::getArms() const { return arms; }
 
-const Gear::Armour &Gear::ArmourSet::getLegs() const { return legs; }
+const Gear::Armour& Gear::ArmourSet::getLegs() const { return legs; }
 
-const Gear::Weapon &Gear::ArmourSet::getWeapon() const { return weapon; }
+const Gear::Weapon& Gear::ArmourSet::getWeapon() const { return weapon; }
 
 const Gear::Cell& Gear::ArmourSet::getLantern() const { return lantern; }
 

@@ -1,5 +1,5 @@
-#include "gear/Armoury.hpp"
 #include "Options.hpp"
+#include "gear/Armoury.hpp"
 #include "util/json.hpp"
 #include "util/string.hpp"
 #include <QFile>
@@ -9,14 +9,14 @@
 #include <fstream>
 #include <iostream>
 
-Gear::Armoury::Armoury(Dictionary &dict)
+Gear::Armoury::Armoury(Dictionary& dict)
     : notFound("", "", None, std::vector<std::string>()), dict(dict)
 {
 }
 
-const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) const
+const Gear::SkillInfo& Gear::Armoury::getSkillInfoFor(const std::string& name) const
 {
-    for (const auto &skillInfo : skillInfos)
+    for (const auto& skillInfo : skillInfos)
     {
         if (skillInfo.getName() == name)
             return skillInfo;
@@ -25,18 +25,18 @@ const Gear::SkillInfo &Gear::Armoury::getSkillInfoFor(const std::string &name) c
     return notFound;
 }
 
-std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<Skill> &skills,
+std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<Skill>& skills,
                                                              WeaponType type,
-                                                             const Options &options) const
+                                                             const Options& options) const
 {
     std::vector<Weapon> weapons;
     if (this->weapons.count(type) == 0)
         return weapons;
-    for (const auto &weapon : this->weapons.at(type))
+    for (const auto& weapon : this->weapons.at(type))
     {
         if (filterGear(weapon, options))
             continue;
-        for (const auto &skill : skills)
+        for (const auto& skill : skills)
         {
             if (weapon.getSkillPointsFor(skill.getName()) > 0 ||
                 weapon.hasFreeCellSlotFor(getSkillInfoFor(skill.getName()).getType()))
@@ -49,18 +49,18 @@ std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<S
     return weapons;
 }
 
-std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Skill> &skills,
+std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Skill>& skills,
                                                             ArmourType type,
-                                                            const Options &options) const
+                                                            const Options& options) const
 {
     std::vector<Armour> armours;
     if (this->armours.count(type) == 0)
         return armours;
-    for (const auto &armour : this->armours.at(type))
+    for (const auto& armour : this->armours.at(type))
     {
         if (filterGear(armour, options))
             continue;
-        for (const auto &skill : skills)
+        for (const auto& skill : skills)
         {
             if (armour.getSkillPointsFor(skill.getName()) > 0 ||
                 armour.hasFreeCellSlotFor(getSkillInfoFor(skill.getName()).getType()))
@@ -75,36 +75,36 @@ std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Sk
     return armours;
 }
 
-std::vector<const Gear::SkillInfo *> Gear::Armoury::getSkills(SkillType filter) const
+std::vector<const Gear::SkillInfo*> Gear::Armoury::getSkills(SkillType filter) const
 {
-    std::vector<const SkillInfo *> skills;
-    for (const auto &skill : skillInfos)
+    std::vector<const SkillInfo*> skills;
+    for (const auto& skill : skillInfos)
         if (filter == None && skill.getType() || filter == skill.getType())
             skills.push_back(&skill);
     return skills;
 }
 
-Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string &skillName) const
+Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string& skillName) const
 {
     return getSkillInfoFor(skillName).getType();
 }
 
-const Gear::Armour &Gear::Armoury::getArmour(std::string name, bool heroic) const
+const Gear::Armour& Gear::Armoury::getArmour(std::string name, int level) const
 {
-    for (const auto &armours : this->armours)
-        for (const auto &armour : armours.second)
-            if (armour.getName() == name && isCorrectGear(armour, heroic))
+    for (const auto& armours : this->armours)
+        for (const auto& armour : armours.second)
+            if (armour.getName() == name && armour.getLevel() == level)
                 return armour;
     std::stringstream ss;
     ss << "There is no armour with the key " << name;
     throw std::exception(ss.str().c_str());
 }
 
-const Gear::Weapon &Gear::Armoury::getWeapon(std::string name, bool heroic) const
+const Gear::Weapon& Gear::Armoury::getWeapon(std::string name, int level) const
 {
-    for (const auto &weapons : this->weapons)
-        for (const auto &weapon : weapons.second)
-            if (weapon.getName() == name && isCorrectGear(weapon, heroic))
+    for (const auto& weapons : this->weapons)
+        for (const auto& weapon : weapons.second)
+            if (weapon.getName() == name && weapon.getLevel() == level)
                 return weapon;
     std::stringstream ss;
     ss << "There is no weapon with the key " << name;
@@ -124,27 +124,24 @@ const std::vector<util::json::JsonParameter> armouryParameters = {
 #define JSON_STRENGTH "strength"
 #define JSON_WEAKNESS "weakness"
 #define JSON_CELLS "cells"
-#define JSON_TIER "tier"
 #define JSON_RESISTANCE "resistance"
 #define JSON_PERKS "perks"
 #define JSON_UNIQUE_EFFECT "unique_effects"
 #define JSON_ELEMENTAL "elemental"
 #define JSON_POWER "power"
 #define JSON_EFFECTS "effects"
-#define JSON_RARITY "rarity"
 
 const std::vector<util::json::JsonParameter> armourParameters = {
-    {JSON_NAME, QJsonValue::Type::String},       {JSON_DESCRIPTION, QJsonValue::Type::String},
-    {JSON_TYPE, QJsonValue::Type::String},       {JSON_TIER, QJsonValue::Type::Double},
-    {JSON_RESISTANCE, QJsonValue::Type::Object}, {JSON_RARITY, QJsonValue::Type::String}};
+    {JSON_NAME, QJsonValue::Type::String},
+    {JSON_DESCRIPTION, QJsonValue::Type::String},
+    {JSON_TYPE, QJsonValue::Type::String},
+    {JSON_RESISTANCE, QJsonValue::Type::Object}};
 
 const std::vector<util::json::JsonParameter> weaponParameters = {
     {JSON_NAME, QJsonValue::Type::String},
     {JSON_DESCRIPTION, QJsonValue::Type::String},
     {JSON_TYPE, QJsonValue::Type::String},
-    {JSON_TIER, {QJsonValue::Type::Double, QJsonValue::Type::Array}},
-    {JSON_POWER, QJsonValue::Type::Object},
-    {JSON_RARITY, QJsonValue::Type::String}};
+    {JSON_POWER, QJsonValue::Type::Object}};
 
 const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_NAME, QJsonValue::Type::String},
@@ -152,7 +149,7 @@ const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_TYPE, QJsonValue::Type::String},
     {JSON_EFFECTS, QJsonValue::Type::Object}};
 
-void Gear::Armoury::load(const std::string &fileName)
+void Gear::Armoury::load(const std::string& fileName)
 {
     // TODO: implement fail safety, like loading backup data
     weapons.clear();
@@ -175,7 +172,7 @@ void Gear::Armoury::load(const std::string &fileName)
         return;
     }
     auto jsonArmours = json[JSON_ARMOURS].toObject();
-    for (const auto &key : jsonArmours.keys())
+    for (const auto& key : jsonArmours.keys())
     {
         try
         {
@@ -194,69 +191,50 @@ void Gear::Armoury::load(const std::string &fileName)
             auto type = getArmourType(armour[JSON_TYPE].toString().toStdString());
             std::string name = armour[JSON_NAME].toString().toStdString();
             std::string description = armour[JSON_DESCRIPTION].toString().toStdString();
-            unsigned int tier = armour[JSON_TIER].toInt();
-            auto rarity = getRarity(armour);
             Elements elementalResistance;
             if (armour.contains(JSON_STRENGTH) && armour[JSON_STRENGTH].isString())
-                setElement(elementalResistance, armour[JSON_STRENGTH].toString().toStdString(), 10);
+                setElement(elementalResistance, armour[JSON_STRENGTH].toString().toStdString(), 20);
             if (armour.contains(JSON_WEAKNESS) && armour[JSON_WEAKNESS].isString())
-                setElement(elementalResistance, armour[JSON_WEAKNESS].toString().toStdString(), -5);
+                setElement(elementalResistance, armour[JSON_WEAKNESS].toString().toStdString(),
+                           -10);
             SkillType cell(None);
             if (armour.contains(JSON_CELLS) && armour[JSON_CELLS].isString())
                 cell = getSkillType(armour[JSON_CELLS].toString().toStdString());
 
             auto resistances = armour[JSON_RESISTANCE].toObject();
-            int minDef = util::json::getValueForLevel(resistances, "0");
-            if (tier < 5) // non maelstroem stuff
+
+            Skill normalSkills, maelstromSkills, heroicSkills;
+            std::vector<std::string> uniqueSkills;
+
+            if (armour.contains(JSON_PERKS))
             {
-                int maxDef = util::json::getMaxValue(resistances);
-                std::vector<Skill> skills;
-                if (armour.contains(JSON_PERKS) && armour[JSON_PERKS].isArray())
-                    for (const auto &jsonPerk : armour[JSON_PERKS].toArray())
-                        skills.push_back(util::json::jsonToSkill(jsonPerk));
-                std::vector<std::string> uniqueSkills;
-                if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : armour[JSON_UNIQUE_EFFECT].toArray())
-                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
-                armours[type].push_back(Armour(type, name, description, tier, minDef, maxDef,
-                                               elementalResistance, skills, uniqueSkills, cell,
-                                               rarity));
+                normalSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 0, 5);
+                maelstromSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 6, 9);
+                heroicSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 10, 15);
             }
-            else // maelstroem stuff (heroic/normal)
+            if (armour.contains(JSON_UNIQUE_EFFECT))
             {
-                int maxDef = util::json::getValueForLevel(resistances, "5");
-                int maxDefHeroic = util::json::getValueForLevel(resistances, "10");
-                std::vector<Skill> skills, skillsHeroic;
-                if (armour.contains(JSON_PERKS) && armour[JSON_PERKS].isArray())
-                    for (const auto &jsonPerk : armour[JSON_PERKS].toArray())
-                        util::json::addMaelstromSkill(skills, skillsHeroic, jsonPerk,
-                                                      util::json::jsonToSkill(jsonPerk));
-                std::vector<std::string> uniqueSkills, uniqueSkillsHeroic;
-                if (armour.contains(JSON_UNIQUE_EFFECT) && armour[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : armour[JSON_UNIQUE_EFFECT].toArray())
-                        util::json::addMaelstromSkill(
-                            uniqueSkills, uniqueSkillsHeroic, jsonUnique,
-                            util::json::jsonToUniqueSkill(jsonUnique, dict));
-                if (rarity != Exotic)
-                {
-                    armours[type].push_back(Armour(type, name, description, 5, minDef, maxDef,
-                                                   elementalResistance, skills, uniqueSkills, cell,
-                                                   rarity));
-                }
-                armours[type].push_back(Armour(type, name, description, 6, minDef, maxDefHeroic,
-                                               elementalResistance, skillsHeroic,
-                                               uniqueSkillsHeroic, cell, rarity));
+                uniqueSkills =
+                    util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict);
             }
+
+            armours[type].emplace_back(type, name, description, 5, elementalResistance,
+                                       uniqueSkills, cell, normalSkills);
+            armours[type].emplace_back(type, name, description, 9, elementalResistance,
+                                       uniqueSkills, cell, maelstromSkills);
+            armours[type].emplace_back(type, name, description, 15, elementalResistance,
+                                       uniqueSkills, cell, heroicSkills);
+
             dict.addEntry(name, name);
             dict.addEntry(description, description);
         }
-        catch (const std::exception &e)
+        catch (const std::exception& e)
         {
             std::cout << key.toStdString() << ": " << e.what() << std::endl;
         }
     }
     auto jsonWeapons = json[JSON_WEAPONS].toObject();
-    for (const auto &key : jsonWeapons.keys())
+    for (const auto& key : jsonWeapons.keys())
     {
         try
         {
@@ -276,10 +254,6 @@ void Gear::Armoury::load(const std::string &fileName)
             auto type = getWeaponType(weapon[JSON_TYPE].toString().toStdString());
             std::string name = weapon[JSON_NAME].toString().toStdString();
             std::string description = weapon[JSON_DESCRIPTION].toString().toStdString();
-            std::vector<int> tiers = getTiers(weapon);
-            if (tiers.size() == 0)
-                continue;
-            auto rarity = getRarity(weapon);
             Elements elementalDamage;
             if (weapon.contains(JSON_ELEMENTAL) && weapon[JSON_ELEMENTAL].isString())
                 setElement(elementalDamage, weapon[JSON_ELEMENTAL].toString().toStdString(), 40);
@@ -314,58 +288,39 @@ void Gear::Armoury::load(const std::string &fileName)
                     continue;
                 }
             }
-            auto damage = weapon[JSON_POWER].toObject();
-            int minDamage = util::json::getValueForLevel(damage, "0");
-            if (tiers.size() > 1 || tiers[0] < 5)
+
+            Skill normalSkills, maelstromSkills, heroicSkills;
+            std::vector<std::string> uniqueSkills;
+
+            if (weapon.contains(JSON_PERKS))
             {
-                int maxDamage = util::json::getMaxValue(damage);
-                std::vector<Skill> skills;
-                if (weapon.contains(JSON_PERKS) && weapon[JSON_PERKS].isArray())
-                    for (const auto &jsonPerk : weapon[JSON_PERKS].toArray())
-                        skills.push_back(util::json::jsonToSkill(jsonPerk));
-                std::vector<std::string> uniqueSkills;
-                if (weapon.contains(JSON_UNIQUE_EFFECT) && weapon[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
-                        uniqueSkills.push_back(util::json::jsonToUniqueSkill(jsonUnique, dict));
-                weapons[type].push_back(Weapon(type, name, description, tiers, minDamage, maxDamage,
-                                               elementalDamage, skills, uniqueSkills, cell1, cell2,
-                                               rarity));
+                normalSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 0, 5);
+                maelstromSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 6, 9);
+                heroicSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 10, 15);
             }
-            else
+            if (weapon.contains(JSON_UNIQUE_EFFECT))
             {
-                int maxDamage = util::json::getValueForLevel(damage, "5");
-                int maxDamageHeroic = util::json::getValueForLevel(damage, "10");
-                std::vector<Skill> skills, skillsHeroic;
-                if (weapon.contains(JSON_PERKS) && weapon[JSON_PERKS].isArray())
-                    for (const auto &jsonPerk : weapon[JSON_PERKS].toArray())
-                        util::json::addMaelstromSkill(skills, skillsHeroic, jsonPerk,
-                                                      util::json::jsonToSkill(jsonPerk));
-                std::vector<std::string> uniqueSkills, uniqueSkillsHeroic;
-                if (weapon.contains(JSON_UNIQUE_EFFECT) && weapon[JSON_UNIQUE_EFFECT].isArray())
-                    for (const auto &jsonUnique : weapon[JSON_UNIQUE_EFFECT].toArray())
-                        util::json::addMaelstromSkill(
-                            uniqueSkills, uniqueSkillsHeroic, jsonUnique,
-                            util::json::jsonToUniqueSkill(jsonUnique, dict));
-                if (rarity != Exotic)
-                {
-                    weapons[type].push_back(Weapon(type, name, description, 5, minDamage, maxDamage,
-                                                   elementalDamage, skills, uniqueSkills, cell1,
-                                                   cell2, rarity));
-                }
-                weapons[type].push_back(Weapon(type, name, description, 6, minDamage,
-                                               maxDamageHeroic, elementalDamage, skillsHeroic,
-                                               uniqueSkillsHeroic, cell1, cell2, rarity));
+                uniqueSkills =
+                    util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict);
             }
+
+            weapons[type].emplace_back(type, name, description, 5, elementalDamage, uniqueSkills,
+                                       cell1, cell2, normalSkills);
+            weapons[type].emplace_back(type, name, description, 9, elementalDamage, uniqueSkills,
+                                       cell1, cell2, maelstromSkills);
+            weapons[type].emplace_back(type, name, description, 15, elementalDamage, uniqueSkills,
+                                       cell1, cell2, heroicSkills);
+
             dict.addEntry(name, name);
             dict.addEntry(description, description);
         }
-        catch (const std::exception &e)
+        catch (const std::exception& e)
         {
             std::cout << key.toStdString() << ": " << e.what() << std::endl;
         }
     }
     auto jsonPerks = json[JSON_PERKS].toObject();
-    for (const auto &key : jsonPerks.keys())
+    for (const auto& key : jsonPerks.keys())
     {
         try
         {
@@ -431,14 +386,14 @@ void Gear::Armoury::load(const std::string &fileName)
             dict.addEntry(name, name);
             dict.addEntry(description, description);
         }
-        catch (const std::exception &e)
+        catch (const std::exception& e)
         {
             std::cout << key.toStdString() << ": " << e.what() << std::endl;
         }
     }
 }
 
-void Gear::Armoury::setElement(Elements &element, const std::string &name, int value)
+void Gear::Armoury::setElement(Elements& element, const std::string& name, int value)
 {
     if (name == "Umbral")
         element.Umbral = value;
@@ -454,7 +409,7 @@ void Gear::Armoury::setElement(Elements &element, const std::string &name, int v
         throw std::logic_error("Unknown element " + name);
 }
 
-Gear::SkillType Gear::Armoury::getSkillType(const std::string &type) const
+Gear::SkillType Gear::Armoury::getSkillType(const std::string& type) const
 {
     if (type == "Power")
         return SkillType::Power;
@@ -469,7 +424,7 @@ Gear::SkillType Gear::Armoury::getSkillType(const std::string &type) const
     throw std::logic_error("Unknown skill type " + type);
 }
 
-Gear::ArmourType Gear::Armoury::getArmourType(const std::string &type) const
+Gear::ArmourType Gear::Armoury::getArmourType(const std::string& type) const
 {
     if (type == "Arms")
         return ArmourType::Arms;
@@ -482,7 +437,7 @@ Gear::ArmourType Gear::Armoury::getArmourType(const std::string &type) const
     throw std::logic_error("Unknown armour type " + type);
 }
 
-Gear::WeaponType Gear::Armoury::getWeaponType(const std::string &type) const
+Gear::WeaponType Gear::Armoury::getWeaponType(const std::string& type) const
 {
     if (type == "Axe")
         return WeaponType::Axe;
@@ -499,122 +454,27 @@ Gear::WeaponType Gear::Armoury::getWeaponType(const std::string &type) const
     throw std::logic_error("Unknown weapon type " + type);
 }
 
-Gear::Rarity Gear::Armoury::getRarity(const QJsonObject &gear) const
+bool Gear::Armoury::filterGear(const Gear& gear, const Options& options) const
 {
-    std::string rarity = gear[JSON_RARITY].toString().toStdString();
-    if (rarity == "common")
-        return Rarity::Common;
-    if (rarity == "uncommon")
-        return Rarity::Uncommon;
-    if (rarity == "rare")
-        return Rarity::Rare;
-    if (rarity == "epic")
-        return Rarity::Epic;
-    if (rarity == "exotic")
-        return Rarity::Exotic;
-    throw std::logic_error("Unknown rarity " + rarity);
-}
-
-std::vector<int> Gear::Armoury::getTiers(const QJsonObject &gear) const
-{
-    if (gear[JSON_TIER].type() == QJsonValue::Type::Double)
-        return {gear[JSON_TIER].toInt()};
-    else if (gear[JSON_TIER].type() == QJsonValue::Type::Array)
+    int level = 0;
+    if (options.tier == 1)
+        level = 5;
+    else if (options.tier == 2)
+        level = 9;
+    else if (options.tier == 3 || options.tier == 4)
+        level = 15;
+    else
     {
-        std::vector<int> tiers;
-        for (const auto &tier : gear[JSON_TIER].toArray())
-        {
-            if (tier.isDouble())
-                tiers.push_back(tier.toInt());
-            else
-            {
-                std::cout << "WARNING: non int tier!" << std::endl;
-            }
-        }
-        if (std::find(tiers.begin(), tiers.end(), 5) != tiers.end())
-            tiers.push_back(6); // if it has a maelstroem variant it probably also has a heroic variant (needed for filtering)
-
-        return tiers;
-    }
-    std::cout << "WARNING: unknown Tier type: " << gear[JSON_TIER].type() << std::endl;
-    return std::vector<int>();
-}
-
-bool Gear::Armoury::isCorrectGear(const Gear &gear, bool heroic) const
-{
-    if (!heroic)
-        return true;
-    if (gear.getTiers().size() > 1)
-    {
-        // modular repeater
-        // there is no distinction between heroic and not heroic here
+        std::cout << "WARNING: unknown tier:" << options.tier << std::endl;
         return true;
     }
-    else if (gear.getTiers().size() == 1)
+    if (options.useLowerTierArmour)
     {
-        return gear.getTiers()[0] == 6;
+        return gear.getLevel() > level;
     }
     else
     {
-        std::cout << "WARNING: Gear without tier!" << std::endl;
-        return false;
-    }
-}
-
-bool Gear::Armoury::filterGear(const Gear &gear, const Options &options) const
-{
-    if (gear.getTiers().size() == 1)
-    {
-        // we have a regular weapon which is only on 1 tier
-        auto tier = gear.getTiers()[0];
-        if (tier > options.tier)
-            return true;
-        if (!options.useLowerTierArmour && isLowerTier(tier, options))
-            return true;
-        return false;
-    }
-    else if (gear.getTiers().size() > 1)
-    {
-        // we have a modular repeater
-        bool available = false;
-        for (auto tier : gear.getTiers())
-        {
-            if (tier <= options.tier)
-            {
-                available = true;
-                break;
-            }
-        }
-        if (!available)
-            return true;
-        bool onCurrentTier = false;
-        for (auto tier : gear.getTiers())
-        {
-            if (!isLowerTier(tier, options))
-            {
-                onCurrentTier = true;
-                break;
-            }
-        }
-        if (!options.useLowerTierArmour && !onCurrentTier)
-            return true;
-        return false;
-    }
-    else
-    {
-        // we have something really strange here
-        std::cout << "WARNING: Gear without tier!" << std::endl;
-        return true;
-    }
-}
-
-bool Gear::Armoury::isLowerTier(int gearTier, const Options &options) const
-{
-    switch (options.tier)
-    {
-    case 6: return gearTier < 6;
-    case 5: return gearTier < 4; // tier 4 is pretty equal to tier 5
-    default: return false;
+        return gear.getLevel() != level;
     }
 }
 

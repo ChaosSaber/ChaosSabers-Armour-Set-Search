@@ -42,16 +42,16 @@ class Options
         std::string skillName = "";
         int skillLevel = 0;
     };
-    void loadConfiguration(const Gear::Armoury &armoury,
-                           const QString &fileName = CONFIG_FILE_NAME);
-    void saveConfiguration(const QString &fileName = CONFIG_FILE_NAME);
-    void loadSearch(const Gear::Armoury &armoury, const Dictionary &dict,
-                    const QString &fileName = LAST_SEARCH);
-    void saveSearch(const QString &fileName = LAST_SEARCH);
+    void loadConfiguration(const Gear::Armoury& armoury,
+                           const QString& fileName = CONFIG_FILE_NAME);
+    void saveConfiguration(const QString& fileName = CONFIG_FILE_NAME);
+    void loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
+                    const QString& fileName = LAST_SEARCH);
+    void saveSearch(const QString& fileName = LAST_SEARCH);
     void save();
-    void saveCells(const QString &fileName = MY_CELLS);
-    void loadCells(const Gear::Armoury &armoury, const Dictionary &dict,
-                   const QString &fileName = MY_CELLS);
+    void saveCells(const QString& fileName = MY_CELLS);
+    void loadCells(const Gear::Armoury& armoury, const Dictionary& dict,
+                   const QString& fileName = MY_CELLS);
 
     int numberOfResults = 100;
     std::string language = "English";
@@ -64,18 +64,17 @@ class Options
     QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
     int cellUsage = 0;
     bool useLowerTierArmour = true;
-    int tier = 6;
+    int tier = 4;
 
   private:
-    QJsonObject cellToJson(const Gear::Cell &cell);
-    Gear::Cell jsonToCell(const QJsonObject &json, const Gear::Armoury &armoury,
-                          const Dictionary &dict, bool useDict);
-    QJsonObject armourToJson(const Gear::Armour &armour);
-    Gear::Armour jsonToArmour(const QJsonObject &json, const Gear::Armoury &armoury,
-                              const Dictionary &dict, bool useDict);
-    QJsonObject weaponToJson(const Gear::Weapon &weapon);
-    Gear::Weapon jsonToWeapon(const QJsonObject &json, const Gear::Armoury &armoury,
-                              const Dictionary &dict, bool useDict);
+    QJsonArray cellListToJson(const Gear::CellList& cells);
+    Gear::CellList jsonToCellList(const QJsonArray& json, const Gear::Armoury& armoury);
+    QJsonObject cellToJson(const Gear::Cell& cell);
+    Gear::Cell jsonToCell(const QJsonObject& json, const Gear::Armoury& armoury);
+    QJsonObject gearToJson(const Gear::Gear& armour);
+    std::tuple<std::string, int> jsonToGear(const QJsonObject& json);
+    Gear::Armour jsonToArmour(const QJsonObject& json, const Gear::Armoury& armoury);
+    Gear::Weapon jsonToWeapon(const QJsonObject& json, const Gear::Armoury& armoury);
 };
 
 #endif // !DAUNTLESS_ASS_OPTIONS_HPP
