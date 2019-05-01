@@ -15,18 +15,18 @@ Gear::Gear::Gear(std::string&& name, std::string&& description, int level, Skill
       skill_(std::move(skill)), uniqueSkills_(std::move(uniqueSkills)), cells_(std::move(cells))
 {
 }
-
-Gear::Gear::Gear(const Gear& other)
-    : Gear(other.name_, other.description_, other.level_, other.skill_, other.uniqueSkills_,
-           other.cells_)
-{
-}
-
-Gear::Gear::Gear(Gear&& other)
-    : Gear(std::move(other.name_), std::move(other.description_), other.level_,
-           std::move(other.skill_), std::move(other.uniqueSkills_), std::move(other.cells_))
-{
-}
+//
+// Gear::Gear::Gear(const Gear& other)
+//    : Gear(other.name_, other.description_, other.level_, other.skill_, other.uniqueSkills_,
+//           other.cells_)
+//{
+//}
+//
+// Gear::Gear::Gear(Gear&& other)
+//    : Gear(std::move(other.name_), std::move(other.description_), other.level_,
+//           std::move(other.skill_), std::move(other.uniqueSkills_), std::move(other.cells_))
+//{
+//}
 
 const std::string& Gear::Gear::getName() const { return name_; }
 
@@ -40,9 +40,13 @@ const std::vector<std::string>& Gear::Gear::getUniqueSkills() const { return uni
 
 Gear::SkillList Gear::Gear::getSkills() const
 {
-    if (skill_.getSkillPoints() == 0)
-        return SkillList();
-    return skill_;
+    SkillList skills;
+    if (skill_.getSkillPoints() > 0)
+        skills += skill_;
+    for (auto& cell : cells_)
+        if (!cell.isEmpty())
+            skills += cell.getSkill();
+    return skills;
 }
 
 bool Gear::Gear::hasSkill(const std::string& skill) const

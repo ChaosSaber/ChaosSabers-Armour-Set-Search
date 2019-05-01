@@ -158,7 +158,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t1"));
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t2"));
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t4"));
     ui->comboBoxTier->setCurrentIndex(options.tier - 1);
     connect(ui->comboBoxTier, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { options.tier = index + 1; });

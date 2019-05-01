@@ -17,8 +17,8 @@ class Gear
     Gear(std::string&& name, std::string&& description, int level, Skill&& skill,
          std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells);
 
-    Gear(const Gear& other);
-    Gear(Gear&& other);
+    //Gear(const Gear& other);
+    //Gear(Gear&& other);
 
     // checks if the gear has free cell slots for a specific skill
     bool hasFreeCellSlotFor(SkillType type) const;

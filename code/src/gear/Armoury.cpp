@@ -461,7 +461,7 @@ bool Gear::Armoury::filterGear(const Gear& gear, const Options& options) const
         level = 5;
     else if (options.tier == 2)
         level = 9;
-    else if (options.tier == 3 || options.tier == 4)
+    else if (options.tier == 3)
         level = 15;
     else
     {

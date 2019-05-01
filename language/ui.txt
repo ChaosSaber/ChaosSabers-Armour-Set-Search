@@ -68,6 +68,5 @@ use_lower_tier_gear;Use lower tier gear
 label_tier;Current tier
 tier_t1;The Sheltered Frontier
 tier_t2;Maelstrom
-tier_t3;Maelstrom (Heroic)
-tier_t4;Maelstrom (Heroic+)
+tier_t3;Maelstrom (Heroic/Heroic+)
 repeater;Repeater

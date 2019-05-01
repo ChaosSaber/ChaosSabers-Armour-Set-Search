@@ -64,7 +64,7 @@ class Options
     QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
     int cellUsage = 0;
     bool useLowerTierArmour = true;
-    int tier = 4;
+    int tier = 3;
 
   private:
     QJsonArray cellListToJson(const Gear::CellList& cells);
