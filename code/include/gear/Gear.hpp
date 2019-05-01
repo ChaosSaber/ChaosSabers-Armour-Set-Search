@@ -12,33 +12,47 @@ namespace Gear
 class Gear
 {
   public:
-    Gear(std::string name, std::vector<int> tiers);
+    Gear(const std::string& name, const std::string& description, int level, const Skill& skill,
+         const std::vector<std::string>& uniqueSkills, const std::vector<Cell>& cells);
+    Gear(std::string&& name, std::string&& description, int level, Skill&& skill,
+         std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells);
+
+    //Gear(const Gear& other);
+    //Gear(Gear&& other);
 
     // checks if the gear has free cell slots for a specific skill
-    virtual bool hasFreeCellSlotFor(SkillType type) const = 0;
+    bool hasFreeCellSlotFor(SkillType type) const;
     // adds a new Cell to the gear
     // returns if the cell could be inserted
-    virtual bool addCell(Cell cell) = 0;
-    // returns the info of the gear as human readable string
-    virtual std::string getGearInfo(const Dictionary &dict) const = 0;
-    // returns a list of all skills on the gear
-    virtual SkillList getSkills() const = 0;
-    // returns a list of all unique skills on the gear
-    virtual const std::vector<std::string> &getUniqueSkills() const = 0;
-    // returns the skill points for a specific skill on that gear
-    virtual int getSkillPointsFor(const std::string &skill) const = 0;
+    bool addCell(const Cell& cell);
     // returns the cells on the gear
-    virtual CellList getCells() const = 0;
-    virtual std::string getToolTip(const Dictionary &dict) const = 0;
-    virtual bool hasUniqueSkill() const = 0;
+    CellList getCellList() const;
 
+    const std::string& getName() const;
+    int Gear::Gear::getLevel() const;
+    const std::string& Gear::Gear::getDescription() const;
 
-    const std::string &getName() const;
-    const std::vector<int> &getTiers() const;
+    bool hasSkill(const std::string& skill) const;
+    // returns the skill points for a specific skill on that gear
+    int getSkillPointsFor(const std::string& skill) const;
+    // returns a list of all skills on the gear
+    SkillList getSkills() const;
+    // returns a list of all unique skills on the gear
+    const std::vector<std::string>& getUniqueSkills() const;
+    bool hasUniqueSkill() const;
+    // returns the info of the gear as human readable string
+    std::string getGearInfo(const Dictionary& dict) const;
+
+    virtual std::string getToolTip(const Dictionary& dict) const;
 
   private:
-    std::string name;
-    std::vector<int> tiers;
+    std::string name_;
+    std::string description_;
+    int level_;
+    // exotics have only unique skills, therefore we need a pointer
+    Skill skill_;
+    std::vector<std::string> uniqueSkills_;
+    std::vector<Cell> cells_;
 };
 } // namespace Gear
 

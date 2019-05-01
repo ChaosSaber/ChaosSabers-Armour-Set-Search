@@ -13,9 +13,9 @@ class Skill
     Skill();
     Skill(std::string name, int skillPoints);
 
-    const std::string &getName() const;
+    const std::string& getName() const;
     int getSkillPoints() const;
-    std::string toString(const Dictionary &dict) const;
+    std::string toString(const Dictionary& dict) const;
     friend class SkillList;
 
     bool operator==(const Skill& other) const;
@@ -31,7 +31,7 @@ namespace std
 
 template <> struct hash<Gear::Skill>
 {
-    std::size_t operator()(const Gear::Skill &skill) const
+    std::size_t operator()(const Gear::Skill& skill) const
     {
         using std::hash;
         using std::size_t;

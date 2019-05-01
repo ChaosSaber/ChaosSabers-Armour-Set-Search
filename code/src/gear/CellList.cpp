@@ -4,6 +4,12 @@
 
 Gear::CellList::CellList(const Cell &cell) { *this += cell; }
 
+Gear::CellList::CellList(const std::vector<Cell>& cells)
+{
+    for (auto& cell : cells)
+        *this += cell;
+}
+
 bool Gear::cellSorter(const std::pair<Cell, int> &lhs, const std::pair<Cell, int> &rhs)
 {
     if (lhs.first.getSkill().getSkillPoints() > rhs.first.getSkill().getSkillPoints())

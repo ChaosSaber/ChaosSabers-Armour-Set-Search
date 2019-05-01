@@ -32,16 +32,16 @@ struct JsonParameter
     std::vector<QJsonValue::Type> types;
 };
 
-bool parameterCheck(const QJsonObject &json, const std::vector<JsonParameter> &params);
+bool parameterCheck(const QJsonObject& json, const std::vector<JsonParameter>& params);
 
-Gear::Skill jsonToSkill(const QJsonValueRef &json);
-std::string jsonToUniqueSkill(const QJsonValueRef &json, Dictionary &dict);
-int getMaxValue(const QJsonObject &json);
-int getValueForLevel(const QJsonObject &json, const std::string &level);
+Gear::Skill jsonToSkill(const QJsonObject& json);
+std::string jsonToUniqueSkill(const QJsonValueRef& json, Dictionary& dict);
+int getMaxValue(const QJsonObject& json);
+int getValueForLevel(const QJsonObject& json, const std::string& level);
 
 #pragma region parameterChecks
 
-const std::vector<util::json::JsonParameter> maelstroemPerkParameters = {
+const std::vector<util::json::JsonParameter> perkParametersFromTo = {
     {JSON_PERK_FROM, QJsonValue::Type::Double}, {JSON_PERK_TO, QJsonValue::Type::Double}};
 
 const std::vector<util::json::JsonParameter> perkParameters = {
@@ -52,29 +52,8 @@ const std::vector<util::json::JsonParameter> uniqueEffectsParameters = {
 
 #pragma endregion
 
-template <typename T>
-void addMaelstromSkill(std::vector<T> &normal, std::vector<T> &heroic, const QJsonValueRef &jsonRef,
-                       const T &value)
-{
-    auto json = jsonRef.toObject();
-    if (parameterCheck(json, maelstroemPerkParameters))
-    {
-        int from = json[JSON_PERK_FROM].toInt();
-        int to = json[JSON_PERK_TO].toInt();
-        // we need to differentiate between heroic and normal
-        if (from == 0 && to == 5)
-            normal.push_back(value);
-        else if (from == 6 && to == 10)
-            heroic.push_back(value);
-        else
-            throw std::logic_error("non conforming maelstrom perk");
-    }
-    else
-    {
-        normal.push_back(value);
-        heroic.push_back(value);
-    }
-}
+Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to);
+std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict);
 
 } // namespace json
 } // namespace util

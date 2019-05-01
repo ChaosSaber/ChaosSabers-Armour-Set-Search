@@ -1,8 +1,8 @@
 #include "ArmourSetSearch.hpp"
 #include <sstream>
 
-ArmourSetSearch::ArmourSetSearch(const Gear::Armoury &armoury, Gear::WeaponType weaponType,
-                                 std::vector<Gear::Skill> skills, const Options &options,
+ArmourSetSearch::ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
+                                 std::vector<Gear::Skill> skills, const Options& options,
                                  Gear::CellList availableCells)
     : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
                       armoury.getArmourWithSkill(skills, Gear::Head, options),
@@ -24,33 +24,29 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
 
 {
     if (heads.empty())
-        heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", "any_hat", 0, 0, 0,
-                                     Gear::Elements(), std::vector<Gear::Skill>(),
-                                     std::vector<std::string>(), Gear::SkillType::None,
-                                     Gear::Rarity::Common));
+        heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", "any_hat", 0,
+                                     Gear::Elements(), std::vector<std::string>(),
+                                     Gear::SkillType::None));
     if (torsos.empty())
-        torsos.push_back(Gear::Armour(Gear::ArmourType::Torso, "any_torso", "any_torso", 0, 0, 0,
-                                      Gear::Elements(), std::vector<Gear::Skill>(),
-                                      std::vector<std::string>(), Gear::SkillType::None,
-                                      Gear::Rarity::Common));
+        torsos.push_back(Gear::Armour(Gear::ArmourType::Torso, "any_torso", "any_torso", 0,
+                                      Gear::Elements(), std::vector<std::string>(),
+                                      Gear::SkillType::None));
     if (arms.empty())
-        arms.push_back(Gear::Armour(Gear::ArmourType::Arms, "any_arms", "any_arms", 0, 0, 0,
-                                    Gear::Elements(), std::vector<Gear::Skill>(),
-                                    std::vector<std::string>(), Gear::SkillType::None,
-                                    Gear::Rarity::Common));
+        arms.push_back(Gear::Armour(Gear::ArmourType::Arms, "any_arms", "any_arms", 0,
+                                    Gear::Elements(), std::vector<std::string>(),
+                                    Gear::SkillType::None));
     if (legs.empty())
-        legs.push_back(Gear::Armour(Gear::ArmourType::Legs, "any_legs", "any_legs", 0, 0, 0,
-                                    Gear::Elements(), std::vector<Gear::Skill>(),
-                                    std::vector<std::string>(), Gear::SkillType::None,
-                                    Gear::Rarity::Common));
+        legs.push_back(Gear::Armour(Gear::ArmourType::Legs, "any_legs", "any_legs", 0,
+                                    Gear::Elements(), std::vector<std::string>(),
+                                    Gear::SkillType::None));
     if (weapons.empty())
-        weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_hat", "any_hat", 0, 0, 0,
-                                       Gear::Elements(), std::vector<Gear::Skill>(),
+        weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_hat", "any_hat", 0,
+                                       Gear::Elements(),
                                        std::vector<std::string>(), Gear::SkillType::None,
-                                       Gear::SkillType::None, Gear::Rarity::Common));
+                                       Gear::SkillType::None));
 }
 
-void ArmourSetSearch::search(const Gear::Armoury &armoury, bool *cancel,
+void ArmourSetSearch::search(const Gear::Armoury& armoury, bool* cancel,
                              std::function<void(int)> progress)
 {
     // TODO: maximum number of found sets to prevent out of memory
@@ -59,11 +55,11 @@ void ArmourSetSearch::search(const Gear::Armoury &armoury, bool *cancel,
     unsigned long long numberOfCombinations =
         heads.size() * torsos.size() * arms.size() * legs.size() * weapons.size();
     unsigned long long count = 0;
-    for (const auto &head : heads)
-        for (const auto &torso : torsos)
-            for (const auto &arm : arms)
-                for (const auto &leg : legs)
-                    for (const auto &weapon : weapons)
+    for (const auto& head : heads)
+        for (const auto& torso : torsos)
+            for (const auto& arm : arms)
+                for (const auto& leg : legs)
+                    for (const auto& weapon : weapons)
                     {
                         if (*cancel)
                             return;
@@ -78,10 +74,10 @@ void ArmourSetSearch::search(const Gear::Armoury &armoury, bool *cancel,
                     }
 }
 
-void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury &armoury)
+void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury)
 {
     Gear::CellList cells = availableCells;
-    for (const auto &skill : wantedSkills)
+    for (const auto& skill : wantedSkills)
     {
         int existingSkillPoints = set.getSkillPointsFor(skill.getName());
         if (!cells.hasEnoughCellsFor(skill, existingSkillPoints))
@@ -100,21 +96,21 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury &armoury
     armourSets.push_back(set);
 }
 
-std::string ArmourSetSearch::toString(const Dictionary &dict)
+std::string ArmourSetSearch::toString(const Dictionary& dict)
 {
     std::stringstream ss;
-    for (const auto &armourSet : armourSets)
+    for (const auto& armourSet : armourSets)
         ss << armourSet.getGearInfo(dict) << std::endl << std::string(70, '-') << std::endl;
     return ss.str();
 }
 
-const std::vector<Gear::ArmourSet> &ArmourSetSearch::getArmourSets() const { return armourSets; }
+const std::vector<Gear::ArmourSet>& ArmourSetSearch::getArmourSets() const { return armourSets; }
 
 void ArmourSetSearch::setAvaiableCells(Gear::CellList availableCells)
 {
     this->availableCells = std::move(availableCells);
 }
 
-const std::vector<Gear::Skill> &ArmourSetSearch::getWantedSkills() const { return wantedSkills; }
+const std::vector<Gear::Skill>& ArmourSetSearch::getWantedSkills() const { return wantedSkills; }
 
-std::vector<Gear::ArmourSet> &&ArmourSetSearch::moveArmourSets() { return std::move(armourSets); }
+std::vector<Gear::ArmourSet>&& ArmourSetSearch::moveArmourSets() { return std::move(armourSets); }

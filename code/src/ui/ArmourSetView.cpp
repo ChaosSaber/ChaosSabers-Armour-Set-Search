@@ -19,7 +19,7 @@ ArmourSetView::ArmourSetView(const Dictionary &dict, const Gear::ArmourSet &set,
     addGear(set.getArms());
     addGear(set.getLegs());
 
-    auto cells = set.getCells();
+    auto cells = set.getCellList();
     cells.sort();
     for (const auto &cell : cells)
         addCell(cell);

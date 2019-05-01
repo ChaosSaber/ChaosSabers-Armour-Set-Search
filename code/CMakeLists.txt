@@ -1,5 +1,6 @@
 
 ADD_DEFINITIONS(-DPROGRAM_VERSION="${PROJECT_VERSION}")
+SET(CMAKE_CXX_STANDARD 17)
 
 SET(SRCS
 	src/Dictionary.cpp
@@ -57,7 +58,6 @@ SET(HDRS
 	include/ui/License.hpp
 	include/ui/CellWindow.hpp
 	include/util/json.hpp
-	include/gear/Rarity.hpp
 	include/util/files.hpp
 	# include/FileDownloader.hpp
 )
