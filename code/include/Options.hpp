@@ -62,6 +62,7 @@ class Options
     Gear::WeaponType weaponType = Gear::WeaponType::Sword;
     QString lastSearchSaveLocation = STANDARD_SEARCH_SAVE_LOCATION;
     QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
+    QString lastExportTextSaveLocation = util::files::DOCUMENTS_LOCATION;
     int cellUsage = 0;
     bool useLowerTierArmour = true;
     int tier = 3;

@@ -70,3 +70,7 @@ tier_t1;The Sheltered Frontier
 tier_t2;Maelstrom
 tier_t3;Maelstrom (Heroic/Heroic+)
 repeater;Repeater
+export_contextmenu;Export
+export_text;export as text
+export_to_clipboard;to clipboard
+export_to_file;to file

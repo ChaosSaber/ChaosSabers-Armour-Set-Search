@@ -519,7 +519,7 @@ void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *
 
 ArmourSetView *MainWindow::createArmourSetView(const Gear::ArmourSet &set)
 {
-    return new ArmourSetView(dict, set, armoury,
+    return new ArmourSetView(dict, options, set, armoury,
                              ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width(),
                              Gear::SkillList(getWantedSkills()));
 }

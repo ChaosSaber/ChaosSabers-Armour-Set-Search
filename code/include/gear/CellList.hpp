@@ -20,11 +20,20 @@ class CellList
     bool hasEnoughCellsFor(const Skill &skill, int allreadyExistingSkillPoints) const;
     int getOptimalCellLevel(const Skill &skill, int existingSkillpoints) const;
     void sort();
+    /**
+     *@return Returns the number of skills in the list
+     */
+    size_t size() const;
 
     std::vector<std::pair<Cell, int>>::iterator begin();
     std::vector<std::pair<Cell, int>>::const_iterator begin() const;
     std::vector<std::pair<Cell, int>>::iterator end();
     std::vector<std::pair<Cell, int>>::const_iterator end() const;
+    /**
+     * @param pos Th position of the wanted object
+     * @return A refrence to the wanted skill
+     */
+    const std::pair<Cell, int>& operator[](size_t pos) const;
     const CellList &operator+=(const Cell &cell);
     const CellList &operator+=(const CellList &cellList);
     friend CellList operator+(CellList lhs, const Cell &rhs);

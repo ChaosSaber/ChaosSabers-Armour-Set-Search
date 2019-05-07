@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <sstream>
 
-Gear::CellList::CellList(const Cell &cell) { *this += cell; }
+Gear::CellList::CellList(const Cell& cell) { *this += cell; }
 
 Gear::CellList::CellList(const std::vector<Cell>& cells)
 {
@@ -10,7 +10,7 @@ Gear::CellList::CellList(const std::vector<Cell>& cells)
         *this += cell;
 }
 
-bool Gear::cellSorter(const std::pair<Cell, int> &lhs, const std::pair<Cell, int> &rhs)
+bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int>& rhs)
 {
     if (lhs.first.getSkill().getSkillPoints() > rhs.first.getSkill().getSkillPoints())
         return true;
@@ -27,11 +27,11 @@ bool Gear::cellSorter(const std::pair<Cell, int> &lhs, const std::pair<Cell, int
         return false;
 }
 
-std::string Gear::CellList::toString(const Dictionary &dict)
+std::string Gear::CellList::toString(const Dictionary& dict)
 {
     std::stringstream ss;
     sort();
-    for (const auto &cell : cells)
+    for (const auto& cell : cells)
     {
         if (cell.second <= 0)
             continue;
@@ -40,19 +40,19 @@ std::string Gear::CellList::toString(const Dictionary &dict)
     return ss.str();
 }
 
-bool Gear::CellList::hasEnoughCellsFor(const Skill &skill, int allreadyExistingSkillPoints) const
+bool Gear::CellList::hasEnoughCellsFor(const Skill& skill, int allreadyExistingSkillPoints) const
 {
     int sum = 0;
-    for (const auto &cell : cells)
+    for (const auto& cell : cells)
         if (cell.first.getSkillName() == skill.getName())
             sum += cell.second * cell.first.getSkill().getSkillPoints();
     return sum > skill.getSkillPoints() - allreadyExistingSkillPoints;
 }
 
-int Gear::CellList::getOptimalCellLevel(const Skill &skill, int existingSkillpoints) const
+int Gear::CellList::getOptimalCellLevel(const Skill& skill, int existingSkillpoints) const
 {
     std::unordered_map<int, int> levels;
-    for (const auto &cell : cells)
+    for (const auto& cell : cells)
         if (cell.first.getSkillName() == skill.getName())
             levels[cell.first.getSkill().getSkillPoints()] = cell.second;
     switch (skill.getSkillPoints() - existingSkillpoints)
@@ -89,13 +89,15 @@ int Gear::CellList::getOptimalCellLevel(const Skill &skill, int existingSkillpoi
 int Gear::CellList::getHighestCellLevel(std::unordered_map<int, int> levels, int maximumLevel) const
 {
     int highest = 0;
-    for (const auto &level : levels)
+    for (const auto& level : levels)
         if (level.first <= maximumLevel && level.second > 0 && level.first > highest)
             highest = level.first;
     return highest;
 }
 
 void Gear::CellList::sort() { std::sort(cells.begin(), cells.end(), cellSorter); }
+
+size_t Gear::CellList::size() const { return cells.size(); }
 
 std::vector<std::pair<Gear::Cell, int>>::iterator Gear::CellList::begin() { return cells.begin(); }
 
@@ -111,9 +113,14 @@ std::vector<std::pair<Gear::Cell, int>>::const_iterator Gear::CellList::end() co
     return cells.cend();
 }
 
-const Gear::CellList &Gear::CellList::operator+=(const Cell &cell)
+const std::pair<Gear::Cell, int>& Gear::CellList::operator[](size_t pos) const
 {
-    for (auto &cellCount : cells)
+    return cells[pos];
+}
+
+const Gear::CellList& Gear::CellList::operator+=(const Cell& cell)
+{
+    for (auto& cellCount : cells)
         if (cellCount.first == cell)
         {
             ++cellCount.second;
@@ -123,21 +130,21 @@ const Gear::CellList &Gear::CellList::operator+=(const Cell &cell)
     return *this;
 }
 
-const Gear::CellList &Gear::CellList::operator+=(const CellList &cellList)
+const Gear::CellList& Gear::CellList::operator+=(const CellList& cellList)
 {
-    for (const auto &cell : cellList.cells)
+    for (const auto& cell : cellList.cells)
         for (size_t i = 0; i < cell.second; ++i)
             *this += cell.first;
     return *this;
 }
 
-Gear::CellList Gear::operator+(CellList lhs, const Cell &rhs) { return lhs += rhs; }
+Gear::CellList Gear::operator+(CellList lhs, const Cell& rhs) { return lhs += rhs; }
 
-Gear::CellList Gear::operator+(CellList lhs, const CellList &rhs) { return lhs += rhs; }
+Gear::CellList Gear::operator+(CellList lhs, const CellList& rhs) { return lhs += rhs; }
 
-const Gear::CellList &Gear::CellList::operator-=(const Cell &cell)
+const Gear::CellList& Gear::CellList::operator-=(const Cell& cell)
 {
-    for (auto &cellCount : cells)
+    for (auto& cellCount : cells)
         if (cellCount.first == cell)
         {
             --cellCount.second;
@@ -148,14 +155,14 @@ const Gear::CellList &Gear::CellList::operator-=(const Cell &cell)
     return *this;
 }
 
-const Gear::CellList &Gear::CellList::operator-=(const CellList &cellList)
+const Gear::CellList& Gear::CellList::operator-=(const CellList& cellList)
 {
-    for (const auto &cell : cellList.cells)
+    for (const auto& cell : cellList.cells)
         for (size_t i = 0; i < cell.second; ++i)
             *this -= cell.first;
     return *this;
 }
 
-Gear::CellList Gear::operator-(CellList lhs, const Cell &rhs) { return lhs -= rhs; }
+Gear::CellList Gear::operator-(CellList lhs, const Cell& rhs) { return lhs -= rhs; }
 
-Gear::CellList Gear::operator-(CellList lhs, const CellList &rhs) { return lhs -= rhs; }
+Gear::CellList Gear::operator-(CellList lhs, const CellList& rhs) { return lhs -= rhs; }

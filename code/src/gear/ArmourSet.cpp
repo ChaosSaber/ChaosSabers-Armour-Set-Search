@@ -1,10 +1,10 @@
 #include "gear/ArmourSet.hpp"
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
 Gear::ArmourSet::ArmourSet(const Armour& head, const Armour& torso, const Armour& arms,
-                           const Armour& legs, const Weapon& weapon,
-                           const Cell& lantern)
+                           const Armour& legs, const Weapon& weapon, const Cell& lantern)
     : head(head), torso(torso), legs(legs), arms(arms), weapon(weapon), lantern(lantern)
 {
     init();
@@ -27,7 +27,7 @@ void Gear::ArmourSet::init()
     gear.push_back(&weapon);
 }
 
- Gear::ArmourSet::ArmourSet(const ArmourSet& other)
+Gear::ArmourSet::ArmourSet(const ArmourSet& other)
     : ArmourSet(other.head, other.torso, other.arms, other.legs, other.weapon, other.lantern)
 {
 }
@@ -149,6 +149,88 @@ Gear::SkillList Gear::ArmourSet::getAdditionalSkills(const SkillList& wantedSkil
             skills += skill;
     }
     return skills;
+}
+
+std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
+{
+    std::stringstream text;
+
+    size_t maxGearLength = 0;
+    for (const auto& gear : this->gear)
+    {
+        auto length = gear->getGearInfo(dict).length();
+        if (length > maxGearLength)
+            maxGearLength = length;
+    }
+
+    auto cells = getCellList();
+    cells.sort();
+    constexpr size_t cellCountSize = 3; // "1x ", "2x ",...
+    size_t maxCellLength = 0;
+    for (const auto& cell : cells)
+    {
+        auto length = cell.first.getCellInfo(dict).length();
+        if (length > maxCellLength)
+            maxCellLength = length;
+    }
+    maxCellLength += cellCountSize;
+
+    auto skills = getSkills();
+    skills.sort();
+    size_t maxSkillLength = 0;
+    for (const auto& skill : skills)
+    {
+        auto length = skill.toString(dict).length();
+        if (length > maxSkillLength)
+            maxSkillLength = length;
+    }
+
+    size_t maxColoumnLength = std::max({maxGearLength, /*maxCellLength,*/ maxSkillLength}) + 1;
+    size_t lineWidth = maxColoumnLength + std::max(maxColoumnLength, maxCellLength) + 2; //"| "
+    size_t maxIt = std::max(gear.size(), cells.size());
+    for (size_t i = 0; i < maxIt; ++i)
+    {
+        size_t length = 0;
+        if (i < gear.size())
+        {
+            auto gearStr = gear[i]->getGearInfo(dict);
+            text << gearStr;
+            length = gearStr.length();
+        }
+        text << std::string(maxColoumnLength - length, ' ') << "|";
+        if (i < cells.size())
+        {
+            const auto& [cell, count] = cells[i];
+            text << " " << count << "x " << cell.getCellInfo(dict);
+        }
+        text << std::endl;
+    }
+    text << std::string(lineWidth, '-') << std::endl;
+    for (size_t i = 0; i < skills.size(); ++i)
+    {
+        if (i % 2 == 0)
+        {
+            auto skillStr = skills[i].toString(dict);
+            text << skillStr;
+            if (i + 1 != skills.size())
+            {
+                text << std::string(maxColoumnLength - skillStr.length() + 2,
+                                    ' '); // we won't be using a '|' to separate the two coloumns
+            }
+        }
+        else
+        {
+            text << skills[i].toString(dict) << std::endl;
+        }
+    }
+    auto uniqueSkills = getUniqueSkills();
+    if (!uniqueSkills.empty())
+    {
+        text << std::string(lineWidth, '-') << std::endl;
+        for (const auto& skill : uniqueSkills)
+            text << skill << std::endl;
+    }
+    return text.str();
 }
 
 bool Gear::ArmourSet::hasUniqueSkill() const
