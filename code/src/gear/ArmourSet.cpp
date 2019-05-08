@@ -20,11 +20,11 @@ Gear::ArmourSet::ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&
 
 void Gear::ArmourSet::init()
 {
+    gear.push_back(&weapon);
     gear.push_back(&head);
     gear.push_back(&torso);
-    gear.push_back(&legs);
     gear.push_back(&arms);
-    gear.push_back(&weapon);
+    gear.push_back(&legs);
 }
 
 Gear::ArmourSet::ArmourSet(const ArmourSet& other)
@@ -220,17 +220,87 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
         }
         else
         {
-            text << skills[i].toString(dict) << std::endl;
+            text << skills[i].toString(dict);
+            if (i < skills.size() - 1)
+                text << std::endl;
         }
     }
     auto uniqueSkills = getUniqueSkills();
     if (!uniqueSkills.empty())
     {
-        text << std::string(lineWidth, '-') << std::endl;
+        text << std::endl << std::string(lineWidth, '-') << std::endl;
         for (const auto& skill : uniqueSkills)
             text << skill << std::endl;
     }
     return text.str();
+}
+
+std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
+{
+    constexpr auto indentation = "    ";
+    std::vector<std::string> lines;
+    for (const auto& gear : this->gear)
+    {
+        lines.push_back(gear->getGearInfo(dict));
+        for (const auto& [cell, count] : gear->getCellList())
+        {
+            if (cell.isEmpty())
+                continue;
+            for (size_t i = 0; i < count; ++i)
+                lines.push_back(indentation + cell.getCellInfo(dict));
+        }
+    }
+    if (!lantern.isEmpty())
+    {
+        lines.push_back(dict.getTranslationFor("lantern"));
+        lines.push_back(indentation + lantern.getCellInfo(dict));
+    }
+    size_t maxLineLength = 0;
+    for (const auto& line : lines)
+        if (line.length() > maxLineLength)
+            maxLineLength = line.length();
+    ++maxLineLength; // a single space at the end of the line
+    auto skills = getSkills();
+    skills.sort();
+    auto uniqueSkills = getUniqueSkills();
+    size_t count = 0;
+    std::stringstream out;
+
+    // adds a line to the outputstream and updates the length parameter
+    auto addLine = [&out, &lines, &count, &maxLineLength, &dict]() {
+        size_t length = 0;
+        if (count < lines.size())
+        {
+            auto& line = lines[count];
+            length = line.length();
+            out << line;
+        }
+        out << std::string(maxLineLength - length, ' ') << "| ";
+    };
+
+    for (const auto& skill : skills)
+    {
+        addLine();
+        out << skill.toString(dict);
+        if (count < skills.size() - 1 || count < lines.size() - 1 || uniqueSkills.size() > 0)
+            out << std::endl;
+        ++count;
+    }
+    for (const auto& uniqueSkill : uniqueSkills)
+    {
+        addLine();
+        out << uniqueSkill;
+        if (count < lines.size() - 1 || count < skills.size() + uniqueSkill.size() - 1)
+            out << std::endl;
+        ++count;
+    }
+    for (; count < lines.size(); ++count)
+    {
+        out << lines[count];
+        if (count < lines.size() - 1)
+            out << std::endl;
+    }
+    return out.str();
 }
 
 bool Gear::ArmourSet::hasUniqueSkill() const

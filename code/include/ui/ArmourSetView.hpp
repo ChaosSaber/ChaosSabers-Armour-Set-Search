@@ -42,8 +42,8 @@ class ArmourSetView : public QWidget
     void addGear(const Gear::Gear& gear);
     void addCell(const std::pair<Gear::Cell, int>& cell);
     void addSkill(const Gear::Skill& skill);
-    void exportTextToClipBoard() const;
-    void exportTextToFile() const;
+    void exportTextToClipBoard(const std::string& text) const;
+    void exportTextToFile(const std::string& text) const;
 
     const Dictionary& dict;
     Options& options;

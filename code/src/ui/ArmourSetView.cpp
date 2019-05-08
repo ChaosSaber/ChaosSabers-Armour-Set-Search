@@ -85,15 +85,15 @@ void ArmourSetView::addSkill(const Gear::Skill& skill)
     ui->verticalLayoutSkills->addWidget(label);
 }
 
-void ArmourSetView::exportTextToClipBoard() const
+void ArmourSetView::exportTextToClipBoard(const std::string& text) const
 {
     QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setText(QString::fromStdString(armourSet.exportToText(dict)));
+    clipboard->setText(QString::fromStdString(text));
 }
 
-void ArmourSetView::exportTextToFile() const
+void ArmourSetView::exportTextToFile(const std::string& text) const
 {
-    auto fileName = QFileDialog::getSaveFileName(this->window(), getTranslation(dict, "menu_save"),
+    auto fileName = QFileDialog::getSaveFileName(nullptr, getTranslation(dict, "menu_save"),
                                                  options.lastExportTextSaveLocation);
     if (fileName.isEmpty())
         return;
@@ -109,7 +109,7 @@ void ArmourSetView::exportTextToFile() const
                         QString::fromStdString(ss.str()));
         return;
     }
-    file.write(armourSet.exportToText(dict).c_str());
+    file.write(text.c_str());
 }
 
 int ArmourSetView::getGearViewWidth() const { return ui->widgetGears->sizeHint().width(); }
@@ -139,12 +139,34 @@ void ArmourSetView::showContextMenu(const QPoint& pos)
 {
     QMenu contextMenu(getTranslation(dict, "export_contextmenu"), this);
 
-    auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text"));
-    auto actionTextToClipBoard =
-        contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
-    connect(actionTextToClipBoard, &QAction::triggered, [this](bool) { exportTextToClipBoard(); });
-    auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
-    connect(actionTextToFile, &QAction::triggered, [this](bool) { exportTextToFile(); });
+    // auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text"));
+    // auto actionTextToClipBoard =
+    //    contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
+    // connect(actionTextToClipBoard, &QAction::triggered,
+    //        [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict)); });
+    // auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
+    // connect(actionTextToFile, &QAction::triggered,
+    //        [this](bool) { exportTextToFile(armourSet.exportToText(dict)); });
+    {
+        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text1"));
+        auto actionTextToClipBoard =
+            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
+        connect(actionTextToClipBoard, &QAction::triggered,
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict)); });
+        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
+        connect(actionTextToFile, &QAction::triggered,
+                [this](bool) { exportTextToFile(armourSet.exportToText(dict)); });
+    }
+    {
+        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text2"));
+        auto actionTextToClipBoard =
+            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
+        connect(actionTextToClipBoard, &QAction::triggered,
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText2(dict)); });
+        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
+        connect(actionTextToFile, &QAction::triggered,
+                [this](bool) { exportTextToFile(armourSet.exportToText2(dict)); });
+    }
 
     contextMenu.exec(mapToGlobal(pos));
 }
