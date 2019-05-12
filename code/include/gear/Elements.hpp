@@ -5,11 +5,11 @@ namespace Gear
 {
 struct Elements
 {
-    int Fire;
-    int Ice;
-    int Shock;
-    int Radiant;
-    int Umbral;
+    int Fire = 0;
+    int Ice = 0;
+    int Shock = 0;
+    int Radiant = 0;
+    int Umbral = 0;
 };
 } // namespace Gear
 

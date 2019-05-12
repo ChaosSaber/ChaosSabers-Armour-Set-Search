@@ -36,11 +36,10 @@ Gear::SkillType Gear::Cell::getCellType() const { return type; }
 
 bool Gear::Cell::operator==(const Cell &cell) const
 {
-    if (isEmpty() && cell.isEmpty())
+    if (empty && cell.empty)
         return type == cell.type;
     else
-        return skill.getName() == cell.skill.getName() &&
-               skill.getSkillPoints() == cell.skill.getSkillPoints();
+        return skill == cell.skill;
 }
 
 Gear::CellList Gear::Cell::operator*(size_t multiplicator) const

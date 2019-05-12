@@ -1,3 +1,4 @@
+#include "ui/mainwindow.hpp"
 #include "gear/ArmourSet.hpp"
 #include "ui/About.hpp"
 #include "ui/AdvancedSearch.hpp"
@@ -5,7 +6,6 @@
 #include "ui/CellWindow.hpp"
 #include "ui/SkillSelector.hpp"
 #include "ui/Translation.hpp"
-#include "ui/mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QFileInfo>
@@ -36,7 +36,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), dict(Dictionary()), armoury(dict)
 {
     ui->setupUi(this);
@@ -76,10 +76,10 @@ MainWindow::MainWindow(QWidget *parent)
     skills[Gear::SkillType::Technique] = armoury.getSkills(Gear::SkillType::Technique);
     skills[Gear::SkillType::Mobility] = armoury.getSkills(Gear::SkillType::Mobility);
     skills[Gear::SkillType::Utility] = armoury.getSkills(Gear::SkillType::Utility);
-    for (auto &filter : skills)
+    for (auto& filter : skills)
     {
         std::sort(filter.second.begin(), filter.second.end(),
-                  [this](const Gear::SkillInfo *lhs, const Gear::SkillInfo *rhs) {
+                  [this](const Gear::SkillInfo* lhs, const Gear::SkillInfo* rhs) {
                       return dict.getTranslationFor(lhs->getName())
                                  .compare(dict.getTranslationFor(rhs->getName())) < 0;
                   });
@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
     {
         auto selector = new SkillSelector(
-            dict, skills, dynamic_cast<QGridLayout *>(ui->groupBoxWantedSkills->layout()));
+            dict, skills, dynamic_cast<QGridLayout*>(ui->groupBoxWantedSkills->layout()));
         skillSelectors.push_back(selector);
     }
 
@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     for (const auto language : dict.getAvaiableLanguages())
     {
-        QAction *action = new QAction();
+        QAction* action = new QAction();
         action->setCheckable(true);
         action->setText(QString::fromStdString(language));
         if (language == options.language)
@@ -137,7 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->menuBar->setCornerWidget(updateLabel);
     manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished,
-            [this](QNetworkReply *reply) { updateNetworkReply(reply); });
+            [this](QNetworkReply* reply) { updateNetworkReply(reply); });
     manager->get(QNetworkRequest(
         QUrl("https://github.com/ChaosSaber/ChaosSabers-Armour-Set-Search/releases/latest")));
 
@@ -149,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->comboBoxFilterFreeCells, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int) { applyFilter(); });
     connect(ui->comboBoxFilterWeapon, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int) { applyFilter(); });
+    connect(ui->comboBoxFilterAdditionalSkills, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int) { applyFilter(); });
 
     ui->actionUseLowerTierArmour->setChecked(options.useLowerTierArmour);
@@ -191,6 +193,7 @@ void MainWindow::setupTranslation()
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
     ui->labelFilterFreeCells->setText(getTranslation(dict, "label_filter_cells"));
     ui->labelFilterWeapon->setText(getTranslation(dict, "label_filter_weapon"));
+    ui->labelFilterAdditionalSkills->setText(getTranslation(dict, "label_filter_skills"));
     ui->actionUseLowerTierArmour->setText(getTranslation(dict, "use_lower_tier_gear"));
     ui->labelTier->setText(getTranslation(dict, "label_tier"));
 }
@@ -224,15 +227,15 @@ void MainWindow::advancedSearch()
     AdvancedSearch search((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
                           options, getWantedSkills(), this);
     connect(&search, &AdvancedSearch::armourSetSearch, this,
-            [this](ArmourSetSearch *ass) { armourSetSearch(ass); });
+            [this](ArmourSetSearch* ass) { armourSetSearch(ass); });
     search.setModal(true);
     search.exec();
 }
 
-void MainWindow::armourSetSearch(ArmourSetSearch *ass)
+void MainWindow::armourSetSearch(ArmourSetSearch* ass)
 {
     Gear::CellList cells;
-    for (const auto &skill : ass->getWantedSkills())
+    for (const auto& skill : ass->getWantedSkills())
     {
         auto type = armoury.getSkillTypeFor(skill.getName());
         for (int i = 1; i <= 3; ++i)
@@ -264,7 +267,7 @@ void MainWindow::armourSetSearch(ArmourSetSearch *ass)
     searchWatcher->setFuture(future);
 }
 
-void MainWindow::setNumberOfResults(QAction *caller)
+void MainWindow::setNumberOfResults(QAction* caller)
 {
     for (auto action : ui->menuNumberOfResults->actions())
     {
@@ -276,7 +279,7 @@ void MainWindow::setNumberOfResults(QAction *caller)
     options.numberOfResults = caller->text().toInt();
 }
 
-void MainWindow::setLanguage(QAction *caller)
+void MainWindow::setLanguage(QAction* caller)
 {
     for (auto action : ui->menuLanguage->actions())
     {
@@ -302,6 +305,8 @@ void MainWindow::showArmourSets()
     ui->comboBoxFilterFreeCells->addItem("");
     ui->comboBoxFilterWeapon->clear();
     ui->comboBoxFilterWeapon->addItem("");
+    ui->comboBoxFilterAdditionalSkills->clear();
+    ui->comboBoxFilterAdditionalSkills->addItem("");
     filter.clear();
     armourSetItems.clear();
     std::stringstream ss;
@@ -310,18 +315,25 @@ void MainWindow::showArmourSets()
     if (options.armourSets.size() > options.numberOfResults)
         ss << std::endl << "Displaying only the first " << options.numberOfResults << " results";
     ui->listWidgetArmourSets->addItem(QString::fromStdString(ss.str()));
-    std::unordered_map<const Gear::ArmourSet *, ArmourSetView *> views;
+    std::unordered_map<const Gear::ArmourSet*, ArmourSetView*> views;
     int maxWidthGear = 0;
     int maxWidthCells = 0;
-    for (const auto &set : options.armourSets)
+    auto wantedSkills = getWantedSkills();
+    for (const auto& set : options.armourSets)
     {
+        // fill filter
         filter.weapons.insert(set.getWeapon().getName());
-        for (const auto &cell : set.getCellList())
+        for (const auto& cell : set.getCellList())
             if (cell.first.isEmpty())
                 filter.cellSlots.insert(cell.first.getCellType());
+        for (const auto& skill : set.getAdditionalSkills(wantedSkills))
+        {
+            filter.additionalSkills.insert(skill);
+        }
+        // create view
         if (views.size() > options.numberOfResults)
             continue;
-        auto view = createArmourSetView(set);
+        auto view = createArmourSetView(set, wantedSkills);
         views.insert({&set, view});
         if (view->getGearViewWidth() > maxWidthGear)
             maxWidthGear = view->getGearViewWidth();
@@ -333,11 +345,13 @@ void MainWindow::showArmourSets()
     for (auto setView : views)
         createArmourSetItem(setView.first, setView.second);
     ui->listWidgetArmourSets->setMinimumWidth(ui->listWidgetArmourSets->sizeHintForColumn(0));
-    for (const auto &weapon : filter.weapons)
+    for (const auto& weapon : filter.weapons)
         ui->comboBoxFilterWeapon->addItem(getTranslation(dict, weapon));
     for (auto cell : filter.cellSlots)
         ui->comboBoxFilterFreeCells->addItem(
             QString::fromStdString(Gear::SkillTypeToStringKey(cell)));
+    for (const auto& skill : filter.additionalSkills)
+        ui->comboBoxFilterAdditionalSkills->addItem(QString::fromStdString(skill.toString(dict)));
     isCreatingArmourSets = false;
 }
 
@@ -371,7 +385,7 @@ void MainWindow::saveSearch()
     {
         options.saveSearch(fileName);
     }
-    catch (const OptionsIoException &e)
+    catch (const OptionsIoException& e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
         box.exec();
@@ -389,7 +403,7 @@ void MainWindow::loadSearch()
     {
         options.loadSearch(armoury, dict, fileName);
     }
-    catch (const OptionsIoException &e)
+    catch (const OptionsIoException& e)
     {
         QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"), e.what.c_str());
         box.exec();
@@ -399,9 +413,9 @@ void MainWindow::loadSearch()
     options.lastSearchSaveLocation = info.path();
 }
 
-void MainWindow::updateNetworkReply(QNetworkReply *reply)
+void MainWindow::updateNetworkReply(QNetworkReply* reply)
 {
-    auto label = dynamic_cast<QLabel *>(ui->menuBar->cornerWidget());
+    auto label = dynamic_cast<QLabel*>(ui->menuBar->cornerWidget());
     auto attr = reply->attribute(QNetworkRequest::Attribute::RedirectionTargetAttribute);
     if (reply->error() != QNetworkReply::NoError || !attr.isValid() ||
         (attr.userType() != QMetaType::QUrl))
@@ -439,7 +453,7 @@ void MainWindow::clearSearch()
     ui->listWidgetArmourSets->clear();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
     QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());
@@ -449,7 +463,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setProgress(int progress) { ui->progressBarSearch->setValue(progress); }
 
-void MainWindow::finishedSearch(ArmourSetSearch *ass)
+void MainWindow::finishedSearch(ArmourSetSearch* ass)
 {
     options.armourSets = ass->moveArmourSets();
     delete ass;
@@ -464,36 +478,50 @@ void MainWindow::applyFilter()
         return;
     std::string weapon = "";
     Gear::SkillType type = Gear::SkillType::None;
+    Gear::Skill additionalSkill;
 
     if (ui->comboBoxFilterWeapon->currentIndex() != 0)
         weapon = *std::next(filter.weapons.begin(), ui->comboBoxFilterWeapon->currentIndex() - 1);
     if (ui->comboBoxFilterFreeCells->currentIndex() != 0)
         type =
             *std::next(filter.cellSlots.begin(), ui->comboBoxFilterFreeCells->currentIndex() - 1);
+    if (ui->comboBoxFilterAdditionalSkills->currentIndex() != 0)
+        additionalSkill = *std::next(filter.additionalSkills.begin(),
+                                     ui->comboBoxFilterAdditionalSkills->currentIndex() - 1);
 
+    auto wantedSkills = getWantedSkills();
     size_t count = 0;
     for (int i = 0; i < armourSetItems.size() && i < options.numberOfResults; ++i)
     {
         bool hide = false;
-        if (weapon != "" && weapon != options.armourSets[i].getWeapon().getName())
+        if (!weapon.empty() && weapon != options.armourSets[i].getWeapon().getName())
             hide = true;
         if (type != Gear::SkillType::None)
         {
             bool foundCell = false;
-            for (const auto &cell : options.armourSets[i].getCellList())
+            for (const auto& cell : options.armourSets[i].getCellList())
                 if (cell.first.isEmpty() && cell.first.getCellType() == type)
                     foundCell = true;
             if (!foundCell)
                 hide = true;
+            else
+            {
+                std::cout << i << std::endl;
+            }
         }
-        const auto &set = options.armourSets[i];
+        if (additionalSkill.getSkillPoints() != 0)
+        {
+            if (!options.armourSets[i].getAdditionalSkills(wantedSkills).contains(additionalSkill))
+                hide = true;
+        }
+        const auto& set = options.armourSets[i];
         if (armourSetItems.count(&set) > 0)
         {
             armourSetItems.at(&set)->setHidden(hide);
         }
         else
         {
-            createArmourSetItem(&set, createArmourSetView(set));
+            createArmourSetItem(&set, createArmourSetView(set, wantedSkills));
         }
         if (!hide)
             ++count;
@@ -504,9 +532,10 @@ void Filter::clear()
 {
     weapons.clear();
     cellSlots.clear();
+    additionalSkills.clear();
 }
 
-void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view)
+void MainWindow::createArmourSetItem(const Gear::ArmourSet* set, ArmourSetView* view)
 {
     view->setGearViewWidth(armourSetViewGearWidth);
     view->setCellViewWidth(armourSetViewCellWidth);
@@ -517,11 +546,12 @@ void MainWindow::createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *
     ui->listWidgetArmourSets->setItemWidget(item, view);
 }
 
-ArmourSetView *MainWindow::createArmourSetView(const Gear::ArmourSet &set)
+ArmourSetView* MainWindow::createArmourSetView(const Gear::ArmourSet& set,
+                                               std::vector<Gear::Skill> wantedSkills)
 {
     return new ArmourSetView(dict, options, set, armoury,
                              ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width(),
-                             Gear::SkillList(getWantedSkills()));
+                             Gear::SkillList(wantedSkills));
 }
 
-void MainWindow::saveDataFiles(QNetworkReply *reply, const QString &fileName) {}
+void MainWindow::saveDataFiles(QNetworkReply* reply, const QString& fileName) {}

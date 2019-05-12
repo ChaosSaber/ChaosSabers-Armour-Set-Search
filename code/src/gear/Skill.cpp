@@ -21,5 +21,25 @@ std::string Gear::Skill::toString(const Dictionary& dict) const
 
 bool Gear::Skill::operator==(const Skill& other) const
 {
-    return name == other.name && skillPoints == other.skillPoints;
+    return skillPoints == other.skillPoints && name == other.name;
+}
+
+bool Gear::Skill::operator<(const Skill& other) const
+{
+    if (skillPoints < other.skillPoints)
+        return true;
+    else if (skillPoints == other.skillPoints)
+        return name < other.name;
+    else
+        return false;
+}
+
+bool Gear::Skill::operator>(const Skill& other) const
+{
+    if (skillPoints > other.skillPoints)
+        return true;
+    else if (skillPoints == other.skillPoints)
+        return name < other.name;
+    else
+        return false;
 }

@@ -27,6 +27,7 @@ class Filter
   public:
     std::set<std::string> weapons;
     std::set<Gear::SkillType> cellSlots;
+    std::set<Gear::Skill> additionalSkills;
     void clear();
 };
 
@@ -57,7 +58,7 @@ class MainWindow : public QMainWindow
     void setLanguage(QAction *action);
     void about();
     void showArmourSets();
-    ArmourSetView *createArmourSetView(const Gear::ArmourSet &set);
+    ArmourSetView* createArmourSetView(const Gear::ArmourSet& set, std::vector<Gear::Skill> wantedSkills);
     void createArmourSetItem(const Gear::ArmourSet *set, ArmourSetView *view);
     void showLoadedSearch();
     void saveSearchSettings();

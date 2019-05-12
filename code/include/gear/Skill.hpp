@@ -19,6 +19,8 @@ class Skill
     friend class SkillList;
 
     bool operator==(const Skill& other) const;
+    bool operator<(const Skill& other) const;
+    bool operator>(const Skill& other) const;
 
   private:
     std::string name;

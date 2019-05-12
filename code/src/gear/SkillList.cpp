@@ -12,12 +12,7 @@ Gear::SkillList::SkillList(const std::vector<Skill>& skills)
 
 bool Gear::skillSorter(const Skill& lhs, const Skill& rhs)
 {
-    if (lhs.getSkillPoints() > rhs.getSkillPoints())
-        return true;
-    else if (lhs.getSkillPoints() == rhs.getSkillPoints())
-        return lhs.getName() > rhs.getName();
-    else
-        return false;
+    return lhs > rhs;
 }
 
 std::string Gear::SkillList::toString(const Dictionary& dict)
