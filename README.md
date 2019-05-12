@@ -16,13 +16,15 @@ Since Version 0.10 the data is in "my Documents/ChaosSaber's Armour Set Search" 
 - Save/load of searches
 - Manage your available cells
 - Partly integrated unique skills (only in the search results)
-- Filtering of search results
+- Filtering of search results (weapon, empty cell slots, additional perks)
 
 ## planned features 
 - Saving/loading/comparing of single sets
 - Sorting of search results
+- Advanced Filters: only Weapons with specific elements, only armour sets with a minimum elemental resistance
+- rework of the perk selection
 - Completely Integrate unique skills (search)
-- Maybe some kind of export function to something like https://www.dauntless-builder.com
+- export function to text (some experimental exports already integrated), image, and maybe to something like https://www.dauntless-builder.com
 
 ## Building the program
 - This software use cmake to organize the building process
