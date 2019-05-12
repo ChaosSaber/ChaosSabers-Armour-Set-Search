@@ -69,11 +69,6 @@ bool Gear::ArmourSet::hasFreeCellSlotFor(SkillType type) const
 
 bool Gear::ArmourSet::addCell(Cell cell)
 {
-    if (cell.getSkillName() == "medic" && lantern.isEmpty())
-    {
-        std::string ss;
-        ss = "5";
-    }
     if (lantern.isEmpty() && lantern.getCellType() == cell.getCellType())
     {
         lantern = std::move(cell);
@@ -301,6 +296,99 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
             out << std::endl;
     }
     return out.str();
+}
+
+std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
+{
+    std::stringstream text;
+
+    size_t maxGearLength = 0;
+    for (const auto& gear : this->gear)
+    {
+        auto length = gear->getGearInfo(dict).length();
+        if (length > maxGearLength)
+            maxGearLength = length;
+    }
+
+    auto cells = getCellList();
+    cells.sort();
+    constexpr size_t cellCountSize = 3; // "1x ", "2x ",...
+    size_t maxCellLength = 0;
+    for (const auto& cell : cells)
+    {
+        auto length = cell.first.getCellInfo(dict).length();
+        if (length > maxCellLength)
+            maxCellLength = length;
+    }
+    maxCellLength += cellCountSize;
+
+    auto skills = getSkills();
+    skills.sort();
+    size_t maxSkillLength = 0;
+    for (const auto& skill : skills)
+    {
+        auto length = skill.toString(dict).length();
+        if (length > maxSkillLength)
+            maxSkillLength = length;
+    }
+
+    size_t maxColoumnLength = std::max({maxGearLength, maxCellLength, maxSkillLength}) + 1;
+    size_t lineWidth = 2 * maxColoumnLength;
+    ++maxColoumnLength; // we add an additional space before the second coloumn as coloumnseparator
+
+    // Weapon
+    auto weaponStr = weapon.getGearInfo(dict);
+    text << weaponStr << std::endl;
+    // Armour
+    auto lineAdder = [&text, maxColoumnLength](const std::string& armour1,
+                                               const std::string& armour2) {
+        text << armour1 << std::string(maxColoumnLength - armour1.length(), ' ') << armour2
+             << std::endl;
+    };
+    lineAdder(head.getGearInfo(dict), torso.getGearInfo(dict));
+    lineAdder(arms.getGearInfo(dict), legs.getGearInfo(dict));
+    text << std::string(lineWidth, '-') << std::endl;
+    // cells
+    auto cellPairToString = [&dict](const std::pair<Cell, int>& cell) {
+        std::stringstream str;
+        str << cell.second << "x " << cell.first.getCellInfo(dict);
+        return str.str();
+    };
+    for (size_t i = 0; i < cells.size(); i += 2)
+    {
+        auto cell1Str = cellPairToString(cells[i]);
+        if (i + 1 < cells.size())
+        {
+            auto cell2Str = cellPairToString(cells[i + 1]);
+            lineAdder(cell1Str, cell2Str);
+        }
+        else
+        {
+            text << cell1Str << std::endl;
+        }
+    }
+    // skills
+    text << std::string(lineWidth, '-') << std::endl;
+    for (size_t i = 0; i < skills.size(); i += 2)
+    {
+        if (i + 1 < skills.size())
+        {
+            lineAdder(skills[i].toString(dict), skills[i + 1].toString(dict));
+        }
+        else
+        {
+            text << skills[i].toString(dict) << std::endl;
+        }
+    }
+    // unique skills
+    auto uniqueSkills = getUniqueSkills();
+    if (!uniqueSkills.empty())
+    {
+        text << std::string(lineWidth, '-') << std::endl;
+        for (const auto& skill : uniqueSkills)
+            text << skill << std::endl;
+    }
+    return text.str();
 }
 
 bool Gear::ArmourSet::hasUniqueSkill() const

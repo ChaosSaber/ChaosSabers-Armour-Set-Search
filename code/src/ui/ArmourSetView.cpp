@@ -167,6 +167,16 @@ void ArmourSetView::showContextMenu(const QPoint& pos)
         connect(actionTextToFile, &QAction::triggered,
                 [this](bool) { exportTextToFile(armourSet.exportToText2(dict)); });
     }
+    {
+        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text3"));
+        auto actionTextToClipBoard =
+            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
+        connect(actionTextToClipBoard, &QAction::triggered,
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText3(dict)); });
+        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
+        connect(actionTextToFile, &QAction::triggered,
+                [this](bool) { exportTextToFile(armourSet.exportToText3(dict)); });
+    }
 
     contextMenu.exec(mapToGlobal(pos));
 }

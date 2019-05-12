@@ -1,3 +1,4 @@
 #internal_key(name);language 1;language 2;...
 export_text1;export as text Variant 1
 export_text2;export as text Variant 2
+export_text3;export as text Variant 3

@@ -53,6 +53,7 @@ class ArmourSet
 
     std::string exportToText(const Dictionary& dict) const;
     std::string exportToText2(const Dictionary& dict) const;
+    std::string exportToText3(const Dictionary& dict) const;
 
   private:
     void init();
