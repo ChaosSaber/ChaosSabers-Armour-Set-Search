@@ -38,11 +38,21 @@ class Armoury
     SkillType getSkillType(const std::string &type) const;
     ArmourType getArmourType(const std::string &type) const;
     WeaponType getWeaponType(const std::string &type) const;
-	
+    
     // filters out gear according to its tier
     // its filtered out if the tier is higher than the current progression and if its tier is too low and don't use lower tier gear is enabled
     // returns true if its filtered out
     bool filterGear(const Gear &gear, const Options &options) const;
+
+    /**
+    * Filters out weapons according to its tier and weapon element.
+    * It's filtered out if the tier is higher than the current progression and if its tier is too low and don't use lower tier gear is enabled.
+    * It's also filtered out if the weapon element is not compatible.
+    * @parameter weapon The weapon to check.
+    * @parameter options The search options.
+    * @return Returns true if the weapon should be filtered and false if not.
+    */
+    bool filterWeapon(const Weapon& weapon, const Options& options) const;
 
 
     std::unordered_map<WeaponType, std::vector<Weapon>> weapons;

@@ -5,9 +5,6 @@ Gear::Armour::Armour(ArmourType type, const std::string& name, const std::string
                      int level, const Elements& elementalResistance,
                      const std::vector<std::string>& uniqueSkills, SkillType cellType,
                      const Skill& skill)
-    : Gear(name, description, level, skill, uniqueSkills, {Cell(cellType)}), type(type),
-      elementalResistance_(elementalResistance)
+    : Gear(name, description, level, skill, uniqueSkills, {Cell(cellType)}, elementalResistance), type(type)
 {
 }
-
-const Gear::Elements& Gear::Armour::getElementalResistance() const { return elementalResistance_; }

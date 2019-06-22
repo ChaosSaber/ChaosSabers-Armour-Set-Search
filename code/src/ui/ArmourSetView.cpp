@@ -28,7 +28,8 @@ ArmourSetView::ArmourSetView(const Dictionary& dict, Options& options, const Gea
     auto cells = set.getCellList();
     cells.sort();
     for (const auto& cell : cells)
-        addCell(cell);
+        if (cell.first.getCellType() != Gear::SkillType::None)
+            addCell(cell);
 
     auto skills = set.getAdditionalSkills(wantedSkills);
     skills.sort();

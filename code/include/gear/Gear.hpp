@@ -4,6 +4,7 @@
 #include "Dictionary.hpp"
 #include "gear/Cell.hpp"
 #include "gear/CellList.hpp"
+#include "gear/Elements.hpp"
 #include "gear/SkillList.hpp"
 #include <string>
 
@@ -13,12 +14,14 @@ class Gear
 {
   public:
     Gear(const std::string& name, const std::string& description, int level, const Skill& skill,
-         const std::vector<std::string>& uniqueSkills, const std::vector<Cell>& cells);
+         const std::vector<std::string>& uniqueSkills, const std::vector<Cell>& cells,
+         const Elements& elements);
     Gear(std::string&& name, std::string&& description, int level, Skill&& skill,
-         std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells);
+         std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells,
+         const Elements&& elements);
 
-    //Gear(const Gear& other);
-    //Gear(Gear&& other);
+    Gear(const Gear& other) = default;
+    Gear(Gear&& other) = default;
 
     // checks if the gear has free cell slots for a specific skill
     bool hasFreeCellSlotFor(SkillType type) const;
@@ -42,6 +45,11 @@ class Gear
     bool hasUniqueSkill() const;
     // returns the info of the gear as human readable string
     std::string getGearInfo(const Dictionary& dict) const;
+    /**
+     * return the elemental effects of the gear. For Weapons this would be the elemental damage and
+     * for armour the elemental defense
+     */
+    const Elements& getElements() const;
 
     virtual std::string getToolTip(const Dictionary& dict) const;
 
@@ -53,6 +61,7 @@ class Gear
     Skill skill_;
     std::vector<std::string> uniqueSkills_;
     std::vector<Cell> cells_;
+    Elements elements;
 };
 } // namespace Gear
 

@@ -12,6 +12,16 @@ label_skill_level;Skill level
 label_skill_name;Skill name
 label_wanted_skills;search skills
 label_weapon_type;Weapon type
+label_weapon_element;Weapon Element
+label_weapon_element_desc;If you choose an element here, the search will only contains weapon with that element.\nThis setting does not effect repeaters.
+element_all;All
+element_none;Elementless
+element_fire;Fire
+element_ice;Ice
+element_shock;Shock
+element_terra;Terra
+element_umbral;Umbral
+element_radiant;Radiant
 mobility;Mobility
 pike;War Pike
 power;Power

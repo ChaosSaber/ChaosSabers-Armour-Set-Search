@@ -3,30 +3,20 @@
 
 Gear::Gear::Gear(const std::string& name, const std::string& description, int level,
                  const Skill& skill, const std::vector<std::string>& uniqueSkills,
-                 const std::vector<Cell>& cells)
+                 const std::vector<Cell>& cells, const Elements& elements)
     : name_(name), description_(description), level_(level), skill_(skill),
-      uniqueSkills_(uniqueSkills), cells_(cells)
+      uniqueSkills_(uniqueSkills), cells_(cells), elements(elements)
 {
 }
 
 Gear::Gear::Gear(std::string&& name, std::string&& description, int level, Skill&& skill,
-                 std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells)
+                 std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells,
+                 const Elements&& elements)
     : name_(std::move(name)), description_(std::move(description)), level_(level),
-      skill_(std::move(skill)), uniqueSkills_(std::move(uniqueSkills)), cells_(std::move(cells))
+      skill_(std::move(skill)), uniqueSkills_(std::move(uniqueSkills)), cells_(std::move(cells)),
+      elements(std::move(elements))
 {
 }
-//
-// Gear::Gear::Gear(const Gear& other)
-//    : Gear(other.name_, other.description_, other.level_, other.skill_, other.uniqueSkills_,
-//           other.cells_)
-//{
-//}
-//
-// Gear::Gear::Gear(Gear&& other)
-//    : Gear(std::move(other.name_), std::move(other.description_), other.level_,
-//           std::move(other.skill_), std::move(other.uniqueSkills_), std::move(other.cells_))
-//{
-//}
 
 const std::string& Gear::Gear::getName() const { return name_; }
 
@@ -68,6 +58,8 @@ std::string Gear::Gear::getGearInfo(const Dictionary& dict) const
     return dict.getTranslationFor(name_) + " +" + std::to_string(level_);
 }
 
+const Gear::Elements& Gear::Gear::getElements() const { return elements; }
+
 std::string Gear::Gear::getToolTip(const Dictionary& dict) const
 {
     std::stringstream ss;
@@ -77,7 +69,8 @@ std::string Gear::Gear::getToolTip(const Dictionary& dict) const
     for (const auto& skill : uniqueSkills_)
         ss << skill << std::endl;
     for (auto& cell : cells_)
-        ss << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType()));
+        if (cell.getCellType() != SkillType::None)
+            ss << dict.getTranslationFor(cellSlotToStringKey(cell.getCellType())) << " ";
     return ss.str();
 }
 

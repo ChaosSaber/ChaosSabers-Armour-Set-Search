@@ -20,9 +20,13 @@ class Weapon : public Gear
            const Elements& elementalDamage, const std::vector<std::string>& uniqueSkills,
            SkillType cellType1, SkillType cellType2, const Skill& skill = Skill());
 
+    /**
+     * @return Returns the type of the weapon.
+     */
+    WeaponType getType() const;
+
   private:
     WeaponType type;
-    Elements elementalDamage;
 };
 } // namespace Gear
 

@@ -12,7 +12,7 @@
 #include <string>
 #include <unordered_map>
 
-#define NUMBER_OF_SKILLSELECTORS 7
+#define NUMBER_OF_SKILLSELECTORS 9
 
 class OptionsIoException
 {
@@ -60,6 +60,7 @@ class Options
     std::array<SkillSearch, NUMBER_OF_SKILLSELECTORS> skillSearches;
     std::vector<Gear::ArmourSet> armourSets;
     Gear::WeaponType weaponType = Gear::WeaponType::Sword;
+    Gear::Element weaponElement = Gear::Element::All;
     QString lastSearchSaveLocation = STANDARD_SEARCH_SAVE_LOCATION;
     QString lastCellSaveLocation = STANDARD_CELL_SAVE_LOCATION;
     QString lastExportTextSaveLocation = util::files::DOCUMENTS_LOCATION;

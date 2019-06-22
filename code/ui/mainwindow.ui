@@ -58,6 +58,16 @@
          <item row="1" column="1">
           <widget class="QComboBox" name="comboBoxTier"/>
          </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="labelWeaponElement">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboBoxWeaponElement"/>
+         </item>
         </layout>
        </item>
        <item>
@@ -266,16 +276,11 @@
     </property>
     <addaction name="actionSaveSearch"/>
     <addaction name="actionLoadSearch"/>
-    <addaction name="separator"/>
-    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionDownloadNewestData"/>
-    <addaction name="actionCheckForUpdates"/>
-    <addaction name="separator"/>
     <addaction name="actionAboutQt"/>
     <addaction name="actionAbout"/>
    </widget>

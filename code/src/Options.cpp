@@ -23,6 +23,7 @@ const QString SEARCHED_SKILLS = "Searched Skills";
 const QString FILTER = "Filter";
 const QString SETS = "Sets";
 const QString WEAPON_TYPE = "Weapon type";
+const QString WEAPON_ELEMENT = "Weapon element";
 const QString HEAD = "Head";
 const QString TORSO = "Torso";
 const QString ARMS = "Arms";
@@ -149,6 +150,8 @@ QJsonArray Options::cellListToJson(const Gear::CellList& cells)
     QJsonArray jsonCells;
     for (auto& cell : cells)
     {
+        if (cell.first.isEmpty())
+            continue;
         for (size_t count = 0; count < cell.second; ++count)
             jsonCells.push_back(cellToJson(cell.first));
     }
@@ -299,6 +302,7 @@ void Options::saveSearch(const QString& fileName)
     QJsonObject json;
     json[VERSION] = CURRENT_VERSION;
     json[WEAPON_TYPE] = weaponType;
+    json[WEAPON_ELEMENT] = weaponElement;
     QJsonArray gearParts, skills, sets;
     for (const auto& search : skillSearches)
     {
@@ -367,6 +371,8 @@ void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
     if (json.contains(VERSION) && json[VERSION].isDouble())
         version = json[VERSION].toInt();
     weaponType = (Gear::WeaponType)json[WEAPON_TYPE].toInt();
+    if (json.contains(WEAPON_ELEMENT) && json[WEAPON_ELEMENT].isDouble())
+        weaponElement = (Gear::Element)json[WEAPON_ELEMENT].toInt();
     if (json.contains(SEARCHED_SKILLS) && json[SEARCHED_SKILLS].isArray())
     {
         size_t i = 0;
@@ -422,7 +428,6 @@ void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
             if (!set.isObject())
                 continue;
             auto json = set.toObject();
-			// TODO cells seems to be the problem of not loading armour sets
             if (!util::json::parameterCheck(json, armourSetParameters))
                 continue;
             try

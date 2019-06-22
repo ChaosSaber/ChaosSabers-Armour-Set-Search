@@ -1,3 +1,17 @@
+Version 0.11.3: .06.2019:
+- added new search option for weapon elements
+- increase number of searchable skills
+
+Version 0.11.2: 12.05.2019:
+- added 1 additional export option for armour sets
+- added new filter for additional perks
+
+Version 0.11.1: 09.05.2019:
+- added 2 experimental export functions for armour sets
+
+Version 0.11.0: 01.05.2019:
+- Update for Patch OB 0.7.x
+
 Version 0.10.5: 09.12.2018:
 - Added Rockfall Skarn and Valomyr gear/cells/skills
 - Reworked search result window:

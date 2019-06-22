@@ -21,11 +21,8 @@ class Armour : public Gear
            const Elements& elementalResistance, const std::vector<std::string>& uniqueSkills,
            SkillType cellType, const Skill& skills = Skill());
 
-    const Elements& getElementalResistance() const;
-
   private:
     ArmourType type;
-    Elements elementalResistance_;
 };
 
 } // namespace Gear

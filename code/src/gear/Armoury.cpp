@@ -34,8 +34,13 @@ std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<S
         return weapons;
     for (const auto& weapon : this->weapons.at(type))
     {
-        if (filterGear(weapon, options))
+        if (filterWeapon(weapon, options))
             continue;
+        if (options.weaponElement != Element::All)
+        {
+            weapons.push_back(weapon);
+            continue;
+        }
         for (const auto& skill : skills)
         {
             if (weapon.getSkillPointsFor(skill.getName()) > 0 ||
@@ -151,7 +156,6 @@ const std::vector<util::json::JsonParameter> skillParameters = {
 
 void Gear::Armoury::load(const std::string& fileName)
 {
-    // TODO: implement fail safety, like loading backup data
     weapons.clear();
     armours.clear();
     skillInfos.clear();
@@ -193,10 +197,10 @@ void Gear::Armoury::load(const std::string& fileName)
             std::string description = armour[JSON_DESCRIPTION].toString().toStdString();
             Elements elementalResistance;
             if (armour.contains(JSON_STRENGTH) && armour[JSON_STRENGTH].isString())
-                setElement(elementalResistance, armour[JSON_STRENGTH].toString().toStdString(), 20);
+                setElement(elementalResistance, armour[JSON_STRENGTH].toString().toStdString(), 25);
             if (armour.contains(JSON_WEAKNESS) && armour[JSON_WEAKNESS].isString())
                 setElement(elementalResistance, armour[JSON_WEAKNESS].toString().toStdString(),
-                           -10);
+                           -25);
             SkillType cell(None);
             if (armour.contains(JSON_CELLS) && armour[JSON_CELLS].isString())
                 cell = getSkillType(armour[JSON_CELLS].toString().toStdString());
@@ -204,7 +208,7 @@ void Gear::Armoury::load(const std::string& fileName)
             auto resistances = armour[JSON_RESISTANCE].toObject();
 
             Skill normalSkills, maelstromSkills, heroicSkills;
-            std::vector<std::string> uniqueSkills;
+            std::vector<std::string> uniqueSkills, uniqueSkillsMaelstrom, uniqueSkillsHeroic;
 
             if (armour.contains(JSON_PERKS))
             {
@@ -215,15 +219,19 @@ void Gear::Armoury::load(const std::string& fileName)
             if (armour.contains(JSON_UNIQUE_EFFECT))
             {
                 uniqueSkills =
-                    util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict);
+                    util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict, 5);
+                uniqueSkillsMaelstrom =
+                    util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict, 9);
+                uniqueSkillsHeroic =
+                    util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict, 15);
             }
 
             armours[type].emplace_back(type, name, description, 5, elementalResistance,
                                        uniqueSkills, cell, normalSkills);
             armours[type].emplace_back(type, name, description, 9, elementalResistance,
-                                       uniqueSkills, cell, maelstromSkills);
+                                       uniqueSkillsMaelstrom, cell, maelstromSkills);
             armours[type].emplace_back(type, name, description, 15, elementalResistance,
-                                       uniqueSkills, cell, heroicSkills);
+                                       uniqueSkillsHeroic, cell, heroicSkills);
 
             dict.addEntry(name, name);
             dict.addEntry(description, description);
@@ -256,7 +264,7 @@ void Gear::Armoury::load(const std::string& fileName)
             std::string description = weapon[JSON_DESCRIPTION].toString().toStdString();
             Elements elementalDamage;
             if (weapon.contains(JSON_ELEMENTAL) && weapon[JSON_ELEMENTAL].isString())
-                setElement(elementalDamage, weapon[JSON_ELEMENTAL].toString().toStdString(), 40);
+                setElement(elementalDamage, weapon[JSON_ELEMENTAL].toString().toStdString(), 80);
             SkillType cell1(None), cell2(None);
             if (weapon.contains(JSON_CELLS) && weapon[JSON_CELLS].isArray())
             {
@@ -290,7 +298,7 @@ void Gear::Armoury::load(const std::string& fileName)
             }
 
             Skill normalSkills, maelstromSkills, heroicSkills;
-            std::vector<std::string> uniqueSkills;
+            std::vector<std::string> uniqueSkills, uniqueSkillsMaelstrom, uniqueSkillsHeroic;
 
             if (weapon.contains(JSON_PERKS))
             {
@@ -301,14 +309,18 @@ void Gear::Armoury::load(const std::string& fileName)
             if (weapon.contains(JSON_UNIQUE_EFFECT))
             {
                 uniqueSkills =
-                    util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict);
+                    util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict, 5);
+                uniqueSkillsMaelstrom =
+                    util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict, 9);
+                uniqueSkillsHeroic =
+                    util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict, 15);
             }
 
             weapons[type].emplace_back(type, name, description, 5, elementalDamage, uniqueSkills,
                                        cell1, cell2, normalSkills);
-            weapons[type].emplace_back(type, name, description, 9, elementalDamage, uniqueSkills,
+            weapons[type].emplace_back(type, name, description, 9, elementalDamage, uniqueSkillsMaelstrom,
                                        cell1, cell2, maelstromSkills);
-            weapons[type].emplace_back(type, name, description, 15, elementalDamage, uniqueSkills,
+            weapons[type].emplace_back(type, name, description, 15, elementalDamage, uniqueSkillsHeroic,
                                        cell1, cell2, heroicSkills);
 
             dict.addEntry(name, name);
@@ -405,6 +417,8 @@ void Gear::Armoury::setElement(Elements& element, const std::string& name, int v
         element.Ice = value;
     else if (name == "Blaze")
         element.Fire = value;
+    else if (name == "Terra")
+        element.Terra = value;
     else
         throw std::logic_error("Unknown element " + name);
 }
@@ -476,6 +490,47 @@ bool Gear::Armoury::filterGear(const Gear& gear, const Options& options) const
     {
         return gear.getLevel() != level;
     }
+}
+
+bool Gear::Armoury::filterWeapon(const Weapon& weapon, const Options& options) const
+{
+    if (options.weaponElement != Element::All && weapon.getType() != WeaponType::Reapeater)
+    {
+        const auto& elements = weapon.getElements();
+        switch (options.weaponElement)
+        {
+        case Element::Elementless:
+            if (elements.Fire > 0 || elements.Ice > 0 || elements.Shock > 0 || elements.Terra > 0 ||
+                elements.Radiant > 0 || elements.Umbral > 0)
+                return true;
+            break;
+        case Element::Fire:
+            if (elements.Fire == 0)
+                return true;
+            break;
+        case Element::Ice:
+            if (elements.Ice == 0)
+                return true;
+            break;
+        case Element::Shock:
+            if (elements.Shock == 0)
+                return true;
+            break;
+        case Element::Terra:
+            if (elements.Terra == 0)
+                return true;
+            break;
+        case Element::Radiant:
+            if (elements.Radiant == 0)
+                return true;
+            break;
+        case Element::Umbral:
+            if (elements.Umbral == 0)
+                return true;
+            break;
+        }
+    }
+    return filterGear(weapon, options);
 }
 
 void Gear::Armoury::loadData() { load(); }

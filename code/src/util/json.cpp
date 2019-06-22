@@ -27,16 +27,21 @@ Gear::Skill util::json::jsonToSkill(const QJsonObject& json)
     return Gear::Skill(json[JSON_NAME].toString().toStdString(), json[JSON_VALUE].toInt());
 }
 
+
+std::string jsonToUniqueSkill(const QJsonObject& json, Dictionary& dict)
+{
+    if (!util::json::parameterCheck(json, uniqueEffectsParameters))
+        throw std::logic_error("unique effect is non conforming");
+    auto description = json[JSON_DESCRIPTION].toString().toStdString();
+    dict.addEntry(description, description);
+    return description;
+}
+
 std::string jsonToUniqueSkill(const QJsonValueRef& json, Dictionary& dict)
 {
     if (!json.isObject())
         throw std::logic_error("unique effect is no object");
-    auto unique = json.toObject();
-    if (!util::json::parameterCheck(unique, uniqueEffectsParameters))
-        throw std::logic_error("unique effect is non conforming");
-    auto description = unique[JSON_DESCRIPTION].toString().toStdString();
-    dict.addEntry(description, description);
-    return description;
+    return jsonToUniqueSkill(json.toObject(), dict);
 }
 
 int util::json::getMaxValue(const QJsonObject& json)
@@ -62,6 +67,7 @@ int util::json::getValueForLevel(const QJsonObject& json, const std::string& lev
 
 QJsonObject getJsonObjectFromTo(const QJsonValueRef& jsonRef, int from, int to)
 {
+    // TODO: exchange with list variant and run some checks oer it?
     if (!jsonRef.isArray())
         throw std::logic_error("expected perk list to be an array");
     for (auto& json : jsonRef.toArray())
@@ -81,9 +87,34 @@ QJsonObject getJsonObjectFromTo(const QJsonValueRef& jsonRef, int from, int to)
             throw std::logic_error("Found Perk without from and to value");
         }
     }
-	std::stringstream ss;
+    std::stringstream ss;
     ss << "Found no perk within specified from and to range (" << from << "-" << to;
     throw std::logic_error(ss.str());
+}
+
+std::vector<QJsonObject> getJsonObjectListForLevel(const QJsonValueRef& jsonRef, int level) 
+{
+    if (!jsonRef.isArray())
+        throw std::logic_error("expected perk list to be an array");
+    std::vector<QJsonObject> objects;
+    for (auto& json : jsonRef.toArray())
+    {
+        if (!json.isObject())
+            throw std::logic_error("Perk is not an object");
+        auto& object = json.toObject();
+        if (parameterCheck(object, perkParametersFromTo))
+        {
+            if (object[JSON_PERK_FROM].toInt() <= level && level <= object[JSON_PERK_TO].toInt())
+            {
+                objects.push_back(object);
+            }
+        }
+        else
+        {
+            objects.push_back(object);
+        }
+    }
+    return objects;
 }
 
 Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to)
@@ -91,13 +122,15 @@ Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to)
     return jsonToSkill(getJsonObjectFromTo(jsonRef, from, to));
 }
 
-std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict)
+std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict, int level)
 {
     if (!jsonRef.isArray())
         throw std::logic_error("Unique Skills list is not an array");
     std::vector<std::string> skills;
-    for (auto& json : jsonRef.toArray())
-        skills.push_back(jsonToUniqueSkill(json, dict));
+    for (const auto& object : getJsonObjectListForLevel(jsonRef,level))
+        skills.push_back(jsonToUniqueSkill(object, dict));
+    if (skills.empty())
+        throw std::logic_error("No unique skills found");
     return skills;
 }
 

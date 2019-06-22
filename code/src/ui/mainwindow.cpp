@@ -45,10 +45,6 @@ MainWindow::MainWindow(QWidget* parent)
     // create docks, toolbars, etc…
     restoreState(settings.value(STATE).toByteArray());
 
-    // TODO: Download Data files if not exist?
-    ui->actionCheckForUpdates->setEnabled(false);
-    ui->actionDownloadNewestData->setEnabled(false);
-
     armoury.loadData();
     // TODO: maybe a nothrow option?
     try
@@ -127,8 +123,6 @@ MainWindow::MainWindow(QWidget* parent)
         dialog.exec();
     });
 
-    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_best"));
-    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_own"));
     ui->comboBoxCellUsage->setCurrentIndex(options.cellUsage);
     connect(ui->comboBoxCellUsage, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int value) { options.cellUsage = value; });
@@ -157,12 +151,13 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->actionUseLowerTierArmour, &QAction::triggered,
             [this](bool checked) { options.useLowerTierArmour = checked; });
 
-    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t1"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t2"));
-    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
     ui->comboBoxTier->setCurrentIndex(options.tier - 1);
     connect(ui->comboBoxTier, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { options.tier = index + 1; });
+    ui->comboBoxWeaponElement->setCurrentIndex(options.weaponElement);
+    connect(ui->comboBoxWeaponElement, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int index) { options.weaponElement = Gear::Element(index); });
+
 }
 
 void MainWindow::setupTranslation()
@@ -173,6 +168,16 @@ void MainWindow::setupTranslation()
         QStringList() << getTranslation(dict, "sword") << getTranslation(dict, "hammer")
                       << getTranslation(dict, "chainblades") << getTranslation(dict, "axe")
                       << getTranslation(dict, "pike") << getTranslation(dict, "repeater"));
+    ui->labelWeaponElement->setText(getTranslation(dict, "label_weapon_element"));
+    ui->labelWeaponElement->setToolTip(getTranslation(dict, "label_weapon_element_desc"));
+    ui->comboBoxWeaponElement->addItems(QStringList() << getTranslation(dict, "element_all")
+                                                      << getTranslation(dict, "element_none")
+                                                      << getTranslation(dict, "element_fire")
+                                                      << getTranslation(dict, "element_ice")
+                                                      << getTranslation(dict, "element_shock")
+                                                      << getTranslation(dict, "element_terra")
+                                                      << getTranslation(dict, "element_umbral")
+                                                      << getTranslation(dict, "element_radiant"));
     ui->groupBoxWantedSkills->setTitle(getTranslation(dict, "label_wanted_skills"));
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonAdvancedSearch->setText(getTranslation(dict, "button_advanced_search"));
@@ -189,6 +194,8 @@ void MainWindow::setupTranslation()
     ui->actionAboutQt->setText(getTranslation(dict, "menu_about_qt"));
     ui->groupBoxCells->setTitle(getTranslation(dict, "label_cells"));
     ui->pushButtonOrganizeCells->setText(getTranslation(dict, "button_organize"));
+    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_best"));
+    ui->comboBoxCellUsage->addItem(getTranslation(dict, "cell_usage_own"));
     ui->actionClearSkills->setText(getTranslation(dict, "menu_clear_skills"));
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
     ui->labelFilterFreeCells->setText(getTranslation(dict, "label_filter_cells"));
@@ -196,6 +203,9 @@ void MainWindow::setupTranslation()
     ui->labelFilterAdditionalSkills->setText(getTranslation(dict, "label_filter_skills"));
     ui->actionUseLowerTierArmour->setText(getTranslation(dict, "use_lower_tier_gear"));
     ui->labelTier->setText(getTranslation(dict, "label_tier"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t1"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t2"));
+    ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -498,16 +508,8 @@ void MainWindow::applyFilter()
             hide = true;
         if (type != Gear::SkillType::None)
         {
-            bool foundCell = false;
-            for (const auto& cell : options.armourSets[i].getCellList())
-                if (cell.first.isEmpty() && cell.first.getCellType() == type)
-                    foundCell = true;
-            if (!foundCell)
+            if (!options.armourSets[i].hasFreeCellSlotFor(type))
                 hide = true;
-            else
-            {
-                std::cout << i << std::endl;
-            }
         }
         if (additionalSkill.getSkillPoints() != 0)
         {
