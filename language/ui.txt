@@ -69,7 +69,7 @@ unsaved_changes_export;You have unsaved changes. Do you want to export anyway?
 update_searching;Searching for updates
 update_failed;Searching for updates failed
 update_current_version;You have the current version
-update_new_version;There is a new version available
+update_new_version;A new version is available
 menu_clear_skills;Clear Search
 label_unique_effects;Unique effects:
 label_filter_cells;Free cell slots
