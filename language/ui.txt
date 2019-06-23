@@ -86,3 +86,5 @@ export_text;export as text
 export_to_clipboard;to clipboard
 export_to_file;to file
 lantern;lantern
+button_all;All
+button_none;None

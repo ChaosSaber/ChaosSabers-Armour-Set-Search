@@ -33,7 +33,7 @@ class AdvancedSearch : public QDialog
 
   private:
     void addItem(QWidget *widget, QListWidget *list);
-    void addArmours(Gear::ArmourType type, QListWidget *list);
+    void addArmours(Gear::ArmourType type, QListWidget *list, QPushButton* noneButton, QPushButton* allButton);
     void search();
     std::vector<Gear::Armour> getArmour(Gear::ArmourType type);
 

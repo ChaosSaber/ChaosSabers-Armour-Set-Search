@@ -23,6 +23,16 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     ui->labelLegs->setText(getTranslation(dict, "label_legs_armour"));
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonCancel->setText(getTranslation(dict, "button_cancel"));
+    ui->pushButtonAllWeapon->setText(getTranslation(dict, "button_all"));
+    ui->pushButtonAllHead->setText(getTranslation(dict, "button_all"));
+    ui->pushButtonAllTorso->setText(getTranslation(dict, "button_all"));
+    ui->pushButtonAllArms->setText(getTranslation(dict, "button_all"));
+    ui->pushButtonAllLegs->setText(getTranslation(dict, "button_all"));
+    ui->pushButtonNoneWeapon->setText(getTranslation(dict, "button_none"));
+    ui->pushButtonNoneHead->setText(getTranslation(dict, "button_none"));
+    ui->pushButtonNoneTorso->setText(getTranslation(dict, "button_none"));
+    ui->pushButtonNoneArms->setText(getTranslation(dict, "button_none"));
+    ui->pushButtonNoneLegs->setText(getTranslation(dict, "button_none"));
 
     set(weaponType, wantedSkills);
 
@@ -54,10 +64,22 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
         });
         weapons.insert({checkbox, weapon});
     }
-    addArmours(Gear::ArmourType::Head, ui->listWidgetHeads);
-    addArmours(Gear::ArmourType::Torso, ui->listWidgetTorsos);
-    addArmours(Gear::ArmourType::Arms, ui->listWidgetArms);
-    addArmours(Gear::ArmourType::Legs, ui->listWidgetLegs);
+    connect(ui->pushButtonNoneWeapon, &QPushButton::clicked, [this]() {
+        for (auto& [checkbox, _] : weapons)
+            checkbox->setChecked(false);
+    });
+    connect(ui->pushButtonAllWeapon, &QPushButton::clicked, [this]() {
+        for (auto& [checkbox, _] : weapons)
+            checkbox->setChecked(true);
+    });
+    addArmours(Gear::ArmourType::Head, ui->listWidgetHeads, ui->pushButtonNoneHead,
+               ui->pushButtonAllHead);
+    addArmours(Gear::ArmourType::Torso, ui->listWidgetTorsos, ui->pushButtonNoneTorso,
+               ui->pushButtonAllTorso);
+    addArmours(Gear::ArmourType::Arms, ui->listWidgetArms, ui->pushButtonNoneArms,
+               ui->pushButtonAllArms);
+    addArmours(Gear::ArmourType::Legs, ui->listWidgetLegs, ui->pushButtonNoneLegs,
+               ui->pushButtonAllLegs);
 
     ui->listWidgetWeapons->setMinimumWidth(ui->listWidgetWeapons->sizeHintForColumn(0));
     ui->listWidgetHeads->setMinimumWidth(ui->listWidgetHeads->sizeHintForColumn(0));
@@ -74,7 +96,8 @@ void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
     list->setItemWidget(item, widget);
 }
 
-void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget *list)
+void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget* list, QPushButton* noneButton,
+                                QPushButton* allButton)
 {
     for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type, options))
     {
@@ -91,6 +114,14 @@ void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget *list)
         });
         armours[type].insert({checkbox, armour});
     }
+    connect(noneButton, &QPushButton::clicked, [this, type]() {
+        for (auto& [checkbox, _] : armours[type])
+            checkbox->setChecked(false);
+    });
+    connect(allButton, &QPushButton::clicked, [this, type]() {
+        for (auto& [checkbox, _] : armours[type])
+            checkbox->setChecked(true);
+    });
 }
 
 std::vector<Gear::Armour> AdvancedSearch::getArmour(Gear::ArmourType type)

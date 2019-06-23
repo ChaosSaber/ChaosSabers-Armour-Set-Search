@@ -358,8 +358,9 @@ void MainWindow::showArmourSets()
     for (const auto& weapon : filter.weapons)
         ui->comboBoxFilterWeapon->addItem(getTranslation(dict, weapon));
     for (auto cell : filter.cellSlots)
-        ui->comboBoxFilterFreeCells->addItem(
-            QString::fromStdString(Gear::SkillTypeToStringKey(cell)));
+        if (cell != Gear::SkillType::None)
+            ui->comboBoxFilterFreeCells->addItem(
+                QString::fromStdString(Gear::SkillTypeToStringKey(cell)));
     for (const auto& skill : filter.additionalSkills)
         ui->comboBoxFilterAdditionalSkills->addItem(QString::fromStdString(skill.toString(dict)));
     isCreatingArmourSets = false;

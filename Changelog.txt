@@ -1,5 +1,5 @@
 Version 0.11.3: .06.2019:
-- added new search option for weapon elements
+- added new search option for specific weapon elements
 - increase number of searchable skills
 
 Version 0.11.2: 12.05.2019:
