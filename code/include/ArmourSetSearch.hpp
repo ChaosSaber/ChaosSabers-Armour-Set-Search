@@ -8,8 +8,8 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
-#include <vector>
 #include <mutex>
+#include <vector>
 
 class ArmourSetSearch
 {
@@ -44,7 +44,7 @@ class ArmourSetSearch
     typedef std::function<void(SearchStatistics)> ProgressCallBack;
     ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
                     std::vector<Gear::Skill> skills, const Options& options,
-                    ProgressCallBack progress = [](SearchStatistics){},
+                    ProgressCallBack progress = [](SearchStatistics) {},
                     Gear::CellList availableCells = Gear::CellList());
     ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<Gear::Armour> heads,
                     std::vector<Gear::Armour> torsos, std::vector<Gear::Armour> arms,
@@ -60,18 +60,19 @@ class ArmourSetSearch
     const std::vector<Gear::Skill>& getWantedSkills() const;
 
   private:
-    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury);
+    void checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury);
     /**
-    * adds an armour to the list of found armoursets
-    * @param set: The set to add
-    */
+     * adds an armour to the list of found armoursets (thred safe)
+     * @param set: The set to add
+     */
     void addArmourSet(Gear::ArmourSet&& set);
     /**
-    * gets the next possible armour set to check
-    * @param set The next possible set will be set to this reference
-    * @return Returns true if a set is available, otherwise false
-    */
-    bool getNextArmourSet(Gear::ArmourSet &set);
+     * gets the next N possible armour sets
+     * @param count The number of armour sets to get
+     * @param sets The place where the possible sets will be put. This will be cleared at the beginning
+     * @return Returns true if one or more sets are available, otherwise false
+     */
+    bool getNextArmourSets(size_t count, std::vector<Gear::ArmourSet>& sets);
     void reset();
 
     std::vector<Gear::ArmourSet> armourSets;

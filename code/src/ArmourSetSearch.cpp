@@ -66,26 +66,21 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     stats.start = std::chrono::high_resolution_clock::now();
     stats.end = std::chrono::high_resolution_clock::now();
     progress(stats);
-    // we need some stub parts for the armour set
-    Gear::Armour head(Gear::ArmourType::Head, "", "", 0, Gear::Elements(), {},
-                      Gear::SkillType::None);
-    Gear::Armour torso(Gear::ArmourType::Torso, "", "", 0, Gear::Elements(), {},
-                       Gear::SkillType::None);
-    Gear::Armour arm(Gear::ArmourType::Arms, "", "", 0, Gear::Elements(), {},
-                     Gear::SkillType::None);
-    Gear::Armour leg(Gear::ArmourType::Legs, "", "", 0, Gear::Elements(), {},
-                     Gear::SkillType::None);
-    Gear::Weapon weapon(Gear::WeaponType::Axe, "", "", 0, Gear::Elements(), {},
-                        Gear::SkillType::None, Gear::SkillType::None);
     std::vector<std::thread> threads;
     threads.reserve(concurentThreadsSupported);
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
-        threads.emplace_back([this, cancel,&head,&torso,&arm, &leg, &weapon, &armoury]() {
-            Gear::ArmourSet set(head, torso, arm, leg, weapon);
-            while (!(*cancel) && getNextArmourSet(set))
+        threads.emplace_back([this, cancel,&armoury, concurentThreadsSupported]() {
+            // This is more or less an arbitrary value.
+            // it was waiting too long on the mutex when it got one set at a time. so i increased the amount it got at once
+            // 200 felt right. For a better value a proper Benchmark is necesary
+            constexpr size_t setCount = 200;
+            std::vector<Gear::ArmourSet> sets;
+            sets.reserve(setCount);
+            while (!(*cancel) && getNextArmourSets(setCount, sets))
             {
-                checkSet(set, armoury);
+                for (auto&& set:sets)
+                    checkSet(std::move(set), armoury);
             }
         });
     }
@@ -100,7 +95,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     return;
 }
 
-void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury)
+void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury)
 {
     Gear::CellList cells = availableCells;
     for (const auto& skill : wantedSkills)
@@ -119,7 +114,7 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armour
             existingSkillPoints += bestCellLevel;
         }
     }
-    armourSets.push_back(set);
+    addArmourSet(std::move(set));
 }
 
 void ArmourSetSearch::addArmourSet(Gear::ArmourSet&& set)
@@ -128,35 +123,41 @@ void ArmourSetSearch::addArmourSet(Gear::ArmourSet&& set)
     armourSets.push_back(set);
 }
 
-bool ArmourSetSearch::getNextArmourSet(Gear::ArmourSet& set)
+bool ArmourSetSearch::getNextArmourSets(size_t count, std::vector<Gear::ArmourSet>& sets)
 {
+    sets.clear();
     std::lock_guard lock(getArmourSetMutex);
-    if (indexHead >= heads.size())
-        return false;
-    set = std::move(Gear::ArmourSet(heads[indexHead], torsos[indexTorso], arms[indexArm],
-                                    legs[indexLeg], weapons[indexWeapon]));
-    ++indexWeapon;
-    if (indexWeapon >= weapons.size())
+    for (size_t i = 0; i < count; ++i)
     {
-        indexWeapon = 0;
-        ++indexLeg;
-        if (indexLeg >= legs.size())
+        if (indexHead >= heads.size())
+            break;
+        sets.emplace_back(heads[indexHead], torsos[indexTorso], arms[indexArm], legs[indexLeg],
+                          weapons[indexWeapon]);
+        ++indexWeapon;
+        if (indexWeapon >= weapons.size())
         {
-            indexLeg = 0;
-            ++indexArm;
-            if (indexArm >= arms.size())
+            indexWeapon = 0;
+            ++indexLeg;
+            if (indexLeg >= legs.size())
             {
-                indexArm = 0;
-                ++indexTorso;
-                if (indexTorso >= torsos.size())
+                indexLeg = 0;
+                ++indexArm;
+                if (indexArm >= arms.size())
                 {
-                    indexTorso = 0;
-                    ++indexHead;
+                    indexArm = 0;
+                    ++indexTorso;
+                    if (indexTorso >= torsos.size())
+                    {
+                        indexTorso = 0;
+                        ++indexHead;
+                    }
                 }
             }
         }
     }
-    ++stats.searchedCombinations;
+    if (sets.size() == 0)
+        return false;
+    stats.searchedCombinations += sets.size();
     int currentProgress = 100 * stats.searchedCombinations / stats.possibleCombinations;
     if (currentProgress != stats.progress)
     {
