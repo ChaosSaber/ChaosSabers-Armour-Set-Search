@@ -41,10 +41,10 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event) override;
 
   private slots:
-    void setProgress(int progress);
+    void setProgress(ArmourSetSearch::SearchStatistics stats);
     void finishedSearch(ArmourSetSearch *ass);
   signals:
-    void setProgressMainThread(int progress);
+    void setProgressMainThread(ArmourSetSearch::SearchStatistics stats);
     void finishedSearchMainThread(ArmourSetSearch *ass);
 
   private:

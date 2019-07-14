@@ -2,6 +2,7 @@
 #include "ui/mainwindow.hpp"
 #include <QApplication>
 #include <iostream>
+#include <ArmourSetSearch.hpp>
 
 int main(int argc, char *argv[])
 {
@@ -9,6 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("ChaosSaber's Software");
     QCoreApplication::setOrganizationDomain("https://github.com/ChaosSaber");
     app.setApplicationName("ChaosSaber's Armour Set Search");
+    qRegisterMetaType<ArmourSetSearch::SearchStatistics>("ArmourSetSearch::SearchStatistics");
     MainWindow mainWindow;
     mainWindow.show();
 

@@ -21,7 +21,6 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
     : weapons(std::move(weapons)), heads(std::move(heads)), torsos(std::move(torsos)),
       arms(std::move(arms)), legs(std::move(legs)), wantedSkills(std::move(wantedSkills)),
       availableCells(std::move(availableCells))
-
 {
     if (heads.empty())
         heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", "any_hat", 0,
@@ -41,20 +40,22 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
                                     Gear::SkillType::None));
     if (weapons.empty())
         weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_hat", "any_hat", 0,
-                                       Gear::Elements(),
-                                       std::vector<std::string>(), Gear::SkillType::None,
-                                       Gear::SkillType::None));
+                                       Gear::Elements(), std::vector<std::string>(),
+                                       Gear::SkillType::None, Gear::SkillType::None));
 }
 
 void ArmourSetSearch::search(const Gear::Armoury& armoury, bool* cancel,
-                             std::function<void(int)> progress)
+                             std::function<void(SearchStatistics)> progress)
 {
     // TODO: maximum number of found sets to prevent out of memory
-    progress(0);
-    int lastProgress = 0;
-    unsigned long long numberOfCombinations =
+    stats.possibleCombinations =
         heads.size() * torsos.size() * arms.size() * legs.size() * weapons.size();
-    unsigned long long count = 0;
+    stats.searchedCombinations = 0;
+    stats.foundSets = 0;
+    stats.progress = 0;
+    stats.start = std::chrono::high_resolution_clock::now();
+    stats.end = std::chrono::high_resolution_clock::now();
+    progress(stats);
     for (const auto& head : heads)
         for (const auto& torso : torsos)
             for (const auto& arm : arms)
@@ -62,16 +63,25 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, bool* cancel,
                     for (const auto& weapon : weapons)
                     {
                         if (*cancel)
-                            return;
+                            break;
                         checkSet(Gear::ArmourSet(head, torso, arm, leg, weapon), armoury);
-                        ++count;
-                        int currentProgress = 100 * count / numberOfCombinations;
-                        if (currentProgress != lastProgress)
+                        ++stats.searchedCombinations;
+                        int currentProgress =
+                            100 * stats.searchedCombinations / stats.possibleCombinations;
+                        if (currentProgress != stats.progress)
                         {
-                            progress(currentProgress);
-                            lastProgress = currentProgress;
+                            stats.progress = currentProgress;
+                            stats.end = std::chrono::high_resolution_clock::now();
+                            progress(stats);
                         }
                     }
+    if (stats.searchedCombinations != stats.possibleCombinations)
+    {
+        stats.progress = 100 * stats.searchedCombinations / stats.possibleCombinations;
+        stats.end = std::chrono::high_resolution_clock::now();
+    }
+    progress(stats);
+    return;
 }
 
 void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury)

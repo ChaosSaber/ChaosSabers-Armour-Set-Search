@@ -273,7 +273,7 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
     using namespace std::placeholders;
     QFuture<void> future =
         QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancel,
-                          [this](int progress) { emit setProgressMainThread(progress); });
+                          [this](ArmourSetSearch::SearchStatistics stats) { emit setProgressMainThread(stats); });
     searchWatcher->setFuture(future);
 }
 
@@ -472,7 +472,15 @@ void MainWindow::closeEvent(QCloseEvent* event)
     QWidget::closeEvent(event);
 }
 
-void MainWindow::setProgress(int progress) { ui->progressBarSearch->setValue(progress); }
+void MainWindow::setProgress(ArmourSetSearch::SearchStatistics stats)
+{
+    ui->progressBarSearch->setValue(stats.progress);
+    std::chrono::duration<double> diff = stats.end.load() - stats.start.load();
+    std::cout << "searched " << stats.searchedCombinations << "/" << stats.possibleCombinations
+              << "; search time: " << diff.count()
+              << "s; searches per second: " << stats.searchedCombinations / diff.count() << "/s"
+              << std::endl;
+}
 
 void MainWindow::finishedSearch(ArmourSetSearch* ass)
 {
