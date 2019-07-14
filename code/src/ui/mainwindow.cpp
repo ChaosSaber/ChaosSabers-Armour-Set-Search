@@ -206,14 +206,28 @@ void MainWindow::setupTranslation()
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t1"));
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t2"));
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
-    ui->labelCombinations->setText(getTranslation(dict, "stat_searched_combinations"));
-    ui->labelFoundSets->setText(getTranslation(dict, "stat_found_sets"));
-    ui->labelSearchTime->setText(getTranslation(dict, "stat_elapsed_time"));
-    ui->labelSearchesPerSecond->setText(getTranslation(dict, "stat_searches_per_second"));
-    ui->labelCombinationsValue->setText("-/-");
-    ui->labelFoundSetsValue->setText("-");
-    ui->labelSearchTimeValue->setText("-");
-    ui->labelSearchesPerSecondValue->setText("-");
+
+    // status bar (stats)
+    auto addSpacer = [this]() {
+        QWidget* spacer = new QWidget();
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        ui->statusBar->addWidget(spacer);
+    };
+    ui->statusBar->addWidget(new QLabel(getTranslation(dict, "stat_searched_combinations")));
+    statCombinations = new QLabel("-/-");
+    ui->statusBar->addWidget(statCombinations);
+    addSpacer();
+    ui->statusBar->addWidget(new QLabel(getTranslation(dict, "stat_found_sets")));
+    statFoundSets = new QLabel("-");
+    ui->statusBar->addWidget(statFoundSets);
+    addSpacer();
+    ui->statusBar->addWidget(new QLabel(getTranslation(dict, "stat_elapsed_time")));
+    statElapsedTime = new QLabel("-");
+    ui->statusBar->addWidget(statElapsedTime);
+    addSpacer();
+    ui->statusBar->addWidget(new QLabel(getTranslation(dict, "stat_searches_per_second")));
+    statSearchesPerSecond = new QLabel("-");
+    ui->statusBar->addWidget(statSearchesPerSecond);
 }
 
 std::vector<Gear::Skill> MainWindow::getWantedSkills()
@@ -484,12 +498,11 @@ void MainWindow::setProgress(ArmourSetSearch::SearchStatistics stats)
 {
     ui->progressBarSearch->setValue(stats.progress);
     const std::chrono::duration<double> diff = stats.end.load() - stats.start.load();
-    ui->labelCombinationsValue->setText(QString::number(stats.searchedCombinations) + "/" +
-                                     QString::number(stats.possibleCombinations));
-    ui->labelFoundSetsValue->setText(QString::number(stats.foundSets));
-    ui->labelSearchTimeValue->setText(QString::number(diff.count()));
-    ui->labelSearchesPerSecondValue->setText(
-        QString::number(stats.searchedCombinations / diff.count()));
+    statCombinations->setText(QString::number(stats.searchedCombinations) + "/" +
+                              QString::number(stats.possibleCombinations));
+    statFoundSets->setText(QString::number(stats.foundSets));
+    statElapsedTime->setText(QString::number(diff.count()));
+    statSearchesPerSecond->setText(QString::number(stats.searchedCombinations / diff.count()));
 }
 
 void MainWindow::finishedSearch(ArmourSetSearch* ass)

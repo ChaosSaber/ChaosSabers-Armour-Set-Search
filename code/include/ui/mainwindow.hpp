@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <set>
 #include <unordered_map>
+#include <QLabel>
 
 namespace Ui
 {
@@ -83,6 +84,10 @@ class MainWindow : public QMainWindow
     std::unordered_map<const Gear::ArmourSet *, QListWidgetItem *> armourSetItems;
     int armourSetViewGearWidth = 0;
     int armourSetViewCellWidth = 0;
+    QLabel* statCombinations;
+    QLabel* statFoundSets;
+    QLabel* statElapsedTime;
+    QLabel* statSearchesPerSecond;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP
