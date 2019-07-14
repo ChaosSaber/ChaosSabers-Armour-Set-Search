@@ -265,15 +265,15 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
             }
         }
     }
+    ass->setProgressCallback([this](ArmourSetSearch::SearchStatistics stats) {
+           emit setProgressMainThread(stats); });
     ass->setAvaiableCells(cells);
     setSearchButtonsState(false);
     cancel = false;
     connect(searchWatcher, &QFutureWatcher<void>::finished,
             [this, ass]() { emit finishedSearchMainThread(ass); });
     using namespace std::placeholders;
-    QFuture<void> future =
-        QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancel,
-                          [this](ArmourSetSearch::SearchStatistics stats) { emit setProgressMainThread(stats); });
+    QFuture<void> future = QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancel);
     searchWatcher->setFuture(future);
 }
 

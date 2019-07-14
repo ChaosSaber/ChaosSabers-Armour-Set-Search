@@ -32,22 +32,16 @@ Gear::ArmourSet::ArmourSet(const ArmourSet& other)
 {
 }
 
-// void Gear::swap(ArmourSet& first, ArmourSet& second)
-//{
-//    using std::swap;
-//    swap(first.head, second.head);
-//    swap(first.torso, second.torso);
-//    swap(first.arms, second.arms);
-//    swap(first.legs, second.legs);
-//    swap(first.weapon, second.weapon);
-//    swap(first.lantern, second.lantern);
-//}
-
-// Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet other)
-//{
-//    swap(*this, other);
-//    return *this;
-//}
+const Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet&& other)
+{ 
+    head = std::move(other.head);
+    torso = std::move(other.torso);
+    arms = std::move(other.arms);
+    legs = std::move(other.legs);
+    weapon = std::move(other.weapon);
+    lantern = std::move(other.lantern);
+    return *this;
+}
 
 Gear::ArmourSet::ArmourSet(ArmourSet&& other)
     : ArmourSet(std::move(other.head), std::move(other.torso), std::move(other.arms),

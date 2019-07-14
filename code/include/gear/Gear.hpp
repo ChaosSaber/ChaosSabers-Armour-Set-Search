@@ -22,6 +22,8 @@ class Gear
 
     Gear(const Gear& other) = default;
     Gear(Gear&& other) = default;
+    const Gear& operator=(const Gear& other) = delete;
+    const Gear& operator=(Gear&& other);
 
     // checks if the gear has free cell slots for a specific skill
     bool hasFreeCellSlotFor(SkillType type) const;
@@ -57,11 +59,10 @@ class Gear
     std::string name_;
     std::string description_;
     int level_;
-    // exotics have only unique skills, therefore we need a pointer
     Skill skill_;
     std::vector<std::string> uniqueSkills_;
     std::vector<Cell> cells_;
-    Elements elements;
+    Elements elements_;
 };
 } // namespace Gear
 

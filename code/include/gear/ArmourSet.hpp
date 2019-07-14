@@ -16,8 +16,7 @@ class ArmourSet
     ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs, Weapon&& weapon,
               Cell&& lantern = SkillType::Utility);
     ArmourSet(const ArmourSet& other);
-    //friend void swap(ArmourSet& first, ArmourSet& second);
-    //ArmourSet& operator=(ArmourSet other);
+    const ArmourSet& operator=(ArmourSet&& other);
     ArmourSet(ArmourSet&& other);
 
     // checks if the gear has free cell slots for a specific skill

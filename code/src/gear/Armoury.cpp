@@ -112,7 +112,7 @@ const Gear::Weapon& Gear::Armoury::getWeapon(std::string name, int level) const
             if (weapon.getName() == name && weapon.getLevel() == level)
                 return weapon;
     std::stringstream ss;
-    ss << "There is no weapon with the key " << name;
+    ss << "There is no weapon with the key " << name << " and level " << level;
     throw std::exception(ss.str().c_str());
 }
 
@@ -496,36 +496,36 @@ bool Gear::Armoury::filterWeapon(const Weapon& weapon, const Options& options) c
 {
     if (options.weaponElement != Element::All && weapon.getType() != WeaponType::Reapeater)
     {
-        const auto& elements = weapon.getElements();
+        const auto& elements_ = weapon.getElements();
         switch (options.weaponElement)
         {
         case Element::Elementless:
-            if (elements.Fire > 0 || elements.Ice > 0 || elements.Shock > 0 || elements.Terra > 0 ||
-                elements.Radiant > 0 || elements.Umbral > 0)
+            if (elements_.Fire > 0 || elements_.Ice > 0 || elements_.Shock > 0 || elements_.Terra > 0 ||
+                elements_.Radiant > 0 || elements_.Umbral > 0)
                 return true;
             break;
         case Element::Fire:
-            if (elements.Fire == 0)
+            if (elements_.Fire == 0)
                 return true;
             break;
         case Element::Ice:
-            if (elements.Ice == 0)
+            if (elements_.Ice == 0)
                 return true;
             break;
         case Element::Shock:
-            if (elements.Shock == 0)
+            if (elements_.Shock == 0)
                 return true;
             break;
         case Element::Terra:
-            if (elements.Terra == 0)
+            if (elements_.Terra == 0)
                 return true;
             break;
         case Element::Radiant:
-            if (elements.Radiant == 0)
+            if (elements_.Radiant == 0)
                 return true;
             break;
         case Element::Umbral:
-            if (elements.Umbral == 0)
+            if (elements_.Umbral == 0)
                 return true;
             break;
         }

@@ -5,7 +5,7 @@ Gear::Gear::Gear(const std::string& name, const std::string& description, int le
                  const Skill& skill, const std::vector<std::string>& uniqueSkills,
                  const std::vector<Cell>& cells, const Elements& elements)
     : name_(name), description_(description), level_(level), skill_(skill),
-      uniqueSkills_(uniqueSkills), cells_(cells), elements(elements)
+      uniqueSkills_(uniqueSkills), cells_(cells), elements_(elements)
 {
 }
 
@@ -14,8 +14,20 @@ Gear::Gear::Gear(std::string&& name, std::string&& description, int level, Skill
                  const Elements&& elements)
     : name_(std::move(name)), description_(std::move(description)), level_(level),
       skill_(std::move(skill)), uniqueSkills_(std::move(uniqueSkills)), cells_(std::move(cells)),
-      elements(std::move(elements))
+      elements_(std::move(elements))
 {
+}
+
+const Gear::Gear& Gear::Gear::operator=(Gear&& other)
+{
+    name_ = std::move(other.name_);
+    description_ = std::move(other.description_);
+    level_ = std::move(level_);
+    skill_ = std::move(other.skill_);
+    uniqueSkills_ = std::move(other.uniqueSkills_);
+    cells_ = std::move(other.cells_);
+    elements_ = std::move(other.elements_);
+    return *this;
 }
 
 const std::string& Gear::Gear::getName() const { return name_; }
@@ -58,7 +70,7 @@ std::string Gear::Gear::getGearInfo(const Dictionary& dict) const
     return dict.getTranslationFor(name_) + " +" + std::to_string(level_);
 }
 
-const Gear::Elements& Gear::Gear::getElements() const { return elements; }
+const Gear::Elements& Gear::Gear::getElements() const { return elements_; }
 
 std::string Gear::Gear::getToolTip(const Dictionary& dict) const
 {
