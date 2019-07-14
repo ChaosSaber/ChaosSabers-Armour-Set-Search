@@ -89,7 +89,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
         thread.join();
     }
 
-    stats.progress = 100 * stats.searchedCombinations / stats.possibleCombinations;
+    stats.progress = 100;
     stats.end = std::chrono::high_resolution_clock::now();
     progress(stats);
     return;
@@ -114,6 +114,7 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury
             existingSkillPoints += bestCellLevel;
         }
     }
+    ++stats.foundSets;
     addArmourSet(std::move(set));
 }
 

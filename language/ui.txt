@@ -88,3 +88,7 @@ export_to_file;to file
 lantern;lantern
 button_all;All
 button_none;None
+stat_searched_combinations;Searched combinations:
+stat_found_sets;Found armour sets:
+stat_elapsed_time;Elapsed time(s):
+stat_searches_per_second;Searches/s:
