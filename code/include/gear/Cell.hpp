@@ -15,15 +15,29 @@ class Cell
   public:
     Cell(SkillType type);
     Cell(Skill skill, SkillType type);
-    int getSkillPointsFor(const std::string &skill) const;
-    const std::string &getSkillName() const;
+    /**
+     * check the skill points for a specific skill without cells
+     * @param skillId The ID of the skill which shall be checked
+     * @return Returns the skill points for the specified skill
+     */
+    size_t getSkillPointsFor(size_t skillId) const;
+    /**
+     * @return Returns the skill ID of the underlying skill
+     */
+    size_t getSkillId() const;
     bool isEmpty() const;
-    const Skill &getSkill() const;
-    std::string getCellInfo(const Dictionary &dict) const;
+    const Skill& getSkill() const;
+    /**
+     * transforms the cell to an human readable string
+     * @param dict A dictionary with all necessary translations
+     * @param armoury The armoury with all the necessary skill data
+     * @return Returns a human readable string
+     */
+    std::string getCellInfo(const Dictionary& dict, const Armoury& armoury) const;
     SkillType getCellType() const;
 
     //  operators
-    bool operator==(const Cell &cell) const;
+    bool operator==(const Cell& cell) const;
     CellList operator*(size_t multiplicator) const;
 
   private:
@@ -38,7 +52,7 @@ namespace std
 
 template <> struct hash<Gear::Cell>
 {
-    std::size_t operator()(const Gear::Cell &cell) const
+    std::size_t operator()(const Gear::Cell& cell) const
     {
         using std::hash;
         using std::size_t;

@@ -33,7 +33,7 @@ Gear::ArmourSet::ArmourSet(const ArmourSet& other)
 }
 
 const Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet&& other)
-{ 
+{
     head = std::move(other.head);
     torso = std::move(other.torso);
     arms = std::move(other.arms);
@@ -76,19 +76,6 @@ bool Gear::ArmourSet::addCell(Cell cell)
     return false;
 }
 
-std::string Gear::ArmourSet::getGearInfo(const Dictionary& dict) const
-{
-    std::stringstream ss;
-    ss << weapon.getGearInfo(dict) << std::endl
-       << head.getGearInfo(dict) << std::endl
-       << torso.getGearInfo(dict) << std::endl
-       << arms.getGearInfo(dict) << std::endl
-       << legs.getGearInfo(dict) << std::endl
-       << getCellList().toString(dict) << "Skills:" << std::endl
-       << getSkills().toString(dict);
-    return ss.str();
-}
-
 Gear::SkillList Gear::ArmourSet::getSkills() const
 {
     SkillList skills;
@@ -98,12 +85,12 @@ Gear::SkillList Gear::ArmourSet::getSkills() const
     return skills;
 }
 
-int Gear::ArmourSet::getSkillPointsFor(const std::string& skill) const
+size_t Gear::ArmourSet::getSkillPointsFor(size_t skillId) const
 {
-    int sum = 0;
-    sum += lantern.getSkillPointsFor(skill);
+    size_t sum = 0;
+    sum += lantern.getSkillPointsFor(skillId);
     for (const auto part : gear)
-        sum += part->getSkillPointsFor(skill);
+        sum += part->getSkillPointsFor(skillId);
     return sum;
 }
 
@@ -140,7 +127,7 @@ Gear::SkillList Gear::ArmourSet::getAdditionalSkills(const SkillList& wantedSkil
     return skills;
 }
 
-std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
+std::string Gear::ArmourSet::exportToText(const Dictionary& dict, const Armoury& armoury) const
 {
     std::stringstream text;
 
@@ -158,7 +145,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
     size_t maxCellLength = 0;
     for (const auto& cell : cells)
     {
-        auto length = cell.first.getCellInfo(dict).length();
+        auto length = cell.first.getCellInfo(dict, armoury).length();
         if (length > maxCellLength)
             maxCellLength = length;
     }
@@ -169,7 +156,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
     size_t maxSkillLength = 0;
     for (const auto& skill : skills)
     {
-        auto length = skill.toString(dict).length();
+        auto length = skill.toString(dict, armoury).length();
         if (length > maxSkillLength)
             maxSkillLength = length;
     }
@@ -190,7 +177,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
         if (i < cells.size())
         {
             const auto& [cell, count] = cells[i];
-            text << " " << count << "x " << cell.getCellInfo(dict);
+            text << " " << count << "x " << cell.getCellInfo(dict, armoury);
         }
         text << std::endl;
     }
@@ -199,7 +186,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
     {
         if (i % 2 == 0)
         {
-            auto skillStr = skills[i].toString(dict);
+            auto skillStr = skills[i].toString(dict, armoury);
             text << skillStr;
             if (i + 1 != skills.size())
             {
@@ -209,7 +196,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
         }
         else
         {
-            text << skills[i].toString(dict);
+            text << skills[i].toString(dict, armoury);
             if (i < skills.size() - 1)
                 text << std::endl;
         }
@@ -224,7 +211,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict) const
     return text.str();
 }
 
-std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
+std::string Gear::ArmourSet::exportToText2(const Dictionary& dict, const Armoury& armoury) const
 {
     constexpr auto indentation = "    ";
     std::vector<std::string> lines;
@@ -236,13 +223,13 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
             if (cell.isEmpty())
                 continue;
             for (size_t i = 0; i < count; ++i)
-                lines.push_back(indentation + cell.getCellInfo(dict));
+                lines.push_back(indentation + cell.getCellInfo(dict, armoury));
         }
     }
     if (!lantern.isEmpty())
     {
         lines.push_back(dict.getTranslationFor("lantern"));
-        lines.push_back(indentation + lantern.getCellInfo(dict));
+        lines.push_back(indentation + lantern.getCellInfo(dict, armoury));
     }
     size_t maxLineLength = 0;
     for (const auto& line : lines)
@@ -270,7 +257,7 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
     for (const auto& skill : skills)
     {
         addLine();
-        out << skill.toString(dict);
+        out << skill.toString(dict, armoury);
         if (count < skills.size() - 1 || count < lines.size() - 1 || uniqueSkills.size() > 0)
             out << std::endl;
         ++count;
@@ -292,7 +279,7 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict) const
     return out.str();
 }
 
-std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
+std::string Gear::ArmourSet::exportToText3(const Dictionary& dict, const Armoury& armoury) const
 {
     std::stringstream text;
 
@@ -310,7 +297,7 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
     size_t maxCellLength = 0;
     for (const auto& cell : cells)
     {
-        auto length = cell.first.getCellInfo(dict).length();
+        auto length = cell.first.getCellInfo(dict, armoury).length();
         if (length > maxCellLength)
             maxCellLength = length;
     }
@@ -321,7 +308,7 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
     size_t maxSkillLength = 0;
     for (const auto& skill : skills)
     {
-        auto length = skill.toString(dict).length();
+        auto length = skill.toString(dict, armoury).length();
         if (length > maxSkillLength)
             maxSkillLength = length;
     }
@@ -343,9 +330,9 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
     lineAdder(arms.getGearInfo(dict), legs.getGearInfo(dict));
     text << std::string(lineWidth, '-') << std::endl;
     // cells
-    auto cellPairToString = [&dict](const std::pair<Cell, int>& cell) {
+    auto cellPairToString = [&dict, &armoury](const std::pair<Cell, int>& cell) {
         std::stringstream str;
-        str << cell.second << "x " << cell.first.getCellInfo(dict);
+        str << cell.second << "x " << cell.first.getCellInfo(dict, armoury);
         return str.str();
     };
     for (size_t i = 0; i < cells.size(); i += 2)
@@ -367,11 +354,11 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict) const
     {
         if (i + 1 < skills.size())
         {
-            lineAdder(skills[i].toString(dict), skills[i + 1].toString(dict));
+            lineAdder(skills[i].toString(dict, armoury), skills[i + 1].toString(dict, armoury));
         }
         else
         {
-            text << skills[i].toString(dict) << std::endl;
+            text << skills[i].toString(dict, armoury) << std::endl;
         }
     }
     // unique skills

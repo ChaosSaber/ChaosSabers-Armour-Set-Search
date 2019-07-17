@@ -24,12 +24,14 @@ class ArmourSet
     // adds a new Cell to the gear
     // returns if the cell could be inserted
     bool addCell(Cell cell);
-    // returns the info of the gear as human readable string
-    std::string getGearInfo(const Dictionary& dict) const;
     // returns a list of all skills on the gear
     SkillList getSkills() const;
-    // returns the skill points for a specific skill on that gear
-    int getSkillPointsFor(const std::string& skill) const;
+    /**
+     * check the skill points for a specific skill without cells
+     * @param skillId The ID of the skill which shall be checked
+     * @return Returns the skill points for the specified skill
+     */
+    size_t getSkillPointsFor(size_t skillId) const;
     // returns the cells on the gear
     CellList getCellList() const;
     virtual bool hasUniqueSkill() const;
@@ -50,9 +52,9 @@ class ArmourSet
     SkillList getAdditionalSkills(const SkillList& wantedSkills) const;
 
 
-    std::string exportToText(const Dictionary& dict) const;
-    std::string exportToText2(const Dictionary& dict) const;
-    std::string exportToText3(const Dictionary& dict) const;
+    std::string exportToText(const Dictionary& dict, const Armoury& armoury) const;
+    std::string exportToText2(const Dictionary& dict, const Armoury& armoury) const;
+    std::string exportToText3(const Dictionary& dict, const Armoury& armoury) const;
 
   private:
     void init();

@@ -47,9 +47,9 @@ class Options
     void saveConfiguration(const QString& fileName = CONFIG_FILE_NAME);
     void loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
                     const QString& fileName = LAST_SEARCH);
-    void saveSearch(const QString& fileName = LAST_SEARCH);
-    void save();
-    void saveCells(const QString& fileName = MY_CELLS);
+    void saveSearch(const Gear::Armoury& armoury, const QString& fileName = LAST_SEARCH);
+    void save(const Gear::Armoury& armoury);
+    void saveCells(const Gear::Armoury& armoury, const QString& fileName = MY_CELLS);
     void loadCells(const Gear::Armoury& armoury, const Dictionary& dict,
                    const QString& fileName = MY_CELLS);
 
@@ -69,9 +69,9 @@ class Options
     int tier = 3;
 
   private:
-    QJsonArray cellListToJson(const Gear::CellList& cells);
+    QJsonArray cellListToJson(const Gear::CellList& cells, const Gear::Armoury& armoury);
     Gear::CellList jsonToCellList(const QJsonArray& json, const Gear::Armoury& armoury);
-    QJsonObject cellToJson(const Gear::Cell& cell);
+    QJsonObject cellToJson(const Gear::Cell& cell, const Gear::Armoury& armoury);
     Gear::Cell jsonToCell(const QJsonObject& json, const Gear::Armoury& armoury);
     QJsonObject gearToJson(const Gear::Gear& armour);
     std::tuple<std::string, int> jsonToGear(const QJsonObject& json);

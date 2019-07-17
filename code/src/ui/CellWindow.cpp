@@ -37,7 +37,7 @@ CellWindow::CellWindow(const Gear::Armoury &armoury, Options &options, const Dic
         int row = 1;
         for (int i = 3; i > 0; --i)
         {
-            Gear::Cell cell(Gear::Skill(skill->getName(), i), skill->getType());
+            Gear::Cell cell(Gear::Skill(armoury.getSkillIdForName(skill->getName()), i), skill->getType());
 
             auto spinBox = new QSpinBox();
             spinBox->setSizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
@@ -180,7 +180,7 @@ void CellWindow::exportCells()
     options.lastCellSaveLocation = info.path();
     try
     {
-        options.saveCells(fileName);
+        options.saveCells(armoury, fileName);
     }
     catch (const OptionsIoException &e)
     {

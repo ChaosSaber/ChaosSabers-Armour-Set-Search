@@ -100,14 +100,14 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury
     Gear::CellList cells = availableCells;
     for (const auto& skill : wantedSkills)
     {
-        int existingSkillPoints = set.getSkillPointsFor(skill.getName());
+        auto existingSkillPoints = set.getSkillPointsFor(skill.getId());
         if (!cells.hasEnoughCellsFor(skill, existingSkillPoints))
             return;
-        auto type = armoury.getSkillInfoFor(skill.getName()).getType();
+        auto type = armoury.getSkillTypeFor(skill.getId());
         while (existingSkillPoints < skill.getSkillPoints())
         {
-            int bestCellLevel = cells.getOptimalCellLevel(skill, existingSkillPoints);
-            Gear::Cell cell(Gear::Skill(skill.getName(), bestCellLevel), type);
+            auto bestCellLevel = cells.getOptimalCellLevel(skill, existingSkillPoints);
+            Gear::Cell cell(Gear::Skill(skill.getId(), bestCellLevel), type);
             if (!set.addCell(cell))
                 return;
             cells -= cell;

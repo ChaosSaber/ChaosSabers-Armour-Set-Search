@@ -20,13 +20,14 @@ bool util::json::parameterCheck(const QJsonObject& json, const std::vector<JsonP
     return true;
 }
 
-Gear::Skill util::json::jsonToSkill(const QJsonObject& json)
+Gear::Skill util::json::jsonToSkill(const QJsonObject& json,
+                                    std::unordered_map<std::string, size_t>& mapSkillNameToId)
 {
     if (!util::json::parameterCheck(json, perkParameters))
         throw std::logic_error("perk is non conforming");
-    return Gear::Skill(json[JSON_NAME].toString().toStdString(), json[JSON_VALUE].toInt());
+    return Gear::Skill(mapSkillNameToId.at(json[JSON_NAME].toString().toStdString()),
+                       json[JSON_VALUE].toInt());
 }
-
 
 std::string jsonToUniqueSkill(const QJsonObject& json, Dictionary& dict)
 {
@@ -92,7 +93,7 @@ QJsonObject getJsonObjectFromTo(const QJsonValueRef& jsonRef, int from, int to)
     throw std::logic_error(ss.str());
 }
 
-std::vector<QJsonObject> getJsonObjectListForLevel(const QJsonValueRef& jsonRef, int level) 
+std::vector<QJsonObject> getJsonObjectListForLevel(const QJsonValueRef& jsonRef, int level)
 {
     if (!jsonRef.isArray())
         throw std::logic_error("expected perk list to be an array");
@@ -117,17 +118,19 @@ std::vector<QJsonObject> getJsonObjectListForLevel(const QJsonValueRef& jsonRef,
     return objects;
 }
 
-Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to)
+Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to,
+                           std::unordered_map<std::string, size_t>& mapSkillNameToId)
 {
-    return jsonToSkill(getJsonObjectFromTo(jsonRef, from, to));
+    return jsonToSkill(getJsonObjectFromTo(jsonRef, from, to), mapSkillNameToId);
 }
 
-std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict, int level)
+std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict,
+                                                 int level)
 {
     if (!jsonRef.isArray())
         throw std::logic_error("Unique Skills list is not an array");
     std::vector<std::string> skills;
-    for (const auto& object : getJsonObjectListForLevel(jsonRef,level))
+    for (const auto& object : getJsonObjectListForLevel(jsonRef, level))
         skills.push_back(jsonToUniqueSkill(object, dict));
     if (skills.empty())
         throw std::logic_error("No unique skills found");

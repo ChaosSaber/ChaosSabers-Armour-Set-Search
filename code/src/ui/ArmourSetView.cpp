@@ -15,7 +15,7 @@ ArmourSetView::ArmourSetView(const Dictionary& dict, Options& options, const Gea
                              const Gear::Armoury& armoury, int scrollBarWidth,
                              Gear::SkillList& wantedSkills, QWidget* parent)
     : QWidget(parent), ui(new Ui::ArmourSetView), dict(dict), options(options),
-      scrollBarWidth(scrollBarWidth), armourSet(set)
+      scrollBarWidth(scrollBarWidth), armourSet(set), armoury(armoury)
 {
     ui->setupUi(this);
 
@@ -66,7 +66,7 @@ void ArmourSetView::addGear(const Gear::Gear& gear)
 {
     QLabel* label = new QLabel();
     label->setText(QString::fromStdString(gear.getGearInfo(dict)));
-    label->setToolTip(QString::fromStdString(gear.getToolTip(dict)));
+    label->setToolTip(QString::fromStdString(gear.getToolTip(dict, armoury)));
     ui->verticalLayoutGearParts->addWidget(label);
 }
 
@@ -74,7 +74,7 @@ void ArmourSetView::addCell(const std::pair<Gear::Cell, int>& cell)
 {
     QLabel* label = new QLabel();
     std::stringstream ss;
-    ss << cell.second << "x " << cell.first.getCellInfo(dict);
+    ss << cell.second << "x " << cell.first.getCellInfo(dict, armoury);
     label->setText(QString::fromStdString(ss.str()));
     ui->verticalLayoutGearCells->addWidget(label);
 }
@@ -82,7 +82,7 @@ void ArmourSetView::addCell(const std::pair<Gear::Cell, int>& cell)
 void ArmourSetView::addSkill(const Gear::Skill& skill)
 {
     QLabel* label = new QLabel();
-    label->setText(QString::fromStdString(skill.toString(dict)));
+    label->setText(QString::fromStdString(skill.toString(dict, armoury)));
     ui->verticalLayoutSkills->addWidget(label);
 }
 
@@ -153,30 +153,30 @@ void ArmourSetView::showContextMenu(const QPoint& pos)
         auto actionTextToClipBoard =
             contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
         connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict)); });
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict, armoury)); });
         auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
         connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText(dict)); });
+                [this](bool) { exportTextToFile(armourSet.exportToText(dict, armoury)); });
     }
     {
         auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text2"));
         auto actionTextToClipBoard =
             contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
         connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText2(dict)); });
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText2(dict, armoury)); });
         auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
         connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText2(dict)); });
+                [this](bool) { exportTextToFile(armourSet.exportToText2(dict, armoury)); });
     }
     {
         auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text3"));
         auto actionTextToClipBoard =
             contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
         connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText3(dict)); });
+                [this](bool) { exportTextToClipBoard(armourSet.exportToText3(dict, armoury)); });
         auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
         connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText3(dict)); });
+                [this](bool) { exportTextToFile(armourSet.exportToText3(dict, armoury)); });
     }
 
     contextMenu.exec(mapToGlobal(pos));

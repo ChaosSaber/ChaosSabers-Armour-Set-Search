@@ -19,7 +19,7 @@ class SkillSelector : public QObject
     explicit SkillSelector(
         const Dictionary &dict,
         std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> &skills,
-        QGridLayout *layout);
+        QGridLayout* layout, const Gear::Armoury& armoury);
 
     void getSkill(std::vector<Gear::Skill> &skills) const;
     void set(const Options::SkillSearch &search);
@@ -35,6 +35,7 @@ class SkillSelector : public QObject
     QSpinBox *skillValue;
     const Dictionary &dict;
     std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> &skills;
+    const Gear::Armoury& armoury;
 };
 
 #endif // !DAUNTLESS_ASS_UI_SKILLSELECTOR_HPP

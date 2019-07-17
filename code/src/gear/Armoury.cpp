@@ -1,5 +1,5 @@
-#include "Options.hpp"
 #include "gear/Armoury.hpp"
+#include "Options.hpp"
 #include "util/json.hpp"
 #include "util/string.hpp"
 #include <QFile>
@@ -12,17 +12,6 @@
 Gear::Armoury::Armoury(Dictionary& dict)
     : notFound("", "", None, std::vector<std::string>()), dict(dict)
 {
-}
-
-const Gear::SkillInfo& Gear::Armoury::getSkillInfoFor(const std::string& name) const
-{
-    for (const auto& skillInfo : skillInfos)
-    {
-        if (skillInfo.getName() == name)
-            return skillInfo;
-    }
-    std::cout << "Couldn't find skill " << name << std::endl;
-    return notFound;
 }
 
 std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<Skill>& skills,
@@ -43,8 +32,8 @@ std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<S
         }
         for (const auto& skill : skills)
         {
-            if (weapon.getSkillPointsFor(skill.getName()) > 0 ||
-                weapon.hasFreeCellSlotFor(getSkillInfoFor(skill.getName()).getType()))
+            if (weapon.getSkillPointsFor(skill.getId()) > 0 ||
+                weapon.hasFreeCellSlotFor(getSkillTypeFor(skill.getId())))
             {
                 weapons.push_back(weapon);
                 break;
@@ -67,8 +56,8 @@ std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Sk
             continue;
         for (const auto& skill : skills)
         {
-            if (armour.getSkillPointsFor(skill.getName()) > 0 ||
-                armour.hasFreeCellSlotFor(getSkillInfoFor(skill.getName()).getType()))
+            if (armour.hasSkill(skill.getId()) ||
+                armour.hasFreeCellSlotFor(getSkillTypeFor(skill.getId())))
             {
                 armours.push_back(armour);
                 break;
@@ -84,14 +73,20 @@ std::vector<const Gear::SkillInfo*> Gear::Armoury::getSkills(SkillType filter) c
 {
     std::vector<const SkillInfo*> skills;
     for (const auto& skill : skillInfos)
-        if (filter == None && skill.getType() || filter == skill.getType())
+    {
+        if (skill.getName().empty())
+            continue;
+        if (filter == None || filter == skill.getType())
             skills.push_back(&skill);
+    }
     return skills;
 }
 
-Gear::SkillType Gear::Armoury::getSkillTypeFor(const std::string& skillName) const
+const Gear::SkillInfo& Gear::Armoury::getSkillInfo(size_t id) const { return skillInfos.at(id); }
+
+Gear::SkillType Gear::Armoury::getSkillTypeFor(size_t id) const
 {
-    return getSkillInfoFor(skillName).getType();
+    return getSkillInfo(id).getType();
 }
 
 const Gear::Armour& Gear::Armoury::getArmour(std::string name, int level) const
@@ -154,11 +149,17 @@ const std::vector<util::json::JsonParameter> skillParameters = {
     {JSON_TYPE, QJsonValue::Type::String},
     {JSON_EFFECTS, QJsonValue::Type::Object}};
 
+size_t Gear::Armoury::getSkillIdForName(const std::string& name) const
+{
+    return mapSkillNameToId_.at(name);
+}
+
 void Gear::Armoury::load(const std::string& fileName)
 {
     weapons.clear();
     armours.clear();
     skillInfos.clear();
+    mapSkillNameToId_.clear();
     QFile config(QString::fromStdString(fileName));
     if (!config.open(QIODevice::ReadOnly))
     {
@@ -175,6 +176,91 @@ void Gear::Armoury::load(const std::string& fileName)
         std::cout << "Error reading data files" << std::endl;
         return;
     }
+    skillInfos.push_back(notFound);
+    auto jsonPerks = json[JSON_PERKS].toObject();
+    for (const auto& key : jsonPerks.keys())
+    {
+        try
+        {
+            if (!jsonPerks[key].isObject())
+            {
+                std::cout << "found non object weapon entry: " << key.toStdString() << std::endl;
+                continue;
+            }
+            auto perk = jsonPerks[key].toObject();
+            if (!util::json::parameterCheck(perk, skillParameters))
+            {
+                std::cout << "found non conforming skill entry: " << key.toStdString() << std::endl;
+                continue;
+            }
+            std::string name = perk[JSON_NAME].toString().toStdString();
+            auto type = getSkillType(perk[JSON_TYPE].toString().toStdString());
+            std::string description = perk[JSON_DESCRIPTION].toString().toStdString();
+            std::vector<std::string> effects;
+            auto jsonEffects = perk[JSON_EFFECTS].toObject();
+            int i = 1;
+            while (jsonEffects.contains(QString::number(i)) &&
+                   jsonEffects[QString::number(i)].isObject())
+            {
+                auto effect = jsonEffects[QString::number(i)].toObject();
+                ++i;
+                if (!effect.contains(JSON_DESCRIPTION))
+                {
+                    std::cout << key.toStdString() << ": effect " << i
+                              << ": doesn't contain a description" << std::endl;
+                    break;
+                }
+                if (effect[JSON_DESCRIPTION].isString())
+                    effects.push_back(effect[JSON_DESCRIPTION].toString().toStdString());
+                else if (effect[JSON_DESCRIPTION].isArray())
+                {
+                    std::vector<std::string> descriptions;
+                    auto arr = effect[JSON_DESCRIPTION].toArray();
+                    for (int i = 0; i < arr.size(); ++i)
+                    {
+                        if (arr[i].isNull())
+                            continue;
+                        if (arr[i].isString())
+                            descriptions.push_back(arr[i].toString().toStdString());
+                        else
+                        {
+                            std::cout << key.toStdString() << ": effect " << i
+                                      << ": unknown description type: " << arr[i].type()
+                                      << std::endl;
+                            break;
+                        }
+                    }
+                    auto description = util::string::vectorJoin(descriptions, ". ");
+                    dict.addEntry(description, description);
+                    effects.push_back(description);
+                }
+                else
+                {
+                    std::cout << key.toStdString() << ": effect " << i
+                              << ": unknown type: " << effect[JSON_DESCRIPTION].type() << std::endl;
+                }
+            }
+            skillInfos.push_back(SkillInfo(name, description, type, effects));
+            dict.addEntry(name, name);
+            dict.addEntry(description, description);
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << key.toStdString() << ": " << e.what() << std::endl;
+        }
+    }
+    // sort perks alphabetically
+    std::sort(
+        skillInfos.begin() + 1, skillInfos.end(),
+              [this](const SkillInfo& lhs, const SkillInfo& rhs) {
+                  return dict.getTranslationFor(lhs.getName())
+                             .compare(dict.getTranslationFor(rhs.getName())) < 0;
+              });
+    for (size_t i = 1; i < skillInfos.size(); ++i)
+    {
+        mapSkillNameToId_[skillInfos[i].getName()] = i;
+    }
+
     auto jsonArmours = json[JSON_ARMOURS].toObject();
     for (const auto& key : jsonArmours.keys())
     {
@@ -212,9 +298,12 @@ void Gear::Armoury::load(const std::string& fileName)
 
             if (armour.contains(JSON_PERKS))
             {
-                normalSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 0, 5);
-                maelstromSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 6, 9);
-                heroicSkills = util::json::getSkillFromTo(armour[JSON_PERKS], 10, 15);
+                normalSkills =
+                    util::json::getSkillFromTo(armour[JSON_PERKS], 0, 5, mapSkillNameToId_);
+                maelstromSkills =
+                    util::json::getSkillFromTo(armour[JSON_PERKS], 6, 9, mapSkillNameToId_);
+                heroicSkills =
+                    util::json::getSkillFromTo(armour[JSON_PERKS], 10, 15, mapSkillNameToId_);
             }
             if (armour.contains(JSON_UNIQUE_EFFECT))
             {
@@ -302,9 +391,12 @@ void Gear::Armoury::load(const std::string& fileName)
 
             if (weapon.contains(JSON_PERKS))
             {
-                normalSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 0, 5);
-                maelstromSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 6, 9);
-                heroicSkills = util::json::getSkillFromTo(weapon[JSON_PERKS], 10, 15);
+                normalSkills =
+                    util::json::getSkillFromTo(weapon[JSON_PERKS], 0, 5, mapSkillNameToId_);
+                maelstromSkills =
+                    util::json::getSkillFromTo(weapon[JSON_PERKS], 6, 9, mapSkillNameToId_);
+                heroicSkills =
+                    util::json::getSkillFromTo(weapon[JSON_PERKS], 10, 15, mapSkillNameToId_);
             }
             if (weapon.contains(JSON_UNIQUE_EFFECT))
             {
@@ -318,83 +410,11 @@ void Gear::Armoury::load(const std::string& fileName)
 
             weapons[type].emplace_back(type, name, description, 5, elementalDamage, uniqueSkills,
                                        cell1, cell2, normalSkills);
-            weapons[type].emplace_back(type, name, description, 9, elementalDamage, uniqueSkillsMaelstrom,
-                                       cell1, cell2, maelstromSkills);
-            weapons[type].emplace_back(type, name, description, 15, elementalDamage, uniqueSkillsHeroic,
-                                       cell1, cell2, heroicSkills);
+            weapons[type].emplace_back(type, name, description, 9, elementalDamage,
+                                       uniqueSkillsMaelstrom, cell1, cell2, maelstromSkills);
+            weapons[type].emplace_back(type, name, description, 15, elementalDamage,
+                                       uniqueSkillsHeroic, cell1, cell2, heroicSkills);
 
-            dict.addEntry(name, name);
-            dict.addEntry(description, description);
-        }
-        catch (const std::exception& e)
-        {
-            std::cout << key.toStdString() << ": " << e.what() << std::endl;
-        }
-    }
-    auto jsonPerks = json[JSON_PERKS].toObject();
-    for (const auto& key : jsonPerks.keys())
-    {
-        try
-        {
-            if (!jsonPerks[key].isObject())
-            {
-                std::cout << "found non object weapon entry: " << key.toStdString() << std::endl;
-                continue;
-            }
-            auto perk = jsonPerks[key].toObject();
-            if (!util::json::parameterCheck(perk, skillParameters))
-            {
-                std::cout << "found non conforming skill entry: " << key.toStdString() << std::endl;
-                continue;
-            }
-            std::string name = perk[JSON_NAME].toString().toStdString();
-            auto type = getSkillType(perk[JSON_TYPE].toString().toStdString());
-            std::string description = perk[JSON_DESCRIPTION].toString().toStdString();
-            std::vector<std::string> effects;
-            auto jsonEffects = perk[JSON_EFFECTS].toObject();
-            int i = 1;
-            while (jsonEffects.contains(QString::number(i)) &&
-                   jsonEffects[QString::number(i)].isObject())
-            {
-                auto effect = jsonEffects[QString::number(i)].toObject();
-                ++i;
-                if (!effect.contains(JSON_DESCRIPTION))
-                {
-                    std::cout << key.toStdString() << ": effect " << i
-                              << ": doesn't contain a description" << std::endl;
-                    break;
-                }
-                if (effect[JSON_DESCRIPTION].isString())
-                    effects.push_back(effect[JSON_DESCRIPTION].toString().toStdString());
-                else if (effect[JSON_DESCRIPTION].isArray())
-                {
-                    std::vector<std::string> descriptions;
-                    auto arr = effect[JSON_DESCRIPTION].toArray();
-                    for (int i = 0; i < arr.size(); ++i)
-                    {
-                        if (arr[i].isNull())
-                            continue;
-                        if (arr[i].isString())
-                            descriptions.push_back(arr[i].toString().toStdString());
-                        else
-                        {
-                            std::cout << key.toStdString() << ": effect " << i
-                                      << ": unknown description type: " << arr[i].type()
-                                      << std::endl;
-                            break;
-                        }
-                    }
-                    auto description = util::string::vectorJoin(descriptions, ". ");
-                    dict.addEntry(description, description);
-                    effects.push_back(description);
-                }
-                else
-                {
-                    std::cout << key.toStdString() << ": effect " << i
-                              << ": unknown type: " << effect[JSON_DESCRIPTION].type() << std::endl;
-                }
-            }
-            skillInfos.push_back(SkillInfo(name, description, type, effects));
             dict.addEntry(name, name);
             dict.addEntry(description, description);
         }
@@ -500,8 +520,8 @@ bool Gear::Armoury::filterWeapon(const Weapon& weapon, const Options& options) c
         switch (options.weaponElement)
         {
         case Element::Elementless:
-            if (elements_.Fire > 0 || elements_.Ice > 0 || elements_.Shock > 0 || elements_.Terra > 0 ||
-                elements_.Radiant > 0 || elements_.Umbral > 0)
+            if (elements_.Fire > 0 || elements_.Ice > 0 || elements_.Shock > 0 ||
+                elements_.Terra > 0 || elements_.Radiant > 0 || elements_.Umbral > 0)
                 return true;
             break;
         case Element::Fire:

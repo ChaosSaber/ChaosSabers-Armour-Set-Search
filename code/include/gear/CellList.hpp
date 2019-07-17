@@ -16,9 +16,8 @@ class CellList
     CellList(const Cell &cell);
     CellList(const std::vector<Cell> &cells);
 
-    std::string toString(const Dictionary &dict);
-    bool hasEnoughCellsFor(const Skill &skill, int allreadyExistingSkillPoints) const;
-    int getOptimalCellLevel(const Skill &skill, int existingSkillpoints) const;
+    bool hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const;
+    size_t getOptimalCellLevel(const Skill& skill, size_t existingSkillpoints) const;
     void sort();
     /**
      *@return Returns the number of skills in the list
@@ -46,7 +45,8 @@ class CellList
   private:
     std::vector<std::pair<Cell, int>> cells;
 
-    int getHighestCellLevel(std::unordered_map<int, int> levels, int maximumLevel) const;
+    size_t getHighestCellLevel(std::unordered_map<size_t, size_t> levels,
+                               size_t maximumLevel) const;
 };
 } // namespace Gear
 

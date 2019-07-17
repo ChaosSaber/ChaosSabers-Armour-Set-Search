@@ -29,7 +29,7 @@
 MainWindow::~MainWindow()
 {
     saveSearchSettings();
-    options.save();
+    options.save(armoury);
     if (manager)
         delete manager;
     delete searchWatcher;
@@ -72,19 +72,19 @@ MainWindow::MainWindow(QWidget* parent)
     skills[Gear::SkillType::Technique] = armoury.getSkills(Gear::SkillType::Technique);
     skills[Gear::SkillType::Mobility] = armoury.getSkills(Gear::SkillType::Mobility);
     skills[Gear::SkillType::Utility] = armoury.getSkills(Gear::SkillType::Utility);
-    for (auto& filter : skills)
-    {
-        std::sort(filter.second.begin(), filter.second.end(),
-                  [this](const Gear::SkillInfo* lhs, const Gear::SkillInfo* rhs) {
-                      return dict.getTranslationFor(lhs->getName())
-                                 .compare(dict.getTranslationFor(rhs->getName())) < 0;
-                  });
-    }
+    //for (auto& filter : skills)
+    //{
+    //    std::sort(filter.second.begin(), filter.second.end(),
+    //              [this](const Gear::SkillInfo* lhs, const Gear::SkillInfo* rhs) {
+    //                  return dict.getTranslationFor(lhs->getName())
+    //                             .compare(dict.getTranslationFor(rhs->getName())) < 0;
+    //              });
+    //}
 
     for (size_t i = 0; i < NUMBER_OF_SKILLSELECTORS; ++i)
     {
         auto selector = new SkillSelector(
-            dict, skills, dynamic_cast<QGridLayout*>(ui->groupBoxWantedSkills->layout()));
+            dict, skills, dynamic_cast<QGridLayout*>(ui->groupBoxWantedSkills->layout()), armoury);
         skillSelectors.push_back(selector);
     }
 
@@ -269,10 +269,10 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
     Gear::CellList cells;
     for (const auto& skill : ass->getWantedSkills())
     {
-        auto type = armoury.getSkillTypeFor(skill.getName());
+        auto type = armoury.getSkillTypeFor(skill.getId());
         for (int i = 1; i <= 3; ++i)
         {
-            Gear::Cell cell(Gear::Skill(skill.getName(), i), type);
+            Gear::Cell cell(Gear::Skill(skill.getId(), i), type);
             if (options.cellUsage == 0) // bestCells
             {
                 cells += cell * (6 / i);
@@ -384,7 +384,7 @@ void MainWindow::showArmourSets()
             ui->comboBoxFilterFreeCells->addItem(
                 QString::fromStdString(Gear::SkillTypeToStringKey(cell)));
     for (const auto& skill : filter.additionalSkills)
-        ui->comboBoxFilterAdditionalSkills->addItem(QString::fromStdString(skill.toString(dict)));
+        ui->comboBoxFilterAdditionalSkills->addItem(QString::fromStdString(skill.toString(dict, armoury)));
     isCreatingArmourSets = false;
 }
 
@@ -416,7 +416,7 @@ void MainWindow::saveSearch()
     options.lastSearchSaveLocation = info.path();
     try
     {
-        options.saveSearch(fileName);
+        options.saveSearch(armoury, fileName);
     }
     catch (const OptionsIoException& e)
     {

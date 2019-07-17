@@ -5,8 +5,8 @@
 SkillSelector::SkillSelector(
     const Dictionary &dict,
     std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> &skills,
-    QGridLayout *layout)
-    : skills(skills), dict(dict)
+    QGridLayout* layout, const Gear::Armoury& armoury)
+    : skills(skills), dict(dict), armoury(armoury)
 {
     skillType = new QComboBox();
     skillname = new QComboBox();
@@ -50,7 +50,7 @@ void SkillSelector::getSkill(std::vector<Gear::Skill> &skills) const
 {
     if (skillname->currentIndex() == 0 || skillValue->value() == 0)
         return;
-    Gear::Skill skill(getSkillName(), skillValue->value());
+    Gear::Skill skill(armoury.getSkillIdForName(getSkillName()), skillValue->value());
     skills.push_back(skill);
 }
 

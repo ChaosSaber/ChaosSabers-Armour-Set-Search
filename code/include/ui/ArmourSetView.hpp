@@ -52,6 +52,7 @@ class ArmourSetView : public QWidget
     int scrollBarWidth;
     bool constructing = true;
     const Gear::ArmourSet& armourSet;
+    const Gear::Armoury& armoury;
 };
 
 #endif // !DAUNTLESS_ASS_UI_ARMOURSETVIEW_HPP

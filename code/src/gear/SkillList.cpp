@@ -15,16 +15,6 @@ bool Gear::skillSorter(const Skill& lhs, const Skill& rhs)
     return lhs > rhs;
 }
 
-std::string Gear::SkillList::toString(const Dictionary& dict)
-{
-    std::stringstream ss;
-    sort();
-    for (const auto& skill : skills)
-        if (!skill.getName().empty() && skill.getSkillPoints() != 0)
-            ss << skill.toString(dict) << std::endl;
-    return ss.str();
-}
-
 void Gear::SkillList::sort() { std::sort(skills.begin(), skills.end(), skillSorter); }
 
 bool Gear::SkillList::contains(const Skill& skill) const
@@ -36,9 +26,9 @@ bool Gear::SkillList::containsOrHasBetter(const Skill& skill) const
 {
     for (auto& skill_ : skills)
     {
-        if (skill_.getName() == skill.getName())
+        if (skill_.getId() == skill.getId())
         {
-            return skill_.skillPoints >= skill.skillPoints;
+            return skill_.skillPoints_ >= skill.skillPoints_;
         }
     }
     return false;
@@ -71,13 +61,13 @@ const Gear::Skill& Gear::SkillList::operator[](size_t pos) const { return skills
 
 const Gear::SkillList& Gear::SkillList::operator+=(const Skill& skill)
 {
-    if (skill.getName() == "")
+    if (skill.getId() == Skill::NO_SKILL)
         return *this;
     for (auto& skill_ : skills)
     {
-        if (skill_.getName() == skill.getName())
+        if (skill_.getId() == skill.getId())
         {
-            skill_.skillPoints += skill.getSkillPoints();
+            skill_.skillPoints_ += skill.getSkillPoints();
             return *this;
         }
     }

@@ -37,10 +37,22 @@ class Gear
     int Gear::Gear::getLevel() const;
     const std::string& Gear::Gear::getDescription() const;
 
-    bool hasSkill(const std::string& skill) const;
-    // returns the skill points for a specific skill on that gear
-    int getSkillPointsFor(const std::string& skill) const;
-    // returns a list of all skills on the gear
+    /**
+     * check if the Gear has a specific skill
+     * @param skillId The ID of the skill which shall be checked
+     * @return Returns true if the gear has the specified skill, otherwise falls
+     */
+    bool hasSkill(size_t skillId) const;
+    /**
+     * check the skill points for a specific skill without cells
+     * @param skillId The ID of the skill which shall be checked
+     * @return Returns the skill points for the specified skill
+     */
+    size_t getSkillPointsFor(size_t skillId) const;
+    /**
+     * gathers all skills on the gear including the ones gained through cells
+     * @return Returns a list of skills
+     */
     SkillList getSkills() const;
     // returns a list of all unique skills on the gear
     const std::vector<std::string>& getUniqueSkills() const;
@@ -53,7 +65,7 @@ class Gear
      */
     const Elements& getElements() const;
 
-    virtual std::string getToolTip(const Dictionary& dict) const;
+    virtual std::string getToolTip(const Dictionary& dict, const Armoury& armoury) const;
 
   private:
     std::string name_;

@@ -51,16 +51,16 @@ Gear::SkillList Gear::Gear::getSkills() const
     return skills;
 }
 
-bool Gear::Gear::hasSkill(const std::string& skill) const
+bool Gear::Gear::hasSkill(size_t skillId) const
 {
-    if (skill_.getName().empty())
+    if (skill_.getId() == 0)
         return false;
-    return skill_.getName() == skill;
+    return skill_.getId() == skillId;
 }
 
-int Gear::Gear::getSkillPointsFor(const std::string& skill) const
+size_t Gear::Gear::getSkillPointsFor(size_t skillId) const
 {
-    if (!skill_.getName().empty() && skill_.getName() == skill)
+    if (skill_.getId()>0 && skill_.getId() == skillId)
         return skill_.getSkillPoints();
     return 0;
 }
@@ -72,12 +72,12 @@ std::string Gear::Gear::getGearInfo(const Dictionary& dict) const
 
 const Gear::Elements& Gear::Gear::getElements() const { return elements_; }
 
-std::string Gear::Gear::getToolTip(const Dictionary& dict) const
+std::string Gear::Gear::getToolTip(const Dictionary& dict, const Armoury& armoury) const
 {
     std::stringstream ss;
     ss << description_ << std::endl;
     if (skill_.getSkillPoints() > 0)
-        ss << skill_.toString(dict) << std::endl;
+        ss << skill_.toString(dict, armoury) << std::endl;
     for (const auto& skill : uniqueSkills_)
         ss << skill << std::endl;
     for (auto& cell : cells_)

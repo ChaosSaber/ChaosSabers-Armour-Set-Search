@@ -3,28 +3,35 @@
 
 #include "Dictionary.hpp"
 #include <functional>
-#include <string>
 
 namespace Gear
 {
+class Armoury;
 class Skill
 {
   public:
     Skill();
-    Skill(std::string name, int skillPoints);
+    Skill(size_t id, size_t skillPoints);
 
-    const std::string& getName() const;
-    int getSkillPoints() const;
-    std::string toString(const Dictionary& dict) const;
+    size_t getId() const;
+    size_t getSkillPoints() const;
+    /**
+     * transforms the skill to an human readable string
+     * @param dict A dictionary with all necessary translations
+     * @param armoury The armoury with all the necessary skill data
+     * @return Returns a human readable string
+     */
+    std::string toString(const Dictionary& dict, const Armoury& armoury) const;
     friend class SkillList;
 
     bool operator==(const Skill& other) const;
     bool operator<(const Skill& other) const;
     bool operator>(const Skill& other) const;
 
+    static constexpr size_t NO_SKILL = 0;
   private:
-    std::string name;
-    int skillPoints;
+    size_t id_;
+    size_t skillPoints_;
 };
 } // namespace Gear
 
@@ -37,13 +44,12 @@ template <> struct hash<Gear::Skill>
     {
         using std::hash;
         using std::size_t;
-        using std::string;
 
         // Compute individual hash values for first,
         // second and third and combine them using XOR
         // and bit shifting:
 
-        return hash<string>()(skill.getName()) ^ (hash<int>()(skill.getSkillPoints()) << 1);
+        return hash<size_t>()(skill.getId()) ^ (hash<size_t>()(skill.getSkillPoints()) << 1);
     }
 };
 

@@ -80,10 +80,9 @@ void Options::loadConfiguration(const Gear::Armoury& armoury, const QString& fil
             if (!(object.contains(NAME) && object[NAME].isString() && object.contains(LEVEL) &&
                   object[LEVEL].isDouble() && object.contains(COUNT) && object[COUNT].isDouble()))
                 continue;
-            cells[Gear::Cell(
-                Gear::Skill(object[NAME].toString().toStdString(), object[LEVEL].toInt()),
-                armoury.getSkillTypeFor(object[NAME].toString().toStdString()))] =
-                object[COUNT].toInt();
+            auto skillId = armoury.getSkillIdForName(object[NAME].toString().toStdString());
+            cells[Gear::Cell(Gear::Skill(skillId, object[LEVEL].toInt()),
+                             armoury.getSkillTypeFor(skillId))] = object[COUNT].toInt();
         }
     }
     // moved to other file in version 2
@@ -145,7 +144,7 @@ void Options::saveConfiguration(const QString& fileName)
     config.write(jsonDoc.toJson());
 }
 
-QJsonArray Options::cellListToJson(const Gear::CellList& cells)
+QJsonArray Options::cellListToJson(const Gear::CellList& cells, const Gear::Armoury& armoury)
 {
     QJsonArray jsonCells;
     for (auto& cell : cells)
@@ -153,7 +152,7 @@ QJsonArray Options::cellListToJson(const Gear::CellList& cells)
         if (cell.first.isEmpty())
             continue;
         for (size_t count = 0; count < cell.second; ++count)
-            jsonCells.push_back(cellToJson(cell.first));
+            jsonCells.push_back(cellToJson(cell.first, armoury));
     }
     return jsonCells;
 }
@@ -176,33 +175,33 @@ Gear::Cell Options::jsonToCell(const QJsonObject& json, const Gear::Armoury& arm
     if (!(json.contains(NAME) && json[NAME].isString() && json.contains(LEVEL) &&
           json[LEVEL].isDouble()))
         throw std::exception();
-    auto name = json[NAME].toString().toStdString();
-    return Gear::Cell(Gear::Skill(name, json[LEVEL].toInt()), armoury.getSkillTypeFor(name));
+    auto skillId = armoury.getSkillIdForName(json[NAME].toString().toStdString());
+    return Gear::Cell(Gear::Skill(skillId, json[LEVEL].toInt()), armoury.getSkillTypeFor(skillId));
 }
 
-QJsonObject Options::cellToJson(const Gear::Cell& cell)
+QJsonObject Options::cellToJson(const Gear::Cell& cell, const Gear::Armoury& armoury)
 {
     QJsonObject jsonCell;
-    jsonCell[NAME] = QString::fromStdString(cell.getSkillName());
-    jsonCell[LEVEL] = cell.getSkill().getSkillPoints();
+    jsonCell[NAME] = QString::fromStdString(armoury.getSkillInfo(cell.getSkillId()).getName());
+    jsonCell[LEVEL] = (int)cell.getSkill().getSkillPoints();
     return jsonCell;
 }
 
-void Options::save()
+void Options::save(const Gear::Armoury& armoury)
 {
     try
     {
         saveConfiguration();
-        saveSearch();
-        saveCells(); // TODO: move cells to different window apart from advanced search and then
-                     // only there saving allowed
+        saveSearch(armoury);
+        saveCells(armoury); // TODO: move cells to different window apart from advanced search and
+                            // then only there saving allowed
     }
     catch (OptionsIoException)
     {
     }
 }
 
-void Options::saveCells(const QString& fileName)
+void Options::saveCells(const Gear::Armoury& armoury, const QString& fileName)
 {
     QFile myCells(fileName);
 
@@ -222,7 +221,7 @@ void Options::saveCells(const QString& fileName)
 
         QJsonObject jsonCell;
         jsonCell[COUNT] = cell.second;
-        jsonCell[CELL] = cellToJson(cell.first);
+        jsonCell[CELL] = cellToJson(cell.first, armoury);
         cells.push_back(jsonCell);
     }
     json[CELLS] = cells;
@@ -287,7 +286,7 @@ void Options::loadCells(const Gear::Armoury& armoury, const Dictionary& dict,
     }
 }
 
-void Options::saveSearch(const QString& fileName)
+void Options::saveSearch(const Gear::Armoury& armoury, const QString& fileName)
 {
     QFile search(fileName);
 
@@ -329,7 +328,7 @@ void Options::saveSearch(const QString& fileName)
         jsonSet[TORSO] = gearToJson(set.getTorso());
         jsonSet[ARMS] = gearToJson(set.getArms());
         jsonSet[LEGS] = gearToJson(set.getLegs());
-        jsonSet[CELLS] = cellListToJson(set.getCellList());
+        jsonSet[CELLS] = cellListToJson(set.getCellList(), armoury);
         sets.push_back(jsonSet);
     }
     json[SETS] = sets;
@@ -440,7 +439,7 @@ void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
                 Gear::ArmourSet set(std::move(head), std::move(torso), std::move(arms),
                                     std::move(legs), std::move(weapon));
                 for (auto& cell : jsonToCellList(json[CELLS].toArray(), armoury))
-                    for (size_t count = 0; count < cell.second;++count)
+                    for (size_t count = 0; count < cell.second; ++count)
                         if (!set.addCell(cell.first))
                         {
                             std::cout << "cells do not fit into armour set" << std::endl;

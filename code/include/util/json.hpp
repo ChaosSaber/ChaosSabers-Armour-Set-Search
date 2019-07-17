@@ -6,6 +6,7 @@
 #include <QJsonValue>
 #include <QJsonValueRef>
 #include <QString>
+#include <unordered_map>
 #include <vector>
 
 #define JSON_NAME "name"
@@ -34,7 +35,8 @@ struct JsonParameter
 
 bool parameterCheck(const QJsonObject& json, const std::vector<JsonParameter>& params);
 
-Gear::Skill jsonToSkill(const QJsonObject& json);
+Gear::Skill jsonToSkill(const QJsonObject& json,
+                        std::unordered_map<std::string, size_t>& mapSkillNameToId);
 std::string jsonToUniqueSkill(const QJsonValueRef& json, Dictionary& dict);
 int getMaxValue(const QJsonObject& json);
 int getValueForLevel(const QJsonObject& json, const std::string& level);
@@ -52,8 +54,10 @@ const std::vector<util::json::JsonParameter> uniqueEffectsParameters = {
 
 #pragma endregion
 
-Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to);
-std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict, int level);
+Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to,
+                           std::unordered_map<std::string, size_t>& mapSkillNameToId);
+std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict,
+                                                 int level);
 
 } // namespace json
 } // namespace util

@@ -6,21 +6,21 @@ Gear::Cell::Cell(SkillType type) : empty(true), type(type), skill() {}
 
 Gear::Cell::Cell(Skill skill, SkillType type) : skill(std::move(skill)), empty(false), type(type) {}
 
-int Gear::Cell::getSkillPointsFor(const std::string &skillName) const
+size_t Gear::Cell::getSkillPointsFor(size_t skillId) const
 {
-    if (skill.getName() == skillName)
+    if (skill.getId() == skillId)
         return skill.getSkillPoints();
     else
         return 0;
 }
 
-bool Gear::Cell::isEmpty() const { return empty; }
+size_t Gear::Cell::getSkillId() const { return skill.getId(); }
 
-const std::string &Gear::Cell::getSkillName() const { return skill.getName(); }
+bool Gear::Cell::isEmpty() const { return empty; }
 
 const Gear::Skill &Gear::Cell::getSkill() const { return skill; }
 
-std::string Gear::Cell::getCellInfo(const Dictionary &dict) const
+std::string Gear::Cell::getCellInfo(const Dictionary &dict, const Armoury& armoury) const
 {
     if (empty)
     {
@@ -28,7 +28,7 @@ std::string Gear::Cell::getCellInfo(const Dictionary &dict) const
     }
     else
     {
-        return skill.toString(dict);
+        return skill.toString(dict, armoury);
     }
 }
 

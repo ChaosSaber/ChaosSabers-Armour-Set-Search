@@ -19,7 +19,7 @@ bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int
         if (lhs.second > rhs.second)
             return true;
         else if (lhs.second == rhs.second)
-            return lhs.first.getSkillName() > rhs.first.getSkillName();
+            return lhs.first.getSkillId() > rhs.first.getSkillId();
         else
             return false;
     }
@@ -27,33 +27,22 @@ bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int
         return false;
 }
 
-std::string Gear::CellList::toString(const Dictionary& dict)
+bool Gear::CellList::hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const
 {
-    std::stringstream ss;
-    sort();
+    if (allreadyExistingSkillPoints > skill.getSkillPoints())
+        return true;
+    size_t sum = 0;
     for (const auto& cell : cells)
-    {
-        if (cell.second <= 0)
-            continue;
-        ss << cell.second << "x " << cell.first.getCellInfo(dict) << std::endl;
-    }
-    return ss.str();
-}
-
-bool Gear::CellList::hasEnoughCellsFor(const Skill& skill, int allreadyExistingSkillPoints) const
-{
-    int sum = 0;
-    for (const auto& cell : cells)
-        if (cell.first.getSkillName() == skill.getName())
+        if (cell.first.getSkillId() == skill.getId())
             sum += cell.second * cell.first.getSkill().getSkillPoints();
     return sum > skill.getSkillPoints() - allreadyExistingSkillPoints;
 }
 
-int Gear::CellList::getOptimalCellLevel(const Skill& skill, int existingSkillpoints) const
+size_t Gear::CellList::getOptimalCellLevel(const Skill& skill, size_t existingSkillpoints) const
 {
-    std::unordered_map<int, int> levels;
+    std::unordered_map<size_t, size_t> levels;
     for (const auto& cell : cells)
-        if (cell.first.getSkillName() == skill.getName())
+        if (cell.first.getSkillId() == skill.getId())
             levels[cell.first.getSkill().getSkillPoints()] = cell.second;
     switch (skill.getSkillPoints() - existingSkillpoints)
     {
@@ -86,9 +75,9 @@ int Gear::CellList::getOptimalCellLevel(const Skill& skill, int existingSkillpoi
     }
 }
 
-int Gear::CellList::getHighestCellLevel(std::unordered_map<int, int> levels, int maximumLevel) const
+size_t Gear::CellList::getHighestCellLevel(std::unordered_map<size_t, size_t> levels, size_t maximumLevel) const
 {
-    int highest = 0;
+    size_t highest = 0;
     for (const auto& level : levels)
         if (level.first <= maximumLevel && level.second > 0 && level.first > highest)
             highest = level.first;
