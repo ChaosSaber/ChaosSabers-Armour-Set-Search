@@ -1,3 +1,12 @@
+Version 0.12.1: 17.07.2019:
+- update for OB 0.9.0
+- moved search statistic into the status bar
+- index the perks to increase the search speed by another 30% (210% total to pre 0.12)
+
+Version 0.12.0: 14:07:2019:
+- armour sets are now search in parallel threads which increase the search speed by around 140%
+- added search statistic to the bottom of the screen
+
 Version 0.11.3: 23.06.2019:
 - added new search option for specific weapon elements
 - increase number of searchable skills
