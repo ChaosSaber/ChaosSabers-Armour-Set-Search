@@ -385,6 +385,8 @@ std::vector<std::string> Gear::ArmourSet::getUniqueSkills() const
     std::vector<std::string> uniqueSkills;
     for (auto gear : this->gear)
     {
+        if (!gear->hasUniqueSkill())
+            continue;
         auto unique = gear->getUniqueSkills();
         uniqueSkills.insert(uniqueSkills.end(), unique.begin(), unique.end());
     }

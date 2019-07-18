@@ -17,9 +17,9 @@ enum ArmourType { Head, Torso, Legs, Arms };
 class Armour : public Gear
 {
   public:
-    Armour(ArmourType type, const std::string& name, const std::string& description, int level,
-           const Elements& elementalResistance, const std::vector<std::string>& uniqueSkills,
-           SkillType cellType, const Skill& skills = Skill());
+    Armour(ArmourType type, std::shared_ptr<GearInfo>& info, int level,
+           std::shared_ptr<std::vector<std::string>>& uniqueSkills, SkillType cellType,
+           const Skill& skills = Skill());
 
   private:
     ArmourType type;

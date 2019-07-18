@@ -56,8 +56,8 @@ const std::vector<util::json::JsonParameter> uniqueEffectsParameters = {
 
 Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to,
                            std::unordered_map<std::string, size_t>& mapSkillNameToId);
-std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict,
-                                                 int level);
+std::shared_ptr<std::vector<std::string>> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef,
+                                                                  Dictionary& dict, int level);
 
 } // namespace json
 } // namespace util

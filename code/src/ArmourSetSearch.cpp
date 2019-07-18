@@ -1,12 +1,11 @@
 #include "ArmourSetSearch.hpp"
-#include <sstream>
 #include <iostream>
+#include <sstream>
 #include <thread>
 
 ArmourSetSearch::ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
                                  std::vector<Gear::Skill> skills, const Options& options,
-                                 ProgressCallBack progress,
-                                 Gear::CellList availableCells)
+                                 ProgressCallBack progress, Gear::CellList availableCells)
     : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
                       armoury.getArmourWithSkill(skills, Gear::Head, options),
                       armoury.getArmourWithSkill(skills, Gear::Torso, options),
@@ -23,29 +22,34 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
                                  Gear::CellList availableCells)
     : weapons(std::move(weapons)), heads(std::move(heads)), torsos(std::move(torsos)),
       arms(std::move(arms)), legs(std::move(legs)), wantedSkills(std::move(wantedSkills)),
-      progress(progress),
-      availableCells(std::move(availableCells))
+      progress(progress), availableCells(std::move(availableCells))
 {
     if (heads.empty())
-        heads.push_back(Gear::Armour(Gear::ArmourType::Head, "any_hat", "any_hat", 0,
-                                     Gear::Elements(), std::vector<std::string>(),
-                                     Gear::SkillType::None));
+        heads.push_back(
+            Gear::Armour(Gear::ArmourType::Head,
+                         std::make_shared<Gear::GearInfo>("any_hat", "any_hat", Gear::Elements()),
+                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
     if (torsos.empty())
-        torsos.push_back(Gear::Armour(Gear::ArmourType::Torso, "any_torso", "any_torso", 0,
-                                      Gear::Elements(), std::vector<std::string>(),
-                                      Gear::SkillType::None));
+        torsos.push_back(Gear::Armour(
+            Gear::ArmourType::Torso,
+            std::make_shared<Gear::GearInfo>("any_torso", "any_torso", Gear::Elements()), 0,
+            std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
     if (arms.empty())
-        arms.push_back(Gear::Armour(Gear::ArmourType::Arms, "any_arms", "any_arms", 0,
-                                    Gear::Elements(), std::vector<std::string>(),
-                                    Gear::SkillType::None));
+        arms.push_back(
+            Gear::Armour(Gear::ArmourType::Arms,
+                         std::make_shared<Gear::GearInfo>("any_arms", "any_arms", Gear::Elements()),
+                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
     if (legs.empty())
-        legs.push_back(Gear::Armour(Gear::ArmourType::Legs, "any_legs", "any_legs", 0,
-                                    Gear::Elements(), std::vector<std::string>(),
-                                    Gear::SkillType::None));
+        legs.push_back(
+            Gear::Armour(Gear::ArmourType::Legs,
+                         std::make_shared<Gear::GearInfo>("any_legs", "any_legs", Gear::Elements()),
+                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
     if (weapons.empty())
-        weapons.push_back(Gear::Weapon(Gear::WeaponType::Sword, "any_hat", "any_hat", 0,
-                                       Gear::Elements(), std::vector<std::string>(),
-                                       Gear::SkillType::None, Gear::SkillType::None));
+        weapons.push_back(
+            Gear::Weapon(Gear::WeaponType::Sword,
+                         std::make_shared<Gear::GearInfo>("any_hat", "any_hat", Gear::Elements()),
+                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None,
+                         Gear::SkillType::None));
 }
 
 void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
@@ -70,16 +74,17 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     threads.reserve(concurentThreadsSupported);
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
-        threads.emplace_back([this, cancel,&armoury, concurentThreadsSupported]() {
+        threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported]() {
             // This is more or less an arbitrary value.
-            // it was waiting too long on the mutex when it got one set at a time. so i increased the amount it got at once
-            // 200 felt right. For a better value a proper Benchmark is necesary
+            // it was waiting too long on the mutex when it got one set at a time. so i increased
+            // the amount it got at once 200 felt right. For a better value a proper Benchmark is
+            // necesary
             constexpr size_t setCount = 200;
             std::vector<Gear::ArmourSet> sets;
             sets.reserve(setCount);
             while (!(*cancel) && getNextArmourSets(setCount, sets))
             {
-                for (auto&& set:sets)
+                for (auto&& set : sets)
                     checkSet(std::move(set), armoury);
             }
         });

@@ -10,15 +10,28 @@
 
 namespace Gear
 {
+// contains all Information about a Gear
+class GearInfo
+{
+  public:
+    GearInfo(const std::string& name, const std::string& description, const Elements& elements);
+    GearInfo(std::string&& name, std::string&& description, Elements&& elements);
+    GearInfo(const GearInfo& other) = delete;
+    GearInfo(GearInfo&& other) = delete;
+    const GearInfo& operator=(const GearInfo& other) = delete;
+    const GearInfo& operator=(GearInfo&& other) = delete;
+    std::string name_;
+    std::string description_;
+    Elements elements_;
+};
+
 class Gear
 {
   public:
-    Gear(const std::string& name, const std::string& description, int level, const Skill& skill,
-         const std::vector<std::string>& uniqueSkills, const std::vector<Cell>& cells,
-         const Elements& elements);
-    Gear(std::string&& name, std::string&& description, int level, Skill&& skill,
-         std::vector<std::string>&& uniqueSkills, std::vector<Cell>&& cells,
-         const Elements&& elements);
+    Gear(std::shared_ptr<GearInfo>& info, int level, const Skill& skill,
+         std::shared_ptr<std::vector<std::string>>& uniqueSkills, const std::vector<Cell>& cells);
+    Gear(std::shared_ptr<GearInfo>&& info, int level, Skill&& skill,
+         std::shared_ptr<std::vector<std::string>>&& uniqueSkills, std::vector<Cell>&& cells);
 
     Gear(const Gear& other) = default;
     Gear(Gear&& other) = default;
@@ -68,13 +81,11 @@ class Gear
     virtual std::string getToolTip(const Dictionary& dict, const Armoury& armoury) const;
 
   private:
-    std::string name_;
-    std::string description_;
+    std::shared_ptr<GearInfo> info_;
     int level_;
     Skill skill_;
-    std::vector<std::string> uniqueSkills_;
+    std::shared_ptr<std::vector<std::string>> uniqueSkills_;
     std::vector<Cell> cells_;
-    Elements elements_;
 };
 } // namespace Gear
 

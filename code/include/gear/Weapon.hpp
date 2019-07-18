@@ -16,9 +16,9 @@ enum WeaponType { Sword, Hammer, Chainblades, Axe, Pike, Reapeater };
 class Weapon : public Gear
 {
   public:
-    Weapon(WeaponType type, const std::string& name, const std::string& description, int level,
-           const Elements& elementalDamage, const std::vector<std::string>& uniqueSkills,
-           SkillType cellType1, SkillType cellType2, const Skill& skill = Skill());
+    Weapon(WeaponType type, std::shared_ptr<GearInfo>& info, int level,
+           std::shared_ptr<std::vector<std::string>>& uniqueSkills, SkillType cellType1,
+           SkillType cellType2, const Skill& skill = Skill());
 
     /**
      * @return Returns the type of the weapon.

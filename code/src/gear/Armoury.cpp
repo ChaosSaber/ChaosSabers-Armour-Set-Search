@@ -250,8 +250,7 @@ void Gear::Armoury::load(const std::string& fileName)
         }
     }
     // sort perks alphabetically
-    std::sort(
-        skillInfos.begin() + 1, skillInfos.end(),
+    std::sort(skillInfos.begin() + 1, skillInfos.end(),
               [this](const SkillInfo& lhs, const SkillInfo& rhs) {
                   return dict.getTranslationFor(lhs.getName())
                              .compare(dict.getTranslationFor(rhs.getName())) < 0;
@@ -294,7 +293,8 @@ void Gear::Armoury::load(const std::string& fileName)
             auto resistances = armour[JSON_RESISTANCE].toObject();
 
             Skill normalSkills, maelstromSkills, heroicSkills;
-            std::vector<std::string> uniqueSkills, uniqueSkillsMaelstrom, uniqueSkillsHeroic;
+            std::shared_ptr<std::vector<std::string>> uniqueSkills, uniqueSkillsMaelstrom,
+                uniqueSkillsHeroic;
 
             if (armour.contains(JSON_PERKS))
             {
@@ -314,13 +314,10 @@ void Gear::Armoury::load(const std::string& fileName)
                 uniqueSkillsHeroic =
                     util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict, 15);
             }
-
-            armours[type].emplace_back(type, name, description, 5, elementalResistance,
-                                       uniqueSkills, cell, normalSkills);
-            armours[type].emplace_back(type, name, description, 9, elementalResistance,
-                                       uniqueSkillsMaelstrom, cell, maelstromSkills);
-            armours[type].emplace_back(type, name, description, 15, elementalResistance,
-                                       uniqueSkillsHeroic, cell, heroicSkills);
+            auto info = std::make_shared<GearInfo>(name, description, elementalResistance);
+            armours[type].emplace_back(type, info, 5, uniqueSkills, cell, normalSkills);
+            armours[type].emplace_back(type, info, 9, uniqueSkillsMaelstrom, cell, maelstromSkills);
+            armours[type].emplace_back(type, info, 15, uniqueSkillsHeroic, cell, heroicSkills);
 
             dict.addEntry(name, name);
             dict.addEntry(description, description);
@@ -387,7 +384,8 @@ void Gear::Armoury::load(const std::string& fileName)
             }
 
             Skill normalSkills, maelstromSkills, heroicSkills;
-            std::vector<std::string> uniqueSkills, uniqueSkillsMaelstrom, uniqueSkillsHeroic;
+            std::shared_ptr<std::vector<std::string>> uniqueSkills, uniqueSkillsMaelstrom,
+                uniqueSkillsHeroic;
 
             if (weapon.contains(JSON_PERKS))
             {
@@ -408,12 +406,12 @@ void Gear::Armoury::load(const std::string& fileName)
                     util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict, 15);
             }
 
-            weapons[type].emplace_back(type, name, description, 5, elementalDamage, uniqueSkills,
-                                       cell1, cell2, normalSkills);
-            weapons[type].emplace_back(type, name, description, 9, elementalDamage,
-                                       uniqueSkillsMaelstrom, cell1, cell2, maelstromSkills);
-            weapons[type].emplace_back(type, name, description, 15, elementalDamage,
-                                       uniqueSkillsHeroic, cell1, cell2, heroicSkills);
+            auto info = std::make_shared<GearInfo>(name, description, elementalDamage);
+            weapons[type].emplace_back(type, info, 5, uniqueSkills, cell1, cell2, normalSkills);
+            weapons[type].emplace_back(type, info, 9, uniqueSkillsMaelstrom, cell1, cell2,
+                                       maelstromSkills);
+            weapons[type].emplace_back(type, info, 15, uniqueSkillsHeroic, cell1, cell2,
+                                       heroicSkills);
 
             dict.addEntry(name, name);
             dict.addEntry(description, description);

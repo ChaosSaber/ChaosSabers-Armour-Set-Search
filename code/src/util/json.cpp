@@ -124,15 +124,15 @@ Gear::Skill getSkillFromTo(const QJsonValueRef& jsonRef, int from, int to,
     return jsonToSkill(getJsonObjectFromTo(jsonRef, from, to), mapSkillNameToId);
 }
 
-std::vector<std::string> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef, Dictionary& dict,
-                                                 int level)
+std::shared_ptr<std::vector<std::string>> getUniqueSkillsFromJson(const QJsonValueRef& jsonRef,
+                                                                  Dictionary& dict, int level)
 {
     if (!jsonRef.isArray())
         throw std::logic_error("Unique Skills list is not an array");
-    std::vector<std::string> skills;
+    auto skills = std::make_shared<std::vector<std::string>>();
     for (const auto& object : getJsonObjectListForLevel(jsonRef, level))
-        skills.push_back(jsonToUniqueSkill(object, dict));
-    if (skills.empty())
+        skills->push_back(jsonToUniqueSkill(object, dict));
+    if (skills->empty())
         throw std::logic_error("No unique skills found");
     return skills;
 }
