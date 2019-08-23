@@ -1,4 +1,5 @@
 #include "ArmourSetSearch.hpp"
+#include "util/GreyCodeGenerator.hpp"
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -45,11 +46,11 @@ ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<
                          std::make_shared<Gear::GearInfo>("any_legs", "any_legs", Gear::Elements()),
                          0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
     if (weapons.empty())
-        weapons.push_back(
-            Gear::Weapon(Gear::WeaponType::Sword,
-                         std::make_shared<Gear::GearInfo>("any_hat", "any_hat", Gear::Elements()),
-                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None,
-                         Gear::SkillType::None));
+        weapons.push_back(Gear::Weapon(
+            Gear::WeaponType::Sword,
+            std::make_shared<Gear::GearInfo>("any_weapon", "any_weapon", Gear::Elements()), 0,
+            std::make_shared<std::vector<std::string>>(), Gear::SkillType::None,
+            Gear::SkillType::None));
 }
 
 void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
@@ -72,21 +73,37 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     progress(stats);
     std::vector<std::thread> threads;
     threads.reserve(concurentThreadsSupported);
+    std::mutex mtx;
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
-        threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported]() {
-            // This is more or less an arbitrary value.
-            // it was waiting too long on the mutex when it got one set at a time. so i increased
-            // the amount it got at once 200 felt right. For a better value a proper Benchmark is
-            // necesary
-            constexpr size_t setCount = 200;
-            std::vector<Gear::ArmourSet> sets;
-            sets.reserve(setCount);
-            while (!(*cancel) && getNextArmourSets(setCount, sets))
+        threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported, i, &mtx]() {
+            auto start = stats.possibleCombinations * i / concurentThreadsSupported;
+            auto stop = stats.possibleCombinations * (i + 1) / concurentThreadsSupported - 1;
+            util::GreyCodeGenerator gen({heads.size() - 1, torsos.size() - 1, arms.size() - 1,
+                                         legs.size() - 1, weapons.size() - 1},
+                                        start);
+            do
             {
-                for (auto&& set : sets)
-                    checkSet(std::move(set), armoury);
-            }
+                const auto& indexes = gen.currentGreyCode();
+                checkSet(Gear::ArmourSet(heads[indexes[0]], torsos[indexes[1]], arms[indexes[2]],
+                                         legs[indexes[3]], weapons[indexes[4]]),
+                         armoury);
+
+                ++stats.searchedCombinations;
+                {
+                    std::lock_guard lock(mtx);
+                    int currentProgress =
+                        100 * stats.searchedCombinations / stats.possibleCombinations;
+                    if (currentProgress != stats.progress)
+                    {
+                        stats.progress = currentProgress;
+                        stats.end = std::chrono::high_resolution_clock::now();
+                        progress(stats);
+                    }
+                }
+
+                ++start;
+            } while (gen.generateNext() && *cancel != true && start <= stop);
         });
     }
     for (auto& thread : threads)
@@ -112,6 +129,8 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury
         while (existingSkillPoints < skill.getSkillPoints())
         {
             auto bestCellLevel = cells.getOptimalCellLevel(skill, existingSkillPoints);
+            if (bestCellLevel == 0) // no cell available
+                return;
             Gear::Cell cell(Gear::Skill(skill.getId(), bestCellLevel), type);
             if (!set.addCell(cell))
                 return;
