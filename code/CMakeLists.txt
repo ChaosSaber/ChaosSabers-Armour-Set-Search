@@ -30,6 +30,7 @@ SET(SRCS
 	src/util/files.cpp
 	src/gear/Gear.cpp
 	# src/FileDownloader.cpp
+	src/util/GreyCodeGenerator.cpp
 )
 
 SET(HDRS
@@ -60,6 +61,7 @@ SET(HDRS
 	include/util/json.hpp
 	include/util/files.hpp
 	# include/FileDownloader.hpp
+	include/util/GreyCodeGenerator.hpp
 )
 
 SET(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_LIST_DIR}/ui/)
