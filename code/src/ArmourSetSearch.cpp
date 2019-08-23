@@ -71,23 +71,61 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     stats.start = std::chrono::high_resolution_clock::now();
     stats.end = std::chrono::high_resolution_clock::now();
     progress(stats);
+    std::mutex mtx;
     std::vector<std::thread> threads;
     threads.reserve(concurentThreadsSupported);
-    std::mutex mtx;
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
         threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported, i, &mtx]() {
+    //size_t i = 0;
+    //concurentThreadsSupported = 1;
             auto start = stats.possibleCombinations * i / concurentThreadsSupported;
             auto stop = stats.possibleCombinations * (i + 1) / concurentThreadsSupported - 1;
             util::GreyCodeGenerator gen({heads.size() - 1, torsos.size() - 1, arms.size() - 1,
                                          legs.size() - 1, weapons.size() - 1},
                                         start);
-            do
+            std::vector<size_t> last = gen.currentGreyCode();
+            Gear::ArmourSet set(heads[last[0]], torsos[last[1]], arms[last[2]], legs[last[3]],
+                                weapons[last[4]]);
+            checkSet(set, armoury);
+            //std::cout << set.exportToText3(Dictionary(), armoury) << std::endl;
+            while (gen.generateNext() && *cancel != true && start < stop)
             {
-                const auto& indexes = gen.currentGreyCode();
-                checkSet(Gear::ArmourSet(heads[indexes[0]], torsos[indexes[1]], arms[indexes[2]],
-                                         legs[indexes[3]], weapons[indexes[4]]),
-                         armoury);
+                ++start;
+                const auto& current = gen.currentGreyCode();
+                if (current[0] != last[0])
+                {
+                    set.setHead(heads[current[0]]);
+                    for (auto& skill : set.getHead().getInnateSkills())
+                        set.removeCells(skill);
+                }
+                else if (current[1] != last[1])
+                {
+                    set.setTorso(torsos[current[1]]);
+                    for (auto& skill : set.getTorso().getInnateSkills())
+                        set.removeCells(skill);
+                }
+                else if (current[2] != last[2])
+                {
+                    set.setArms(arms[current[2]]);
+                    for (auto& skill : set.getArms().getInnateSkills())
+                        set.removeCells(skill);
+                }
+                else if (current[3] != last[3])
+                {
+                    set.setLegs(legs[current[3]]);
+                    for (auto& skill : set.getLegs().getInnateSkills())
+                        set.removeCells(skill);
+                }
+                else if (current[4] != last[4])
+                {
+                    set.setWeapon(weapons[current[4]]);
+                    for (auto& skill : set.getWeapon().getInnateSkills())
+                        set.removeCells(skill);
+                }
+                checkSet(set, armoury);
+                //std::cout << set.exportToText3(Dictionary(), armoury) << std::endl;
+                last = current;
 
                 ++stats.searchedCombinations;
                 {
@@ -101,9 +139,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
                         progress(stats);
                     }
                 }
-
-                ++start;
-            } while (gen.generateNext() && *cancel != true && start <= stop);
+            }
         });
     }
     for (auto& thread : threads)
@@ -117,7 +153,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     return;
 }
 
-void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury)
+void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury)
 {
     Gear::CellList cells = availableCells;
     for (const auto& skill : wantedSkills)
@@ -139,58 +175,13 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury
         }
     }
     ++stats.foundSets;
-    addArmourSet(std::move(set));
+    addArmourSet(set);
 }
 
-void ArmourSetSearch::addArmourSet(Gear::ArmourSet&& set)
+void ArmourSetSearch::addArmourSet(const Gear::ArmourSet& set)
 {
     std::lock_guard lock(addMutex);
     armourSets.push_back(set);
-}
-
-bool ArmourSetSearch::getNextArmourSets(size_t count, std::vector<Gear::ArmourSet>& sets)
-{
-    sets.clear();
-    std::lock_guard lock(getArmourSetMutex);
-    for (size_t i = 0; i < count; ++i)
-    {
-        if (indexHead >= heads.size())
-            break;
-        sets.emplace_back(heads[indexHead], torsos[indexTorso], arms[indexArm], legs[indexLeg],
-                          weapons[indexWeapon]);
-        ++indexWeapon;
-        if (indexWeapon >= weapons.size())
-        {
-            indexWeapon = 0;
-            ++indexLeg;
-            if (indexLeg >= legs.size())
-            {
-                indexLeg = 0;
-                ++indexArm;
-                if (indexArm >= arms.size())
-                {
-                    indexArm = 0;
-                    ++indexTorso;
-                    if (indexTorso >= torsos.size())
-                    {
-                        indexTorso = 0;
-                        ++indexHead;
-                    }
-                }
-            }
-        }
-    }
-    if (sets.size() == 0)
-        return false;
-    stats.searchedCombinations += sets.size();
-    int currentProgress = 100 * stats.searchedCombinations / stats.possibleCombinations;
-    if (currentProgress != stats.progress)
-    {
-        stats.progress = currentProgress;
-        stats.end = std::chrono::high_resolution_clock::now();
-        progress(stats);
-    }
-    return true;
 }
 
 void ArmourSetSearch::reset() { indexWeapon = indexHead = indexTorso = indexArm = indexLeg = 0; }

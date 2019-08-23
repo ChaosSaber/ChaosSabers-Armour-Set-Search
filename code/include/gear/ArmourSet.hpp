@@ -37,6 +37,13 @@ class ArmourSet
     virtual bool hasUniqueSkill() const;
     std::vector<std::string> getUniqueSkills() const;
 
+    void setHead(const Armour& head);
+    void setTorso(const Armour& torso);
+    void setArms(const Armour& arms);
+    void setLegs(const Armour& legs);
+    void setWeapon(const Weapon& weapon);
+    void removeCells(const Skill& skill);
+
     const Armour& getHead() const;
     const Armour& getTorso() const;
     const Armour& getArms() const;
@@ -59,10 +66,10 @@ class ArmourSet
   private:
     void init();
 
-    Armour head, torso, legs, arms;
-    Weapon weapon;
-    std::vector<Gear*> gear;
-    Cell lantern;
+    Armour head_, torso_, legs_, arms_;
+    Weapon weapon_;
+    std::vector<Gear*> gear_;
+    Cell lantern_;
 };
 } // namespace Gear
 

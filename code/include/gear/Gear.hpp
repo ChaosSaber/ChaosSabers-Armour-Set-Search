@@ -35,7 +35,7 @@ class Gear
 
     Gear(const Gear& other) = default;
     Gear(Gear&& other) = default;
-    const Gear& operator=(const Gear& other) = delete;
+    const Gear& operator=(const Gear& other);
     const Gear& operator=(Gear&& other);
 
     // checks if the gear has free cell slots for a specific skill
@@ -43,6 +43,13 @@ class Gear
     // adds a new Cell to the gear
     // returns if the cell could be inserted
     bool addCell(const Cell& cell);
+
+    /**
+     * removes all cells from the specified type
+     * @param skill The cell(s) with this skill shall be removed
+     */
+    void removeCells(const Skill& skill);
+
     // returns the cells on the gear
     CellList getCellList() const;
 
@@ -57,11 +64,17 @@ class Gear
      */
     bool hasSkill(size_t skillId) const;
     /**
-     * check the skill points for a specific skill without cells
+     * check the skill points for a specific skill with cells
      * @param skillId The ID of the skill which shall be checked
      * @return Returns the skill points for the specified skill
      */
     size_t getSkillPointsFor(size_t skillId) const;
+
+    /**
+     * gathers all innate skill of the gear. This does not include skills from cells
+     * @return Returns a list of skills
+     */
+    SkillList getInnateSkills() const;
     /**
      * gathers all skills on the gear including the ones gained through cells
      * @return Returns a list of skills

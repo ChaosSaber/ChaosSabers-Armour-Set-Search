@@ -16,6 +16,16 @@ Gear::Gear::Gear(std::shared_ptr<GearInfo>&& info, int level, Skill&& skill,
 {
 }
 
+const Gear::Gear& Gear::Gear::operator=(const Gear& other)
+{
+    info_ = other.info_;
+    level_ = level_;
+    skill_ = other.skill_;
+    uniqueSkills_ = other.uniqueSkills_;
+    cells_ = other.cells_;
+    return *this;
+}
+
 const Gear::Gear& Gear::Gear::operator=(Gear&& other)
 {
     info_ = std::move(other.info_);
@@ -32,9 +42,14 @@ int Gear::Gear::getLevel() const { return level_; }
 
 const std::string& Gear::Gear::getDescription() const { return info_->description_; }
 
-bool Gear::Gear::hasUniqueSkill() const { return uniqueSkills_ != nullptr && uniqueSkills_->size() != 0; }
+bool Gear::Gear::hasUniqueSkill() const
+{
+    return uniqueSkills_ != nullptr && uniqueSkills_->size() != 0;
+}
 
 const std::vector<std::string>& Gear::Gear::getUniqueSkills() const { return *uniqueSkills_; }
+
+Gear::SkillList Gear::Gear::getInnateSkills() const { return skill_; }
 
 Gear::SkillList Gear::Gear::getSkills() const
 {
@@ -56,9 +71,15 @@ bool Gear::Gear::hasSkill(size_t skillId) const
 
 size_t Gear::Gear::getSkillPointsFor(size_t skillId) const
 {
+    size_t sum = 0;
     if (skill_.getId() > 0 && skill_.getId() == skillId)
-        return skill_.getSkillPoints();
-    return 0;
+        sum += skill_.getSkillPoints();
+    for (const auto& cell : cells_)
+    {
+        if (!cell.isEmpty() && cell.getSkillId() == skillId)
+            sum += cell.getSkill().getSkillPoints();
+    }
+    return sum;
 }
 
 std::string Gear::Gear::getGearInfo(const Dictionary& dict) const
@@ -93,6 +114,15 @@ bool Gear::Gear::hasFreeCellSlotFor(SkillType type) const
         if (cell.isEmpty() && cell.getCellType() == type)
             return true;
     return false;
+}
+
+void Gear::Gear::removeCells(const Skill& skill)
+{
+    for (auto& cell : cells_)
+    {
+        if (!cell.isEmpty() && cell.getSkillId() == skill.getId())
+            cell = Cell(cell.getCellType());
+    }
 }
 
 Gear::CellList Gear::Gear::getCellList() const { return cells_; }

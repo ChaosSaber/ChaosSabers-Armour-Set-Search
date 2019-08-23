@@ -49,6 +49,8 @@ void Gear::SkillList::insert(const SkillList& skills)
 
 size_t Gear::SkillList::size() const { return skills.size(); }
 
+bool Gear::SkillList::empty() const { return skills.empty(); }
+
 std::vector<Gear::Skill>::iterator Gear::SkillList::begin() { return skills.begin(); }
 
 std::vector<Gear::Skill>::const_iterator Gear::SkillList::begin() const { return skills.cbegin(); }
@@ -79,6 +81,35 @@ const Gear::SkillList& Gear::SkillList::operator+=(const SkillList& skillList)
 {
     for (const auto& skill : skillList)
         *this += skill;
+    return *this;
+}
+
+const Gear::SkillList& Gear::SkillList::operator-=(const Skill& skill)
+{
+    if (skill.getId() == Skill::NO_SKILL)
+        return *this;
+    for (auto& skill_ : skills)
+    {
+        if (skill_.getId() == skill.getId())
+        {
+            if (skill_.skillPoints_ >= skill.getSkillPoints())
+            {
+                skill_.skillPoints_ -= skill.getSkillPoints();
+            }
+            else
+            {
+                skill_.skillPoints_ = 0;
+            }
+            return *this;
+        }
+    }
+    return *this;
+}
+
+const Gear::SkillList& Gear::SkillList::operator-=(const SkillList& skillList)
+{
+    for (const auto& skill : skillList)
+        *this -= skill;
     return *this;
 }
 

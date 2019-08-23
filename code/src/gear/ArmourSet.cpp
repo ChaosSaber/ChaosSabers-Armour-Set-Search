@@ -5,55 +5,55 @@
 
 Gear::ArmourSet::ArmourSet(const Armour& head, const Armour& torso, const Armour& arms,
                            const Armour& legs, const Weapon& weapon, const Cell& lantern)
-    : head(head), torso(torso), legs(legs), arms(arms), weapon(weapon), lantern(lantern)
+    : head_(head), torso_(torso), legs_(legs), arms_(arms), weapon_(weapon), lantern_(lantern)
 {
     init();
 }
 
 Gear::ArmourSet::ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs,
                            Weapon&& weapon, Cell&& lantern)
-    : head(std::move(head)), torso(std::move(torso)), legs(std::move(legs)), arms(std::move(arms)),
-      weapon(std::move(weapon)), lantern(std::move(lantern))
+    : head_(std::move(head)), torso_(std::move(torso)), legs_(std::move(legs)),
+      arms_(std::move(arms)), weapon_(std::move(weapon)), lantern_(std::move(lantern))
 {
     init();
 }
 
 void Gear::ArmourSet::init()
 {
-    gear.push_back(&weapon);
-    gear.push_back(&head);
-    gear.push_back(&torso);
-    gear.push_back(&arms);
-    gear.push_back(&legs);
+    gear_.push_back(&weapon_);
+    gear_.push_back(&head_);
+    gear_.push_back(&torso_);
+    gear_.push_back(&arms_);
+    gear_.push_back(&legs_);
 }
 
 Gear::ArmourSet::ArmourSet(const ArmourSet& other)
-    : ArmourSet(other.head, other.torso, other.arms, other.legs, other.weapon, other.lantern)
+    : ArmourSet(other.head_, other.torso_, other.arms_, other.legs_, other.weapon_, other.lantern_)
 {
 }
 
 const Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet&& other)
 {
-    head = std::move(other.head);
-    torso = std::move(other.torso);
-    arms = std::move(other.arms);
-    legs = std::move(other.legs);
-    weapon = std::move(other.weapon);
-    lantern = std::move(other.lantern);
+    head_ = std::move(other.head_);
+    torso_ = std::move(other.torso_);
+    arms_ = std::move(other.arms_);
+    legs_ = std::move(other.legs_);
+    weapon_ = std::move(other.weapon_);
+    lantern_ = std::move(other.lantern_);
     return *this;
 }
 
 Gear::ArmourSet::ArmourSet(ArmourSet&& other)
-    : ArmourSet(std::move(other.head), std::move(other.torso), std::move(other.arms),
-                std::move(other.legs), std::move(other.weapon), std::move(other.lantern))
+    : ArmourSet(std::move(other.head_), std::move(other.torso_), std::move(other.arms_),
+                std::move(other.legs_), std::move(other.weapon_), std::move(other.lantern_))
 {
 }
 
 bool Gear::ArmourSet::hasFreeCellSlotFor(SkillType type) const
 {
-    if (lantern.isEmpty() && lantern.getCellType() == type)
+    if (lantern_.isEmpty() && lantern_.getCellType() == type)
         return true;
-    for (const auto part : gear)
+    for (const auto part : gear_)
     {
         if (part->hasFreeCellSlotFor(type))
             return true;
@@ -63,12 +63,12 @@ bool Gear::ArmourSet::hasFreeCellSlotFor(SkillType type) const
 
 bool Gear::ArmourSet::addCell(Cell cell)
 {
-    if (lantern.isEmpty() && lantern.getCellType() == cell.getCellType())
+    if (lantern_.isEmpty() && lantern_.getCellType() == cell.getCellType())
     {
-        lantern = std::move(cell);
+        lantern_ = std::move(cell);
         return true;
     }
-    for (auto part : gear)
+    for (auto part : gear_)
     {
         if (part->addCell(cell))
             return true;
@@ -79,42 +79,42 @@ bool Gear::ArmourSet::addCell(Cell cell)
 Gear::SkillList Gear::ArmourSet::getSkills() const
 {
     SkillList skills;
-    for (const auto part : gear)
+    for (const auto part : gear_)
         skills += part->getSkills();
-    skills += lantern.getSkill();
+    skills += lantern_.getSkill();
     return skills;
 }
 
 size_t Gear::ArmourSet::getSkillPointsFor(size_t skillId) const
 {
     size_t sum = 0;
-    sum += lantern.getSkillPointsFor(skillId);
-    for (const auto part : gear)
+    sum += lantern_.getSkillPointsFor(skillId);
+    for (const auto part : gear_)
         sum += part->getSkillPointsFor(skillId);
     return sum;
 }
 
 Gear::CellList Gear::ArmourSet::getCellList() const
 {
-    CellList cells = lantern;
-    for (const auto part : gear)
+    CellList cells = lantern_;
+    for (const auto part : gear_)
     {
         cells += part->getCellList();
     }
     return cells;
 }
 
-const Gear::Armour& Gear::ArmourSet::getHead() const { return head; }
+const Gear::Armour& Gear::ArmourSet::getHead() const { return head_; }
 
-const Gear::Armour& Gear::ArmourSet::getTorso() const { return torso; }
+const Gear::Armour& Gear::ArmourSet::getTorso() const { return torso_; }
 
-const Gear::Armour& Gear::ArmourSet::getArms() const { return arms; }
+const Gear::Armour& Gear::ArmourSet::getArms() const { return arms_; }
 
-const Gear::Armour& Gear::ArmourSet::getLegs() const { return legs; }
+const Gear::Armour& Gear::ArmourSet::getLegs() const { return legs_; }
 
-const Gear::Weapon& Gear::ArmourSet::getWeapon() const { return weapon; }
+const Gear::Weapon& Gear::ArmourSet::getWeapon() const { return weapon_; }
 
-const Gear::Cell& Gear::ArmourSet::getLantern() const { return lantern; }
+const Gear::Cell& Gear::ArmourSet::getLantern() const { return lantern_; }
 
 Gear::SkillList Gear::ArmourSet::getAdditionalSkills(const SkillList& wantedSkills) const
 {
@@ -132,7 +132,7 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict, const Armoury&
     std::stringstream text;
 
     size_t maxGearLength = 0;
-    for (const auto& gear : this->gear)
+    for (const auto& gear : this->gear_)
     {
         auto length = gear->getGearInfo(dict).length();
         if (length > maxGearLength)
@@ -163,13 +163,13 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict, const Armoury&
 
     size_t maxColoumnLength = std::max({maxGearLength, /*maxCellLength,*/ maxSkillLength}) + 1;
     size_t lineWidth = maxColoumnLength + std::max(maxColoumnLength, maxCellLength) + 2; //"| "
-    size_t maxIt = std::max(gear.size(), cells.size());
+    size_t maxIt = std::max(gear_.size(), cells.size());
     for (size_t i = 0; i < maxIt; ++i)
     {
         size_t length = 0;
-        if (i < gear.size())
+        if (i < gear_.size())
         {
-            auto gearStr = gear[i]->getGearInfo(dict);
+            auto gearStr = gear_[i]->getGearInfo(dict);
             text << gearStr;
             length = gearStr.length();
         }
@@ -215,7 +215,7 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict, const Armoury
 {
     constexpr auto indentation = "    ";
     std::vector<std::string> lines;
-    for (const auto& gear : this->gear)
+    for (const auto& gear : this->gear_)
     {
         lines.push_back(gear->getGearInfo(dict));
         for (const auto& [cell, count] : gear->getCellList())
@@ -226,10 +226,10 @@ std::string Gear::ArmourSet::exportToText2(const Dictionary& dict, const Armoury
                 lines.push_back(indentation + cell.getCellInfo(dict, armoury));
         }
     }
-    if (!lantern.isEmpty())
+    if (!lantern_.isEmpty())
     {
         lines.push_back(dict.getTranslationFor("lantern"));
-        lines.push_back(indentation + lantern.getCellInfo(dict, armoury));
+        lines.push_back(indentation + lantern_.getCellInfo(dict, armoury));
     }
     size_t maxLineLength = 0;
     for (const auto& line : lines)
@@ -284,7 +284,7 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict, const Armoury
     std::stringstream text;
 
     size_t maxGearLength = 0;
-    for (const auto& gear : this->gear)
+    for (const auto& gear : this->gear_)
     {
         auto length = gear->getGearInfo(dict).length();
         if (length > maxGearLength)
@@ -318,7 +318,7 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict, const Armoury
     ++maxColoumnLength; // we add an additional space before the second coloumn as coloumnseparator
 
     // Weapon
-    auto weaponStr = weapon.getGearInfo(dict);
+    auto weaponStr = weapon_.getGearInfo(dict);
     text << weaponStr << std::endl;
     // Armour
     auto lineAdder = [&text, maxColoumnLength](const std::string& armour1,
@@ -326,8 +326,8 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict, const Armoury
         text << armour1 << std::string(maxColoumnLength - armour1.length(), ' ') << armour2
              << std::endl;
     };
-    lineAdder(head.getGearInfo(dict), torso.getGearInfo(dict));
-    lineAdder(arms.getGearInfo(dict), legs.getGearInfo(dict));
+    lineAdder(head_.getGearInfo(dict), torso_.getGearInfo(dict));
+    lineAdder(arms_.getGearInfo(dict), legs_.getGearInfo(dict));
     text << std::string(lineWidth, '-') << std::endl;
     // cells
     auto cellPairToString = [&dict, &armoury](const std::pair<Cell, int>& cell) {
@@ -374,7 +374,7 @@ std::string Gear::ArmourSet::exportToText3(const Dictionary& dict, const Armoury
 
 bool Gear::ArmourSet::hasUniqueSkill() const
 {
-    for (auto gear : this->gear)
+    for (auto gear : this->gear_)
         if (gear->hasUniqueSkill())
             return true;
     return false;
@@ -383,7 +383,7 @@ bool Gear::ArmourSet::hasUniqueSkill() const
 std::vector<std::string> Gear::ArmourSet::getUniqueSkills() const
 {
     std::vector<std::string> uniqueSkills;
-    for (auto gear : this->gear)
+    for (auto gear : this->gear_)
     {
         if (!gear->hasUniqueSkill())
             continue;
@@ -391,4 +391,22 @@ std::vector<std::string> Gear::ArmourSet::getUniqueSkills() const
         uniqueSkills.insert(uniqueSkills.end(), unique.begin(), unique.end());
     }
     return uniqueSkills;
+}
+
+void Gear::ArmourSet::setHead(const Armour& head) { head_ = head; }
+
+void Gear::ArmourSet::setTorso(const Armour& torso) { torso_ = torso; }
+
+void Gear::ArmourSet::setArms(const Armour& arms) { arms_ = arms; }
+
+void Gear::ArmourSet::setLegs(const Armour& legs) { legs_ = legs; }
+
+void Gear::ArmourSet::setWeapon(const Weapon& weapon) { weapon_ = weapon; }
+
+void Gear::ArmourSet::removeCells(const Skill& skill)
+{
+    for (auto& gear : gear_)
+        gear->removeCells(skill);
+    if (!lantern_.isEmpty() && lantern_.getSkillId() == skill.getId())
+        lantern_ = Cell(lantern_.getCellType());
 }

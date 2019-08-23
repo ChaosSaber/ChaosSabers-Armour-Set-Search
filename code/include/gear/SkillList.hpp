@@ -48,6 +48,12 @@ class SkillList
      */
     size_t size() const;
 
+    /**
+     * checks if the skill list is empty
+     * @return Returns true  if the list is empty, otherwise false
+     */
+    bool empty() const;
+
     std::vector<Skill>::iterator begin();
     std::vector<Skill>::const_iterator begin() const;
     std::vector<Skill>::iterator end();
@@ -60,6 +66,8 @@ class SkillList
     const Skill& operator[](size_t pos) const;
     const SkillList& operator+=(const Skill& skill);
     const SkillList& operator+=(const SkillList& skillList);
+    const SkillList& operator-=(const Skill& skill);
+    const SkillList& operator-=(const SkillList& skillList);
     friend SkillList operator+(SkillList lhs, const Skill& rhs);
     friend SkillList operator+(SkillList lhs, const SkillList& rhs);
 

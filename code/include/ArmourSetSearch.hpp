@@ -60,19 +60,17 @@ class ArmourSetSearch
     const std::vector<Gear::Skill>& getWantedSkills() const;
 
   private:
-    void checkSet(Gear::ArmourSet set, const Gear::Armoury& armoury);
+    /**
+     * checks if the given set fullfills the skill requirements
+     * @parameter set The set to check
+     * @parameter armoury A reference to an armoury used for checking of skilltypes
+     */
+    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury);
     /**
      * adds an armour to the list of found armoursets (thred safe)
      * @param set: The set to add
      */
-    void addArmourSet(Gear::ArmourSet&& set);
-    /**
-     * gets the next N possible armour sets
-     * @param count The number of armour sets to get
-     * @param sets The place where the possible sets will be put. This will be cleared at the beginning
-     * @return Returns true if one or more sets are available, otherwise false
-     */
-    bool getNextArmourSets(size_t count, std::vector<Gear::ArmourSet>& sets);
+    void addArmourSet(const Gear::ArmourSet& set);
     void reset();
 
     std::vector<Gear::ArmourSet> armourSets;
