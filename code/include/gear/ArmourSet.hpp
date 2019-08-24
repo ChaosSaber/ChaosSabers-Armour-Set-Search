@@ -42,7 +42,13 @@ class ArmourSet
     void setArms(const Armour& arms);
     void setLegs(const Armour& legs);
     void setWeapon(const Weapon& weapon);
-    void removeCells(const Skill& skill);
+
+    /**
+     * removes all cells from the specified type
+     * @param skill The cell(s) with this skill shall be removed
+     * @return Returns a CellList with the removed cells
+     */
+    CellList removeCells(const Skill& skill);
 
     const Armour& getHead() const;
     const Armour& getTorso() const;

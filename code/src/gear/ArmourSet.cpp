@@ -403,10 +403,15 @@ void Gear::ArmourSet::setLegs(const Armour& legs) { legs_ = legs; }
 
 void Gear::ArmourSet::setWeapon(const Weapon& weapon) { weapon_ = weapon; }
 
-void Gear::ArmourSet::removeCells(const Skill& skill)
+Gear::CellList Gear::ArmourSet::removeCells(const Skill& skill)
 {
+    CellList cells;
     for (auto& gear : gear_)
-        gear->removeCells(skill);
+        cells += gear->removeCells(skill);
     if (!lantern_.isEmpty() && lantern_.getSkillId() == skill.getId())
+    {
+        cells += lantern_;
         lantern_ = Cell(lantern_.getCellType());
+    }
+    return cells;
 }

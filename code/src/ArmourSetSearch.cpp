@@ -77,8 +77,6 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
         threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported, i, &mtx]() {
-    //size_t i = 0;
-    //concurentThreadsSupported = 1;
             auto start = stats.possibleCombinations * i / concurentThreadsSupported;
             auto stop = stats.possibleCombinations * (i + 1) / concurentThreadsSupported - 1;
             util::GreyCodeGenerator gen({heads.size() - 1, torsos.size() - 1, arms.size() - 1,
@@ -87,44 +85,53 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
             std::vector<size_t> last = gen.currentGreyCode();
             Gear::ArmourSet set(heads[last[0]], torsos[last[1]], arms[last[2]], legs[last[3]],
                                 weapons[last[4]]);
-            checkSet(set, armoury);
-            //std::cout << set.exportToText3(Dictionary(), armoury) << std::endl;
+            Gear::CellList cells = availableCells;
+            checkSet(set, armoury, cells);
+            auto returnCells = [&cells](Gear::CellList cellList) {
+                for (const auto& cell : cellList)
+                    if (!cell.first.isEmpty())
+                        cells += cell;
+            };
             while (gen.generateNext() && *cancel != true && start < stop)
             {
                 ++start;
                 const auto& current = gen.currentGreyCode();
                 if (current[0] != last[0])
                 {
+                    returnCells(set.getHead().getCellList());
                     set.setHead(heads[current[0]]);
                     for (auto& skill : set.getHead().getInnateSkills())
-                        set.removeCells(skill);
+                        returnCells(set.removeCells(skill));
                 }
                 else if (current[1] != last[1])
                 {
+                    returnCells(set.getTorso().getCellList());
                     set.setTorso(torsos[current[1]]);
                     for (auto& skill : set.getTorso().getInnateSkills())
-                        set.removeCells(skill);
+                        returnCells(set.removeCells(skill));
                 }
                 else if (current[2] != last[2])
                 {
+                    returnCells(set.getArms().getCellList());
                     set.setArms(arms[current[2]]);
                     for (auto& skill : set.getArms().getInnateSkills())
-                        set.removeCells(skill);
+                        returnCells(set.removeCells(skill));
                 }
                 else if (current[3] != last[3])
                 {
+                    returnCells(set.getLegs().getCellList());
                     set.setLegs(legs[current[3]]);
                     for (auto& skill : set.getLegs().getInnateSkills())
-                        set.removeCells(skill);
+                        returnCells(set.removeCells(skill));
                 }
                 else if (current[4] != last[4])
                 {
+                    returnCells(set.getWeapon().getCellList());
                     set.setWeapon(weapons[current[4]]);
                     for (auto& skill : set.getWeapon().getInnateSkills())
-                        set.removeCells(skill);
+                        returnCells(set.removeCells(skill));
                 }
-                checkSet(set, armoury);
-                //std::cout << set.exportToText3(Dictionary(), armoury) << std::endl;
+                checkSet(set, armoury, cells);
                 last = current;
 
                 ++stats.searchedCombinations;
@@ -140,6 +147,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
                     }
                 }
             }
+            printCells();
         });
     }
     for (auto& thread : threads)
@@ -153,9 +161,9 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     return;
 }
 
-void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury)
+void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury,
+                               Gear::CellList& cells)
 {
-    Gear::CellList cells = availableCells;
     for (const auto& skill : wantedSkills)
     {
         auto existingSkillPoints = set.getSkillPointsFor(skill.getId());

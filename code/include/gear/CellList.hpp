@@ -7,14 +7,14 @@
 
 namespace Gear
 {
-bool cellSorter(const std::pair<Cell, int> &lhs, const std::pair<Cell, int> &rhs);
+bool cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int>& rhs);
 
 class CellList
 {
   public:
     CellList() {}
-    CellList(const Cell &cell);
-    CellList(const std::vector<Cell> &cells);
+    CellList(const Cell& cell);
+    CellList(const std::vector<Cell>& cells);
 
     bool hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const;
     size_t getOptimalCellLevel(const Skill& skill, size_t existingSkillpoints) const;
@@ -33,14 +33,16 @@ class CellList
      * @return A refrence to the wanted skill
      */
     const std::pair<Cell, int>& operator[](size_t pos) const;
-    const CellList &operator+=(const Cell &cell);
-    const CellList &operator+=(const CellList &cellList);
-    friend CellList operator+(CellList lhs, const Cell &rhs);
-    friend CellList operator+(CellList lhs, const CellList &rhs);
-    const CellList &operator-=(const Cell &cell);
-    const CellList &operator-=(const CellList &cellList);
-    friend CellList operator-(CellList lhs, const Cell &rhs);
-    friend CellList operator-(CellList lhs, const CellList &rhs);
+    const CellList& operator+=(const Cell& cell);
+    const CellList& operator+=(const CellList& cellList);
+    const CellList& operator+=(const std::pair<Cell, int>& cellPair);
+    friend CellList operator+(CellList lhs, const Cell& rhs);
+    friend CellList operator+(CellList lhs, const CellList& rhs);
+    const CellList& operator-=(const Cell& cell);
+    const CellList& operator-=(const CellList& cellList);
+    friend CellList operator-(CellList lhs, const Cell& rhs);
+    friend CellList operator-(CellList lhs, const CellList& rhs);
+    friend CellList operator*(size_t multiplicator, const Cell& cell);
 
   private:
     std::vector<std::pair<Cell, int>> cells;

@@ -47,8 +47,9 @@ class Gear
     /**
      * removes all cells from the specified type
      * @param skill The cell(s) with this skill shall be removed
+     * @return Returns a CellList with the removed cells
      */
-    void removeCells(const Skill& skill);
+    CellList removeCells(const Skill& skill);
 
     // returns the cells on the gear
     CellList getCellList() const;

@@ -116,13 +116,18 @@ bool Gear::Gear::hasFreeCellSlotFor(SkillType type) const
     return false;
 }
 
-void Gear::Gear::removeCells(const Skill& skill)
+Gear::CellList Gear::Gear::removeCells(const Skill& skill)
 {
+    CellList cells;
     for (auto& cell : cells_)
     {
         if (!cell.isEmpty() && cell.getSkillId() == skill.getId())
+        {
+            cells += cell;
             cell = Cell(cell.getCellType());
+        }
     }
+    return cells;
 }
 
 Gear::CellList Gear::Gear::getCellList() const { return cells_; }

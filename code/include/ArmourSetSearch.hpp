@@ -64,8 +64,9 @@ class ArmourSetSearch
      * checks if the given set fullfills the skill requirements
      * @parameter set The set to check
      * @parameter armoury A reference to an armoury used for checking of skilltypes
+     * @parameter cells A list of cells which are available to put into the set
      */
-    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury);
+    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury, Gear::CellList& cells);
     /**
      * adds an armour to the list of found armoursets (thred safe)
      * @param set: The set to add

@@ -75,7 +75,8 @@ size_t Gear::CellList::getOptimalCellLevel(const Skill& skill, size_t existingSk
     }
 }
 
-size_t Gear::CellList::getHighestCellLevel(std::unordered_map<size_t, size_t> levels, size_t maximumLevel) const
+size_t Gear::CellList::getHighestCellLevel(std::unordered_map<size_t, size_t> levels,
+                                           size_t maximumLevel) const
 {
     size_t highest = 0;
     for (const auto& level : levels)
@@ -127,6 +128,18 @@ const Gear::CellList& Gear::CellList::operator+=(const CellList& cellList)
     return *this;
 }
 
+const Gear::CellList& Gear::CellList::operator+=(const std::pair<Cell, int>& cellPair)
+{
+    for (auto& cellCount : cells)
+        if (cellCount.first == cellPair.first)
+        {
+            cellCount.second+=cellPair.second;
+            return *this;
+        }
+    cells.push_back(cellPair);
+    return *this;
+}
+
 Gear::CellList Gear::operator+(CellList lhs, const Cell& rhs) { return lhs += rhs; }
 
 Gear::CellList Gear::operator+(CellList lhs, const CellList& rhs) { return lhs += rhs; }
@@ -155,3 +168,10 @@ const Gear::CellList& Gear::CellList::operator-=(const CellList& cellList)
 Gear::CellList Gear::operator-(CellList lhs, const Cell& rhs) { return lhs -= rhs; }
 
 Gear::CellList Gear::operator-(CellList lhs, const CellList& rhs) { return lhs -= rhs; }
+
+Gear::CellList Gear::operator*(size_t multiplicator, const Cell& cell)
+{
+    CellList cells;
+    cells += {cell, multiplicator};
+    return cells;
+}
