@@ -10,6 +10,16 @@ Gear::CellList::CellList(const std::vector<Cell>& cells)
         *this += cell;
 }
 
+size_t Gear::CellList::getHighestAvailableCellLevel(const Skill& skill) const
+{
+    size_t highest = 0;
+    for (const auto& cell : cells)
+        if (cell.first.getSkillId() == skill.getId())
+            if (cell.first.getSkill().getSkillPoints() > highest)
+                highest = cell.first.getSkill().getSkillPoints(); 
+    return highest;
+}
+
 bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int>& rhs)
 {
     if (lhs.first.getSkill().getSkillPoints() > rhs.first.getSkill().getSkillPoints())
@@ -35,54 +45,7 @@ bool Gear::CellList::hasEnoughCellsFor(const Skill& skill, size_t allreadyExisti
     for (const auto& cell : cells)
         if (cell.first.getSkillId() == skill.getId())
             sum += cell.second * cell.first.getSkill().getSkillPoints();
-    return sum > skill.getSkillPoints() - allreadyExistingSkillPoints;
-}
-
-size_t Gear::CellList::getOptimalCellLevel(const Skill& skill, size_t existingSkillpoints) const
-{
-    std::unordered_map<size_t, size_t> levels;
-    for (const auto& cell : cells)
-        if (cell.first.getSkillId() == skill.getId())
-            levels[cell.first.getSkill().getSkillPoints()] = cell.second;
-    switch (skill.getSkillPoints() - existingSkillpoints)
-    {
-    case 6:
-        // 3 level 2 cells are cheaper then one of each cell level
-        if (levels[3] < 2 && levels[2] >= 3)
-            return 2;
-    case 5: return getHighestCellLevel(levels, skill.getSkillPoints() - existingSkillpoints); break;
-    case 4:
-        // for 4 Skill points we need anyway 2 cells, so we try to use 2 level 2 cells instead of a
-        // level 3 and level 1 cell
-        if (levels[2] >= 2)
-        {
-            if (skill.getSkillPoints() < 6) // since we need two cells anyway we, look if we can
-                                            // improve the skill, if the user did't searched for +6
-                return getHighestCellLevel(levels, 6 - existingSkillpoints);
-            return 2;
-        }
-        return getHighestCellLevel(levels, 4);
-        break;
-    case 3: return getHighestCellLevel(levels, 3); break;
-    case 2:
-    case 1:
-        if (skill.getSkillPoints() <
-            6) // we need a cell anyway, so we can look if we can improve the skill any further
-            return getHighestCellLevel(levels, 6 - existingSkillpoints);
-        return getHighestCellLevel(levels, skill.getSkillPoints() - existingSkillpoints);
-        break;
-    default: return 0; break;
-    }
-}
-
-size_t Gear::CellList::getHighestCellLevel(std::unordered_map<size_t, size_t> levels,
-                                           size_t maximumLevel) const
-{
-    size_t highest = 0;
-    for (const auto& level : levels)
-        if (level.first <= maximumLevel && level.second > 0 && level.first > highest)
-            highest = level.first;
-    return highest;
+    return sum >= skill.getSkillPoints() - allreadyExistingSkillPoints;
 }
 
 void Gear::CellList::sort() { std::sort(cells.begin(), cells.end(), cellSorter); }

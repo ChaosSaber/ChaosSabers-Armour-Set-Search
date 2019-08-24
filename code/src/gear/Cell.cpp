@@ -45,7 +45,6 @@ bool Gear::Cell::operator==(const Cell &cell) const
 Gear::CellList Gear::Cell::operator*(size_t multiplicator) const
 {
     CellList cells;
-    for (size_t i = 0; i < multiplicator; ++i)
-        cells += *this;
+    cells += {*this, multiplicator};
     return cells;
 }

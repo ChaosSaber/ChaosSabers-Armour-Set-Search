@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget* parent)
     skills[Gear::SkillType::Technique] = armoury.getSkills(Gear::SkillType::Technique);
     skills[Gear::SkillType::Mobility] = armoury.getSkills(Gear::SkillType::Mobility);
     skills[Gear::SkillType::Utility] = armoury.getSkills(Gear::SkillType::Utility);
-    //for (auto& filter : skills)
+    // for (auto& filter : skills)
     //{
     //    std::sort(filter.second.begin(), filter.second.end(),
     //              [this](const Gear::SkillInfo* lhs, const Gear::SkillInfo* rhs) {
@@ -157,7 +157,6 @@ MainWindow::MainWindow(QWidget* parent)
     ui->comboBoxWeaponElement->setCurrentIndex(options.weaponElement);
     connect(ui->comboBoxWeaponElement, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { options.weaponElement = Gear::Element(index); });
-
 }
 
 void MainWindow::setupTranslation()
@@ -170,14 +169,13 @@ void MainWindow::setupTranslation()
                       << getTranslation(dict, "pike") << getTranslation(dict, "repeater"));
     ui->labelWeaponElement->setText(getTranslation(dict, "label_weapon_element"));
     ui->labelWeaponElement->setToolTip(getTranslation(dict, "label_weapon_element_desc"));
-    ui->comboBoxWeaponElement->addItems(QStringList() << getTranslation(dict, "element_all")
-                                                      << getTranslation(dict, "element_none")
-                                                      << getTranslation(dict, "element_fire")
-                                                      << getTranslation(dict, "element_ice")
-                                                      << getTranslation(dict, "element_shock")
-                                                      << getTranslation(dict, "element_terra")
-                                                      << getTranslation(dict, "element_umbral")
-                                                      << getTranslation(dict, "element_radiant"));
+    ui->comboBoxWeaponElement->addItems(
+        QStringList() << getTranslation(dict, "element_all") << getTranslation(dict, "element_none")
+                      << getTranslation(dict, "element_fire") << getTranslation(dict, "element_ice")
+                      << getTranslation(dict, "element_shock")
+                      << getTranslation(dict, "element_terra")
+                      << getTranslation(dict, "element_umbral")
+                      << getTranslation(dict, "element_radiant"));
     ui->groupBoxWantedSkills->setTitle(getTranslation(dict, "label_wanted_skills"));
     ui->pushButtonSearch->setText(getTranslation(dict, "button_search"));
     ui->pushButtonAdvancedSearch->setText(getTranslation(dict, "button_advanced_search"));
@@ -267,28 +265,32 @@ void MainWindow::advancedSearch()
 void MainWindow::armourSetSearch(ArmourSetSearch* ass)
 {
     Gear::CellList cells;
+    // we try to minimize the cells in the list, so that we have less to iterate over in the search
     for (const auto& skill : ass->getWantedSkills())
     {
         auto type = armoury.getSkillTypeFor(skill.getId());
-        for (int i = 1; i <= 3; ++i)
+        if (options.cellUsage == 0) // best cells
         {
-            Gear::Cell cell(Gear::Skill(skill.getId(), i), type);
-            if (options.cellUsage == 0) // bestCells
+            cells += Gear::Cell(Gear::Skill(skill.getId(), 3), type) * 2;
+        }
+        else if (options.cellUsage == 1) // own cells
+        {
+            size_t sum = 0;
+            for (size_t i = 3; i >= 1 && sum < 6; --i)
             {
-                cells += cell * (6 / i);
-            }
-            else if (options.cellUsage == 1) // own cells
-            {
-                cells += cell * options.cells[cell];
-            }
-            else
-            {
-                std::cout << "unknown cell usage option" << options.cellUsage;
+                Gear::Cell cell(Gear::Skill(skill.getId(), i), type);
+                auto count = options.cells[cell];
+                cells += cell * count;
+                sum += count * i;
             }
         }
+        else
+        {
+            std::cout << "unknown cell usage option" << options.cellUsage;
+        }
     }
-    ass->setProgressCallback([this](ArmourSetSearch::SearchStatistics stats) {
-           emit setProgressMainThread(stats); });
+    ass->setProgressCallback(
+        [this](ArmourSetSearch::SearchStatistics stats) { emit setProgressMainThread(stats); });
     ass->setAvaiableCells(cells);
     setSearchButtonsState(false);
     cancel = false;
@@ -384,7 +386,8 @@ void MainWindow::showArmourSets()
             ui->comboBoxFilterFreeCells->addItem(
                 QString::fromStdString(Gear::SkillTypeToStringKey(cell)));
     for (const auto& skill : filter.additionalSkills)
-        ui->comboBoxFilterAdditionalSkills->addItem(QString::fromStdString(skill.toString(dict, armoury)));
+        ui->comboBoxFilterAdditionalSkills->addItem(
+            QString::fromStdString(skill.toString(dict, armoury)));
     isCreatingArmourSets = false;
 }
 

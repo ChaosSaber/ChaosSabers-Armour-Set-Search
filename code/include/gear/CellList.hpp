@@ -16,8 +16,14 @@ class CellList
     CellList(const Cell& cell);
     CellList(const std::vector<Cell>& cells);
 
+    /**
+    * searchs for the best cell of the given skill
+    * @parameter skill The skill for which the best cell is searched
+    * return The highest cell level for that skill in the list
+    */
+    size_t getHighestAvailableCellLevel(const Skill& skill) const;
+
     bool hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const;
-    size_t getOptimalCellLevel(const Skill& skill, size_t existingSkillpoints) const;
     void sort();
     /**
      *@return Returns the number of skills in the list
@@ -46,9 +52,6 @@ class CellList
 
   private:
     std::vector<std::pair<Cell, int>> cells;
-
-    size_t getHighestCellLevel(std::unordered_map<size_t, size_t> levels,
-                               size_t maximumLevel) const;
 };
 } // namespace Gear
 

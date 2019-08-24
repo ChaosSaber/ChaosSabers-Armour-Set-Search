@@ -147,7 +147,6 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
                     }
                 }
             }
-            printCells();
         });
     }
     for (auto& thread : threads)
@@ -172,14 +171,14 @@ void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armour
         auto type = armoury.getSkillTypeFor(skill.getId());
         while (existingSkillPoints < skill.getSkillPoints())
         {
-            auto bestCellLevel = cells.getOptimalCellLevel(skill, existingSkillPoints);
-            if (bestCellLevel == 0) // no cell available
+            auto highestCellLevel = cells.getHighestAvailableCellLevel(skill);
+            if (highestCellLevel == 0) // no cell available
                 return;
-            Gear::Cell cell(Gear::Skill(skill.getId(), bestCellLevel), type);
+            Gear::Cell cell(Gear::Skill(skill.getId(), highestCellLevel), type);
             if (!set.addCell(cell))
                 return;
             cells -= cell;
-            existingSkillPoints += bestCellLevel;
+            existingSkillPoints += highestCellLevel;
         }
     }
     ++stats.foundSets;
