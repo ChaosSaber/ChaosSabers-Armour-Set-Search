@@ -12,7 +12,7 @@ About::About(const Dictionary &dict, QWidget *parent)
     ui->textEditAbout->setAlignment(Qt::AlignCenter);
     std::stringstream ss;
     ss << "<b><c>Dauntless Armour Set Search<br>" << dict.getTranslationFor("about_version") << " "
-       << PROGRAM_VERSION << "</b><br><br>Copyright 2018 ChaosSaber</c>";
+       << PROGRAM_VERSION << "</b><br><br>Copyright 2018-2019 ChaosSaber</c>";
     ui->textEditAbout->setText(QString::fromStdString(ss.str()));
     centerText();
     ui->textEditAbout->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);

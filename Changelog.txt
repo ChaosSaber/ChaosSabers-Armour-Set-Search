@@ -1,7 +1,11 @@
+Version 0.12.2: 24.08.2019:
+- update for OB 0.9.2
+- various performance improvements to increase the search speed by around 550% (around 20 times faster then pre 0.12)
+
 Version 0.12.1: 17.07.2019:
 - update for OB 0.9.0
 - moved search statistic into the status bar
-- index the perks to increase the search speed by another 30% (210% total to pre 0.12)
+- index the perks to increase the search speed by another 60% (280% total to pre 0.12)
 
 Version 0.12.0: 14:07:2019:
 - armour sets are now search in parallel threads which increase the search speed by around 140%
