@@ -1,4 +1,5 @@
 #include "gear/CellList.hpp"
+#include "gear/Armoury.hpp"
 #include <algorithm>
 #include <sstream>
 
@@ -16,7 +17,7 @@ size_t Gear::CellList::getHighestAvailableCellLevel(const Skill& skill) const
     for (const auto& cell : cells)
         if (cell.first.getSkillId() == skill.getId())
             if (cell.first.getSkill().getSkillPoints() > highest)
-                highest = cell.first.getSkill().getSkillPoints(); 
+                highest = cell.first.getSkill().getSkillPoints();
     return highest;
 }
 
@@ -96,7 +97,7 @@ const Gear::CellList& Gear::CellList::operator+=(const std::pair<Cell, int>& cel
     for (auto& cellCount : cells)
         if (cellCount.first == cellPair.first)
         {
-            cellCount.second+=cellPair.second;
+            cellCount.second += cellPair.second;
             return *this;
         }
     cells.push_back(cellPair);
@@ -138,3 +139,53 @@ Gear::CellList Gear::operator*(size_t multiplicator, const Cell& cell)
     cells += {cell, multiplicator};
     return cells;
 }
+
+Gear::CellList2::CellList2(size_t size) { cells_.resize(size); }
+
+Gear::CellList2::CellList2(const Armoury& armoury)
+    : CellList2(armoury.getSkills(SkillType::None).size())
+{
+}
+
+size_t Gear::CellList2::getHighestAvailableCellLevel(size_t skillId) const
+{
+    if (outOfBounds(skillId))
+        return 0;
+    for (size_t i = 3; i > 0; --i)
+        if (cells_[skillId][i - 1] > 0)
+            return i;
+    return 0;
+}
+
+bool Gear::CellList2::hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const
+{
+    if (outOfBounds(skillId))
+        return false;
+    size_t sum = 0;
+    for (size_t i = 3; i > 0; --i)
+    {
+        sum += i * cells_[skillId][i - 1];
+    }
+    return sum >= neededSkillPoints;
+}
+
+const Gear::CellList2& Gear::CellList2::operator+=(const CellList& lhs)
+{
+    for (const auto& cell : lhs)
+    {
+        if (cell.first.isEmpty() || outOfBounds(cell.first.getSkillId()))
+            continue;
+        cells_[cell.first.getSkillId()][cell.first.getSkill().getSkillPoints() - 1] += cell.second;
+    }
+    return *this;
+}
+
+const Gear::CellList2& Gear::CellList2::operator-=(const Cell& lhs)
+{
+    if (outOfBounds(lhs.getSkillId()))
+        return *this;
+    --cells_[lhs.getSkillId()][lhs.getSkill().getSkillPoints() - 1];
+    return *this;
+}
+
+bool Gear::CellList2::outOfBounds(size_t skillId) const { return skillId >= cells_.size(); }

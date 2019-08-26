@@ -3,10 +3,13 @@
 
 #include "Dictionary.hpp"
 #include "gear/Cell.hpp"
+#include <array>
 #include <unordered_map>
 
 namespace Gear
 {
+class Armoury;
+
 bool cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int>& rhs);
 
 class CellList
@@ -17,10 +20,10 @@ class CellList
     CellList(const std::vector<Cell>& cells);
 
     /**
-    * searchs for the best cell of the given skill
-    * @parameter skill The skill for which the best cell is searched
-    * return The highest cell level for that skill in the list
-    */
+     * searchs for the best cell of the given skill
+     * @parameter skill The skill for which the best cell is searched
+     * @return The highest cell level for that skill in the list
+     */
     size_t getHighestAvailableCellLevel(const Skill& skill) const;
 
     bool hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const;
@@ -35,7 +38,7 @@ class CellList
     std::vector<std::pair<Cell, int>>::iterator end();
     std::vector<std::pair<Cell, int>>::const_iterator end() const;
     /**
-     * @param pos Th position of the wanted object
+     * @param pos The position of the wanted object
      * @return A refrence to the wanted skill
      */
     const std::pair<Cell, int>& operator[](size_t pos) const;
@@ -52,6 +55,42 @@ class CellList
 
   private:
     std::vector<std::pair<Cell, int>> cells;
+};
+
+/**
+ * This is a cell list optimized for accessing a fixed skill ID.
+ * In contrast to the CellList it does not have a map of cells with it counts, which needs to be
+ * iterated all the time. This contains a fixed list which contains all skill IDs as primary index
+ * and the cell level as secondary index. The access to it is allways constant.
+ */
+class CellList2
+{
+  public:
+    CellList2(size_t size = 0);
+    CellList2(const Armoury& armoury);
+
+    /**
+     * searchs for the best cell of the given skill
+     * @parameter skillId The skill ID for which the best cell is searched
+     * return The highest cell level for that skill in the list
+     */
+    size_t getHighestAvailableCellLevel(size_t skillId) const;
+
+    /**
+     * checks if the cell list contains enough cells to reach the needed skill points
+     * @param skillId The ID of the skill which shall be checked
+     * @param neededSkillPoints The points which needs to be achieved
+     * @return Returns true if enough cells are available, otherwise falls
+     */
+    bool hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const;
+
+    const CellList2& operator+=(const CellList& lhs);
+    const CellList2& operator-=(const Cell& lhs);
+
+  private:
+    bool outOfBounds(size_t skillId) const;
+
+    std::vector<std::array<size_t, 3>> cells_;
 };
 } // namespace Gear
 

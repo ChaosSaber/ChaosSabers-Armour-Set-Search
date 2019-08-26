@@ -264,7 +264,7 @@ void MainWindow::advancedSearch()
 
 void MainWindow::armourSetSearch(ArmourSetSearch* ass)
 {
-    Gear::CellList cells;
+    Gear::CellList2 cells(armoury);
     // we try to minimize the cells in the list, so that we have less to iterate over in the search
     for (const auto& skill : ass->getWantedSkills())
     {
@@ -291,7 +291,7 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
     }
     ass->setProgressCallback(
         [this](ArmourSetSearch::SearchStatistics stats) { emit setProgressMainThread(stats); });
-    ass->setAvaiableCells(cells);
+    ass->setAvaiableCells(std::move(cells));
     setSearchButtonsState(false);
     cancel = false;
     connect(searchWatcher, &QFutureWatcher<void>::finished,

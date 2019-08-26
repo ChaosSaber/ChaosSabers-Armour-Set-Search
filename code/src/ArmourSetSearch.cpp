@@ -5,56 +5,32 @@
 #include <thread>
 
 ArmourSetSearch::ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
-                                 std::vector<Gear::Skill> skills, const Options& options,
-                                 ProgressCallBack progress, Gear::CellList availableCells)
+                                 std::vector<Gear::Skill> skills, const Options& options)
     : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
                       armoury.getArmourWithSkill(skills, Gear::Head, options),
                       armoury.getArmourWithSkill(skills, Gear::Torso, options),
                       armoury.getArmourWithSkill(skills, Gear::Arms, options),
-                      armoury.getArmourWithSkill(skills, Gear::Legs, options), skills, progress,
-                      availableCells)
+                      armoury.getArmourWithSkill(skills, Gear::Legs, options), skills)
 {
 }
 
 ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<Gear::Armour> heads,
                                  std::vector<Gear::Armour> torsos, std::vector<Gear::Armour> arms,
                                  std::vector<Gear::Armour> legs,
-                                 std::vector<Gear::Skill> wantedSkills, ProgressCallBack progress,
-                                 Gear::CellList availableCells)
+                                 std::vector<Gear::Skill> wantedSkills)
     : weapons(std::move(weapons)), heads(std::move(heads)), torsos(std::move(torsos)),
-      arms(std::move(arms)), legs(std::move(legs)), wantedSkills(std::move(wantedSkills)),
-      progress(progress), availableCells(std::move(availableCells))
+      arms(std::move(arms)), legs(std::move(legs)), wantedSkills(std::move(wantedSkills))
 {
-    if (heads.empty())
-        heads.push_back(
-            Gear::Armour(Gear::ArmourType::Head,
-                         std::make_shared<Gear::GearInfo>("any_hat", "any_hat", Gear::Elements()),
-                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
-    if (torsos.empty())
-        torsos.push_back(Gear::Armour(
-            Gear::ArmourType::Torso,
-            std::make_shared<Gear::GearInfo>("any_torso", "any_torso", Gear::Elements()), 0,
-            std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
-    if (arms.empty())
-        arms.push_back(
-            Gear::Armour(Gear::ArmourType::Arms,
-                         std::make_shared<Gear::GearInfo>("any_arms", "any_arms", Gear::Elements()),
-                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
-    if (legs.empty())
-        legs.push_back(
-            Gear::Armour(Gear::ArmourType::Legs,
-                         std::make_shared<Gear::GearInfo>("any_legs", "any_legs", Gear::Elements()),
-                         0, std::make_shared<std::vector<std::string>>(), Gear::SkillType::None));
-    if (weapons.empty())
-        weapons.push_back(Gear::Weapon(
-            Gear::WeaponType::Sword,
-            std::make_shared<Gear::GearInfo>("any_weapon", "any_weapon", Gear::Elements()), 0,
-            std::make_shared<std::vector<std::string>>(), Gear::SkillType::None,
-            Gear::SkillType::None));
 }
 
 void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
 {
+    if (heads.size() == 0 || torsos.size() == 0 || arms.size() == 0 || legs.size() == 0 ||
+        weapons.size() == 0)
+    {
+        std::cout << "Did not start search because at least one gear list was empty" << std::endl;
+        return;
+    }
     // may return 0 when not able to detect
     auto concurentThreadsSupported = std::thread::hardware_concurrency();
     if (concurentThreadsSupported == 0)
@@ -62,7 +38,6 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     std::cout << "searching armoursets with " << concurentThreadsSupported << " threads"
               << std::endl;
     // TODO: maximum number of found sets to prevent out of memory
-    reset();
     stats.possibleCombinations =
         heads.size() * torsos.size() * arms.size() * legs.size() * weapons.size();
     stats.searchedCombinations = 0;
@@ -77,6 +52,8 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
         threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported, i, &mtx]() {
+    //concurentThreadsSupported = 1;
+    //size_t i = 0;
             auto start = stats.possibleCombinations * i / concurentThreadsSupported;
             auto stop = stats.possibleCombinations * (i + 1) / concurentThreadsSupported - 1;
             util::GreyCodeGenerator gen({heads.size() - 1, torsos.size() - 1, arms.size() - 1,
@@ -85,12 +62,12 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
             std::vector<size_t> last = gen.currentGreyCode();
             Gear::ArmourSet set(heads[last[0]], torsos[last[1]], arms[last[2]], legs[last[3]],
                                 weapons[last[4]]);
-            Gear::CellList cells = availableCells;
+            Gear::CellList2 cells = availableCells;
             checkSet(set, armoury, cells);
-            auto returnCells = [&cells](Gear::CellList cellList) {
-                for (const auto& cell : cellList)
-                    if (!cell.first.isEmpty())
-                        cells += cell;
+            auto switchGear = [&cells](Gear::ArmourSet& set, const Gear::Gear& oldGear, const Gear::Gear& newGear) {
+                cells += oldGear.getCellList();
+                for (auto& skill : newGear.getInnateSkills())
+                    cells += set.removeCells(skill);
             };
             while (gen.generateNext() && *cancel != true && start < stop)
             {
@@ -98,38 +75,29 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
                 const auto& current = gen.currentGreyCode();
                 if (current[0] != last[0])
                 {
-                    returnCells(set.getHead().getCellList());
+                    switchGear(set, set.getHead(), heads[current[0]]);
                     set.setHead(heads[current[0]]);
-                    for (auto& skill : set.getHead().getInnateSkills())
-                        returnCells(set.removeCells(skill));
+                    
                 }
                 else if (current[1] != last[1])
                 {
-                    returnCells(set.getTorso().getCellList());
+                    switchGear(set, set.getTorso(), torsos[current[1]]);
                     set.setTorso(torsos[current[1]]);
-                    for (auto& skill : set.getTorso().getInnateSkills())
-                        returnCells(set.removeCells(skill));
                 }
                 else if (current[2] != last[2])
                 {
-                    returnCells(set.getArms().getCellList());
+                    switchGear(set, set.getArms(), arms[current[2]]);
                     set.setArms(arms[current[2]]);
-                    for (auto& skill : set.getArms().getInnateSkills())
-                        returnCells(set.removeCells(skill));
                 }
                 else if (current[3] != last[3])
                 {
-                    returnCells(set.getLegs().getCellList());
+                    switchGear(set, set.getLegs(), legs[current[3]]);
                     set.setLegs(legs[current[3]]);
-                    for (auto& skill : set.getLegs().getInnateSkills())
-                        returnCells(set.removeCells(skill));
                 }
                 else if (current[4] != last[4])
                 {
-                    returnCells(set.getWeapon().getCellList());
+                    switchGear(set, set.getWeapon(), weapons[current[4]]);
                     set.setWeapon(weapons[current[4]]);
-                    for (auto& skill : set.getWeapon().getInnateSkills())
-                        returnCells(set.removeCells(skill));
                 }
                 checkSet(set, armoury, cells);
                 last = current;
@@ -161,17 +129,19 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
 }
 
 void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury,
-                               Gear::CellList& cells)
+                               Gear::CellList2& cells)
 {
     for (const auto& skill : wantedSkills)
     {
         auto existingSkillPoints = set.getSkillPointsFor(skill.getId());
-        if (!cells.hasEnoughCellsFor(skill, existingSkillPoints))
+        if (existingSkillPoints>=skill.getSkillPoints())
+            continue;
+        if (!cells.hasEnoughCellsFor(skill.getId(), skill.getSkillPoints() - existingSkillPoints))
             return;
         auto type = armoury.getSkillTypeFor(skill.getId());
         while (existingSkillPoints < skill.getSkillPoints())
         {
-            auto highestCellLevel = cells.getHighestAvailableCellLevel(skill);
+            auto highestCellLevel = cells.getHighestAvailableCellLevel(skill.getId());
             if (highestCellLevel == 0) // no cell available
                 return;
             Gear::Cell cell(Gear::Skill(skill.getId(), highestCellLevel), type);
@@ -191,11 +161,9 @@ void ArmourSetSearch::addArmourSet(const Gear::ArmourSet& set)
     armourSets.push_back(set);
 }
 
-void ArmourSetSearch::reset() { indexWeapon = indexHead = indexTorso = indexArm = indexLeg = 0; }
-
 const std::vector<Gear::ArmourSet>& ArmourSetSearch::getArmourSets() const { return armourSets; }
 
-void ArmourSetSearch::setAvaiableCells(Gear::CellList availableCells)
+void ArmourSetSearch::setAvaiableCells(Gear::CellList2&& availableCells)
 {
     this->availableCells = std::move(availableCells);
 }
