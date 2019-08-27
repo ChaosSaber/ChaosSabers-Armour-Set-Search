@@ -51,7 +51,7 @@ class ArmourSetSearch
     void search(const Gear::Armoury& armoury, const bool* cancel);
     const std::vector<Gear::ArmourSet>& getArmourSets() const;
     std::vector<Gear::ArmourSet>&& moveArmourSets();
-    void setAvaiableCells(Gear::CellList2&& availableCells);
+    void setAvaiableCells(Gear::AvailableCellList&& availableCells);
     void setProgressCallback(ProgressCallBack progress);
     const std::vector<Gear::Skill>& getWantedSkills() const;
 
@@ -62,7 +62,7 @@ class ArmourSetSearch
      * @parameter armoury A reference to an armoury used for checking of skilltypes
      * @parameter cells A list of cells which are available to put into the set
      */
-    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury, Gear::CellList2& cells);
+    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury, Gear::AvailableCellList& cells);
     /**
      * adds an armour to the list of found armoursets (thred safe)
      * @param set: The set to add
@@ -74,7 +74,7 @@ class ArmourSetSearch
     std::vector<Gear::Weapon> weapons;
     std::vector<Gear::Skill> wantedSkills;
 
-    Gear::CellList2 availableCells;
+    Gear::AvailableCellList availableCells;
     struct SearchStatistics stats;
 
     std::mutex addMutex;

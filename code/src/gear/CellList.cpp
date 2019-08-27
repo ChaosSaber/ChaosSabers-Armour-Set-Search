@@ -140,14 +140,14 @@ Gear::CellList Gear::operator*(size_t multiplicator, const Cell& cell)
     return cells;
 }
 
-Gear::CellList2::CellList2(size_t size) { cells_.resize(size); }
+Gear::AvailableCellList::AvailableCellList(size_t size) { cells_.resize(size); }
 
-Gear::CellList2::CellList2(const Armoury& armoury)
-    : CellList2(armoury.getSkills(SkillType::None).size())
+Gear::AvailableCellList::AvailableCellList(const Armoury& armoury)
+    : AvailableCellList(armoury.getSkills(SkillType::None).size())
 {
 }
 
-size_t Gear::CellList2::getHighestAvailableCellLevel(size_t skillId) const
+size_t Gear::AvailableCellList::getHighestAvailableCellLevel(size_t skillId) const
 {
     if (outOfBounds(skillId))
         return 0;
@@ -157,7 +157,7 @@ size_t Gear::CellList2::getHighestAvailableCellLevel(size_t skillId) const
     return 0;
 }
 
-bool Gear::CellList2::hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const
+bool Gear::AvailableCellList::hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const
 {
     if (outOfBounds(skillId))
         return false;
@@ -169,7 +169,7 @@ bool Gear::CellList2::hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints
     return sum >= neededSkillPoints;
 }
 
-const Gear::CellList2& Gear::CellList2::operator+=(const CellList& lhs)
+const Gear::AvailableCellList& Gear::AvailableCellList::operator+=(const CellList& lhs)
 {
     for (const auto& cell : lhs)
     {
@@ -180,7 +180,7 @@ const Gear::CellList2& Gear::CellList2::operator+=(const CellList& lhs)
     return *this;
 }
 
-const Gear::CellList2& Gear::CellList2::operator-=(const Cell& lhs)
+const Gear::AvailableCellList& Gear::AvailableCellList::operator-=(const Cell& lhs)
 {
     if (outOfBounds(lhs.getSkillId()))
         return *this;
@@ -188,4 +188,4 @@ const Gear::CellList2& Gear::CellList2::operator-=(const Cell& lhs)
     return *this;
 }
 
-bool Gear::CellList2::outOfBounds(size_t skillId) const { return skillId >= cells_.size(); }
+bool Gear::AvailableCellList::outOfBounds(size_t skillId) const { return skillId >= cells_.size(); }

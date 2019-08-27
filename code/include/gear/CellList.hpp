@@ -63,11 +63,11 @@ class CellList
  * iterated all the time. This contains a fixed list which contains all skill IDs as primary index
  * and the cell level as secondary index. The access to it is allways constant.
  */
-class CellList2
+class AvailableCellList
 {
   public:
-    CellList2(size_t size = 0);
-    CellList2(const Armoury& armoury);
+    AvailableCellList(size_t size = 0);
+    AvailableCellList(const Armoury& armoury);
 
     /**
      * searchs for the best cell of the given skill
@@ -84,8 +84,8 @@ class CellList2
      */
     bool hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const;
 
-    const CellList2& operator+=(const CellList& lhs);
-    const CellList2& operator-=(const Cell& lhs);
+    const AvailableCellList& operator+=(const CellList& lhs);
+    const AvailableCellList& operator-=(const Cell& lhs);
 
   private:
     bool outOfBounds(size_t skillId) const;

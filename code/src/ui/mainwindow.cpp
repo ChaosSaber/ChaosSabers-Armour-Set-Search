@@ -264,7 +264,7 @@ void MainWindow::advancedSearch()
 
 void MainWindow::armourSetSearch(ArmourSetSearch* ass)
 {
-    Gear::CellList2 cells(armoury);
+    Gear::AvailableCellList cells(armoury);
     // we try to minimize the cells in the list, so that we have less to iterate over in the search
     for (const auto& skill : ass->getWantedSkills())
     {

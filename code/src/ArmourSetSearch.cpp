@@ -62,7 +62,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
             std::vector<size_t> last = gen.currentGreyCode();
             Gear::ArmourSet set(heads[last[0]], torsos[last[1]], arms[last[2]], legs[last[3]],
                                 weapons[last[4]]);
-            Gear::CellList2 cells = availableCells;
+            Gear::AvailableCellList cells = availableCells;
             checkSet(set, armoury, cells);
             auto switchGear = [&cells](Gear::ArmourSet& set, const Gear::Gear& oldGear, const Gear::Gear& newGear) {
                 cells += oldGear.getCellList();
@@ -129,7 +129,7 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
 }
 
 void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury,
-                               Gear::CellList2& cells)
+                               Gear::AvailableCellList& cells)
 {
     for (const auto& skill : wantedSkills)
     {
@@ -163,7 +163,7 @@ void ArmourSetSearch::addArmourSet(const Gear::ArmourSet& set)
 
 const std::vector<Gear::ArmourSet>& ArmourSetSearch::getArmourSets() const { return armourSets; }
 
-void ArmourSetSearch::setAvaiableCells(Gear::CellList2&& availableCells)
+void ArmourSetSearch::setAvaiableCells(Gear::AvailableCellList&& availableCells)
 {
     this->availableCells = std::move(availableCells);
 }
