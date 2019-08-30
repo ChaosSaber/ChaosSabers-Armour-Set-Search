@@ -82,6 +82,8 @@ std::vector<const Gear::SkillInfo*> Gear::Armoury::getSkills(SkillType filter) c
     return skills;
 }
 
+const std::vector<Gear::SkillInfo>& Gear::Armoury::getSkillInfos() const { return skillInfos; }
+
 const Gear::SkillInfo& Gear::Armoury::getSkillInfo(size_t id) const { return skillInfos.at(id); }
 
 Gear::SkillType Gear::Armoury::getSkillTypeFor(size_t id) const

@@ -52,6 +52,14 @@ class ArmourSetSearch
     const std::vector<Gear::ArmourSet>& getArmourSets() const;
     std::vector<Gear::ArmourSet>&& moveArmourSets();
     void setAvaiableCells(Gear::AvailableCellList&& availableCells);
+
+    /**
+     * Sets the progress callback which is called from the search process after every percent
+     * progress. Make sure this function is threadsafe, because it can happen, that it is called
+     * simultaneously from multiple threads. Best is also to forward the actual execution to it's
+     * own thread for maximum performance.
+     * @param progress The callback.
+     */
     void setProgressCallback(ProgressCallBack progress);
     const std::vector<Gear::Skill>& getWantedSkills() const;
 

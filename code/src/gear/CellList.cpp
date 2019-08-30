@@ -11,16 +11,6 @@ Gear::CellList::CellList(const std::vector<Cell>& cells)
         *this += cell;
 }
 
-size_t Gear::CellList::getHighestAvailableCellLevel(const Skill& skill) const
-{
-    size_t highest = 0;
-    for (const auto& cell : cells)
-        if (cell.first.getSkillId() == skill.getId())
-            if (cell.first.getSkill().getSkillPoints() > highest)
-                highest = cell.first.getSkill().getSkillPoints();
-    return highest;
-}
-
 bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int>& rhs)
 {
     if (lhs.first.getSkill().getSkillPoints() > rhs.first.getSkill().getSkillPoints())
@@ -36,17 +26,6 @@ bool Gear::cellSorter(const std::pair<Cell, int>& lhs, const std::pair<Cell, int
     }
     else
         return false;
-}
-
-bool Gear::CellList::hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const
-{
-    if (allreadyExistingSkillPoints > skill.getSkillPoints())
-        return true;
-    size_t sum = 0;
-    for (const auto& cell : cells)
-        if (cell.first.getSkillId() == skill.getId())
-            sum += cell.second * cell.first.getSkill().getSkillPoints();
-    return sum >= skill.getSkillPoints() - allreadyExistingSkillPoints;
 }
 
 void Gear::CellList::sort() { std::sort(cells.begin(), cells.end(), cellSorter); }
@@ -140,10 +119,10 @@ Gear::CellList Gear::operator*(size_t multiplicator, const Cell& cell)
     return cells;
 }
 
-Gear::AvailableCellList::AvailableCellList(size_t size) { cells_.resize(size); }
+Gear::AvailableCellList::AvailableCellList(size_t size) : cells_(size, std::array<size_t, 3>()) {}
 
 Gear::AvailableCellList::AvailableCellList(const Armoury& armoury)
-    : AvailableCellList(armoury.getSkills(SkillType::None).size())
+    : AvailableCellList(armoury.getSkillInfos().size())
 {
 }
 

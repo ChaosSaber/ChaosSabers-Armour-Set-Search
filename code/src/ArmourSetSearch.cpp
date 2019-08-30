@@ -104,7 +104,9 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
 
                 ++stats.searchedCombinations;
                 {
-                    std::lock_guard lock(mtx);
+                    // I get an performance improvement of around 80-90 percent without this lock.
+                    // The caller needs to make sure that the progress callback is thread safe.
+                    //std::lock_guard lock(mtx);
                     int currentProgress =
                         100 * stats.searchedCombinations / stats.possibleCombinations;
                     if (currentProgress != stats.progress)

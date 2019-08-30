@@ -30,6 +30,13 @@ class Armoury
     // returns the skill info to all skills of the specified type
     // filters out unique skills
     std::vector<const SkillInfo*> getSkills(SkillType filter) const;
+
+    /**
+     * Gets all skill infos inclusive the default empty skill(position 0)
+     * @return Returns a vector with infos to all skills.
+     */
+    const std::vector<SkillInfo>& getSkillInfos() const;
+
     /**
      * @param id The ID of the skill the skill info is needed
      * @return Returns the SkillInfo for the specified ID

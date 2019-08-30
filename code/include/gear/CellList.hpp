@@ -19,14 +19,6 @@ class CellList
     CellList(const Cell& cell);
     CellList(const std::vector<Cell>& cells);
 
-    /**
-     * searchs for the best cell of the given skill
-     * @parameter skill The skill for which the best cell is searched
-     * @return The highest cell level for that skill in the list
-     */
-    size_t getHighestAvailableCellLevel(const Skill& skill) const;
-
-    bool hasEnoughCellsFor(const Skill& skill, size_t allreadyExistingSkillPoints) const;
     void sort();
     /**
      *@return Returns the number of skills in the list
