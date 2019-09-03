@@ -80,9 +80,22 @@ class AvailableCellList
     const AvailableCellList& operator-=(const Cell& lhs);
 
   private:
-    bool outOfBounds(size_t skillId) const;
+    class CellArray
+    {
+      public:
+        CellArray() : cells_({0, 0, 0}), totalSkillCount_(0) {}
+        size_t getHighestAvailableCellLevel() const;
+        size_t getTotalSkillcount() const;
 
-    std::vector<std::array<size_t, 3>> cells_;
+        void add(size_t cellLevel, size_t amount);
+        void remove(size_t cellLevel);
+
+      private:
+        std::array<size_t, 3> cells_;
+        size_t totalSkillCount_;
+    };
+
+    std::vector<CellArray> cells_;
 };
 } // namespace Gear
 

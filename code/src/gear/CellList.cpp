@@ -119,7 +119,7 @@ Gear::CellList Gear::operator*(size_t multiplicator, const Cell& cell)
     return cells;
 }
 
-Gear::AvailableCellList::AvailableCellList(size_t size) : cells_(size, std::array<size_t, 3>()) {}
+Gear::AvailableCellList::AvailableCellList(size_t size) : cells_(size, CellArray()) {}
 
 Gear::AvailableCellList::AvailableCellList(const Armoury& armoury)
     : AvailableCellList(armoury.getSkillInfos().size())
@@ -128,43 +128,49 @@ Gear::AvailableCellList::AvailableCellList(const Armoury& armoury)
 
 size_t Gear::AvailableCellList::getHighestAvailableCellLevel(size_t skillId) const
 {
-    if (outOfBounds(skillId))
-        return 0;
-    for (size_t i = 3; i > 0; --i)
-        if (cells_[skillId][i - 1] > 0)
-            return i;
-    return 0;
+    return cells_[skillId].getHighestAvailableCellLevel();
 }
 
 bool Gear::AvailableCellList::hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const
 {
-    if (outOfBounds(skillId))
-        return false;
-    size_t sum = 0;
-    for (size_t i = 3; i > 0; --i)
-    {
-        sum += i * cells_[skillId][i - 1];
-    }
-    return sum >= neededSkillPoints;
+    return cells_[skillId].getTotalSkillcount() >= neededSkillPoints;
 }
 
 const Gear::AvailableCellList& Gear::AvailableCellList::operator+=(const CellList& lhs)
 {
     for (const auto& cell : lhs)
     {
-        if (cell.first.isEmpty() || outOfBounds(cell.first.getSkillId()))
+        if (cell.first.isEmpty())
             continue;
-        cells_[cell.first.getSkillId()][cell.first.getSkill().getSkillPoints() - 1] += cell.second;
+        cells_[cell.first.getSkillId()].add(cell.first.getSkill().getSkillPoints(), cell.second);
     }
     return *this;
 }
 
 const Gear::AvailableCellList& Gear::AvailableCellList::operator-=(const Cell& lhs)
 {
-    if (outOfBounds(lhs.getSkillId()))
-        return *this;
-    --cells_[lhs.getSkillId()][lhs.getSkill().getSkillPoints() - 1];
+    cells_[lhs.getSkillId()].remove(lhs.getSkill().getSkillPoints());  
     return *this;
 }
 
-bool Gear::AvailableCellList::outOfBounds(size_t skillId) const { return skillId >= cells_.size(); }
+size_t Gear::AvailableCellList::CellArray::getHighestAvailableCellLevel() const
+{
+    for (size_t i = 3; i > 0; --i)
+        if (cells_[i - 1] > 0)
+            return i;
+    return 0;
+}
+
+size_t Gear::AvailableCellList::CellArray::getTotalSkillcount() const { return totalSkillCount_; }
+
+void Gear::AvailableCellList::CellArray::add(size_t cellLevel, size_t amount)
+{
+    cells_[cellLevel - 1] += amount;
+    totalSkillCount_ += cellLevel * amount;
+}
+
+void Gear::AvailableCellList::CellArray::remove(size_t cellLevel)
+{
+    --cells_[cellLevel - 1];
+    totalSkillCount_ -= cellLevel;
+}
