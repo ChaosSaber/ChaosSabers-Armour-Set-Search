@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
     connect(ui->pushButtonAdvancedSearch, &QPushButton::clicked, [this]() { advancedSearch(); });
-    connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { cancel = true; });
+    connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { cancelSearch = true; });
 
     ui->listWidgetArmourSets->setStyleSheet(
         "QListWidget::item { border-bottom: 1px solid black; }");
@@ -293,11 +293,11 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
         [this](ArmourSetSearch::SearchStatistics stats) { emit setProgressMainThread(stats); });
     ass->setAvaiableCells(std::move(cells));
     setSearchButtonsState(false);
-    cancel = false;
+    cancelSearch = false;
     connect(searchWatcher, &QFutureWatcher<void>::finished,
             [this, ass]() { emit finishedSearchMainThread(ass); });
     using namespace std::placeholders;
-    QFuture<void> future = QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancel);
+    QFuture<void> future = QtConcurrent::run(ass, &ArmourSetSearch::search, armoury, &cancelSearch);
     searchWatcher->setFuture(future);
 }
 
@@ -491,6 +491,7 @@ void MainWindow::clearSearch()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+    cancelSearch = true;
     QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());
     settings.setValue(STATE, saveState());

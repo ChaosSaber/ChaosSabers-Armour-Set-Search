@@ -77,7 +77,7 @@ class MainWindow : public QMainWindow
     Gear::Armoury armoury;
     std::unordered_map<Gear::SkillType, std::vector<const Gear::SkillInfo *>> skills;
     QNetworkAccessManager *manager = NULL;
-    bool cancel = false;
+    bool cancelSearch = false;
     QFutureWatcher<void> *searchWatcher = new QFutureWatcher<void>();
     Filter filter;
     bool isCreatingArmourSets = false;
