@@ -21,7 +21,6 @@ If you encounter any error please refer at first to troubleshooting.txt for gene
 - experimental export function to text (file and clipboard)
 
 ## planned features
-- increase Search speed (currently in work)
 - ui overhaul (help screen, rework of the perk selection, restructuring of search options and filters)
 - Saving/loading/comparing of single sets
 - Sorting of search results
