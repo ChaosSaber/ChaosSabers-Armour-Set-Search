@@ -249,13 +249,13 @@ void MainWindow::search()
     if (wantedSkills.empty())
         return;
     armourSetSearch(new ArmourSetSearch(
-        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), wantedSkills, options));
+        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), Gear::WantedSkillList(wantedSkills, armoury), options));
 }
 
 void MainWindow::advancedSearch()
 {
     AdvancedSearch search((Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), armoury, dict,
-                          options, getWantedSkills(), this);
+                          options, Gear::WantedSkillList(getWantedSkills(), armoury), this);
     connect(&search, &AdvancedSearch::armourSetSearch, this,
             [this](ArmourSetSearch* ass) { armourSetSearch(ass); });
     search.setModal(true);
@@ -266,19 +266,19 @@ void MainWindow::armourSetSearch(ArmourSetSearch* ass)
 {
     Gear::AvailableCellList cells(armoury);
     // we try to minimize the cells in the list, so that we have less to iterate over in the search
-    for (const auto& skill : ass->getWantedSkills())
+    for (const auto& skillId : ass->getWantedSkills().getWantedSkills())
     {
-        auto type = armoury.getSkillTypeFor(skill.getId());
+        auto type = armoury.getSkillTypeFor(skillId);
         if (options.cellUsage == 0) // best cells
         {
-            cells += Gear::Cell(Gear::Skill(skill.getId(), 3), type) * 2;
+            cells += Gear::Cell(Gear::Skill(skillId, 3), type) * 2;
         }
         else if (options.cellUsage == 1) // own cells
         {
             size_t sum = 0;
             for (size_t i = 3; i >= 1 && sum < 6; --i)
             {
-                Gear::Cell cell(Gear::Skill(skill.getId(), i), type);
+                Gear::Cell cell(Gear::Skill(skillId, i), type);
                 auto count = options.cells[cell];
                 cells += cell * count;
                 sum += count * i;

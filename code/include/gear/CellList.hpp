@@ -76,6 +76,22 @@ class AvailableCellList
      */
     bool hasEnoughCellsFor(size_t skillId, size_t neededSkillPoints) const;
 
+    /**
+     * calculates the number of cells needed for the given skillpoints
+     * @param skillId The ID of the skill for which the number is needed
+     * @param skillCount The number of skillpoints which needs to be reached
+     * @return Returns the number of cells needed or zero if the skillpoints can't be reached
+     */
+    size_t cellsNeededForSkillCount(size_t skillId, size_t skillCount) const;
+
+    /**
+     * Gets a list of cell levels needed to reach the given skill points
+     * @param skillId The ID of the skill the cells are needed for
+     * @param skillCount The number of skill points which are needed to reach
+     * @return Returns a list with the necessary cell levels or an empty list if it can't be reached
+     */
+    const std::vector<size_t>& getCellLevelsForSkillCount(size_t skillId, size_t skillCount) const;
+
     const AvailableCellList& operator+=(const CellList& lhs);
     const AvailableCellList& operator-=(const Cell& lhs);
 
@@ -86,12 +102,15 @@ class AvailableCellList
         CellArray() : cells_({0, 0, 0}), totalSkillCount_(0) {}
         size_t getHighestAvailableCellLevel() const;
         size_t getTotalSkillcount() const;
+        size_t cellsNeededForSkillCount(size_t skillCount) const;
+        const std::vector<size_t>& getCellLevelsForSkillCount(size_t skillCount) const;
 
         void add(size_t cellLevel, size_t amount);
         void remove(size_t cellLevel);
 
       private:
         std::array<size_t, 3> cells_;
+        std::array<std::vector<size_t>, 6> cellsForSkillCount_;
         size_t totalSkillCount_;
     };
 

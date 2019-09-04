@@ -5,7 +5,7 @@
 #include <thread>
 
 ArmourSetSearch::ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
-                                 std::vector<Gear::Skill> skills, const Options& options)
+                                 const Gear::WantedSkillList& skills, const Options& options)
     : ArmourSetSearch(armoury.getWeaponsWithSkill(skills, weaponType, options),
                       armoury.getArmourWithSkill(skills, Gear::Head, options),
                       armoury.getArmourWithSkill(skills, Gear::Torso, options),
@@ -17,9 +17,9 @@ ArmourSetSearch::ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType 
 ArmourSetSearch::ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<Gear::Armour> heads,
                                  std::vector<Gear::Armour> torsos, std::vector<Gear::Armour> arms,
                                  std::vector<Gear::Armour> legs,
-                                 std::vector<Gear::Skill> wantedSkills)
+                                 const Gear::WantedSkillList& wantedSkills)
     : weapons(std::move(weapons)), heads(std::move(heads)), torsos(std::move(torsos)),
-      arms(std::move(arms)), legs(std::move(legs)), wantedSkills(std::move(wantedSkills))
+      arms(std::move(arms)), legs(std::move(legs)), wantedSkills(wantedSkills)
 {
 }
 
@@ -52,70 +52,56 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
     for (size_t i = 0; i < concurentThreadsSupported; ++i)
     {
         threads.emplace_back([this, cancel, &armoury, concurentThreadsSupported, i, &mtx]() {
-    //concurentThreadsSupported = 1;
-    //size_t i = 0;
+            // concurentThreadsSupported = 1;
+            // size_t i = 0;
             auto start = stats.possibleCombinations * i / concurentThreadsSupported;
             auto stop = stats.possibleCombinations * (i + 1) / concurentThreadsSupported - 1;
             util::GreyCodeGenerator gen({heads.size() - 1, torsos.size() - 1, arms.size() - 1,
                                          legs.size() - 1, weapons.size() - 1},
                                         start);
             std::vector<size_t> last = gen.currentGreyCode();
-            Gear::ArmourSet set(heads[last[0]], torsos[last[1]], arms[last[2]], legs[last[3]],
-                                weapons[last[4]]);
-            Gear::AvailableCellList cells = availableCells;
-            checkSet(set, armoury, cells);
-            auto switchGear = [&cells](Gear::ArmourSet& set, const Gear::Gear& oldGear, const Gear::Gear& newGear) {
-                cells += oldGear.getCellList();
-                for (auto& skill : newGear.getInnateSkills())
-                    cells += set.removeCells(skill);
+            Gear::ArmourSet set(armoury, heads[last[0]], torsos[last[1]], arms[last[2]],
+                                legs[last[3]], weapons[last[4]]);
+            auto increaseStats = [this]() {
+                ++stats.searchedCombinations;
+                int currentProgress = 100 * stats.searchedCombinations / stats.possibleCombinations;
+                if (currentProgress != stats.progress)
+                {
+                    stats.progress = currentProgress;
+                    stats.end = std::chrono::high_resolution_clock::now();
+                    progress(stats);
+                }
             };
+
+            checkSet(set, armoury, availableCells);
+            increaseStats();
             while (gen.generateNext() && *cancel != true && start < stop)
             {
                 ++start;
                 const auto& current = gen.currentGreyCode();
                 if (current[0] != last[0])
                 {
-                    switchGear(set, set.getHead(), heads[current[0]]);
                     set.setHead(heads[current[0]]);
-                    
                 }
                 else if (current[1] != last[1])
                 {
-                    switchGear(set, set.getTorso(), torsos[current[1]]);
                     set.setTorso(torsos[current[1]]);
                 }
                 else if (current[2] != last[2])
                 {
-                    switchGear(set, set.getArms(), arms[current[2]]);
                     set.setArms(arms[current[2]]);
                 }
                 else if (current[3] != last[3])
                 {
-                    switchGear(set, set.getLegs(), legs[current[3]]);
                     set.setLegs(legs[current[3]]);
                 }
                 else if (current[4] != last[4])
                 {
-                    switchGear(set, set.getWeapon(), weapons[current[4]]);
                     set.setWeapon(weapons[current[4]]);
                 }
-                checkSet(set, armoury, cells);
+                checkSet(set, armoury, availableCells);
                 last = current;
-
-                ++stats.searchedCombinations;
-                {
-                    // I get an performance improvement of around 80-90 percent without this lock.
-                    // The caller needs to make sure that the progress callback is thread safe.
-                    //std::lock_guard lock(mtx);
-                    int currentProgress =
-                        100 * stats.searchedCombinations / stats.possibleCombinations;
-                    if (currentProgress != stats.progress)
-                    {
-                        stats.progress = currentProgress;
-                        stats.end = std::chrono::high_resolution_clock::now();
-                        progress(stats);
-                    }
-                }
+                increaseStats();
             }
         });
     }
@@ -131,30 +117,47 @@ void ArmourSetSearch::search(const Gear::Armoury& armoury, const bool* cancel)
 }
 
 void ArmourSetSearch::checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury,
-                               Gear::AvailableCellList& cells)
+                               const Gear::AvailableCellList& cells)
 {
-    for (const auto& skill : wantedSkills)
+    std::array<size_t, Gear::SkillType::MaxSkillType> NeededCellsPerType = {};
+    for (const auto& skillId : wantedSkills.getWantedSkills())
     {
-        auto existingSkillPoints = set.getSkillPointsFor(skill.getId());
-        if (existingSkillPoints>=skill.getSkillPoints())
+        auto existingSkillPoints = set.getSkillPointsFor(skillId);
+        if (existingSkillPoints >= wantedSkills.getWantedLevel(skillId))
             continue;
-        if (!cells.hasEnoughCellsFor(skill.getId(), skill.getSkillPoints() - existingSkillPoints))
+        auto remainingSkillPoints = wantedSkills.getWantedLevel(skillId) - existingSkillPoints;
+        if (!cells.hasEnoughCellsFor(skillId, remainingSkillPoints))
             return;
-        auto type = armoury.getSkillTypeFor(skill.getId());
-        while (existingSkillPoints < skill.getSkillPoints())
+        NeededCellsPerType[armoury.getSkillTypeFor(skillId)] +=
+            cells.cellsNeededForSkillCount(skillId, remainingSkillPoints);
+    }
+    for (size_t i = Gear::SkillType::None + 1; i < Gear::SkillType::MaxSkillType; ++i)
+    {
+        if (NeededCellsPerType[i] > set.getCellSlotCountFor(Gear::SkillType(i)))
+            return;
+    }
+    for (const auto& skillId : wantedSkills.getWantedSkills())
+    {
+        auto type = armoury.getSkillTypeFor(skillId);
+        auto existingSkillPoints = set.getSkillPointsFor(skillId);
+        if (existingSkillPoints >= wantedSkills.getWantedLevel(skillId))
+            continue;
+        auto remainingSkillPoints = wantedSkills.getWantedLevel(skillId) - existingSkillPoints;
+        for (const auto& cellLevel :
+             cells.getCellLevelsForSkillCount(skillId, remainingSkillPoints))
         {
-            auto highestCellLevel = cells.getHighestAvailableCellLevel(skill.getId());
-            if (highestCellLevel == 0) // no cell available
+            if (!set.addCell(Gear::Cell(Gear::Skill(skillId, cellLevel), type)))
+            {
+                // we should never land here
+                std::cout << "added a cell which did not fit" << std::endl;
+                set.removeAllCells();
                 return;
-            Gear::Cell cell(Gear::Skill(skill.getId(), highestCellLevel), type);
-            if (!set.addCell(cell))
-                return;
-            cells -= cell;
-            existingSkillPoints += highestCellLevel;
+            }
         }
     }
     ++stats.foundSets;
     addArmourSet(set);
+    set.removeAllCells();
 }
 
 void ArmourSetSearch::addArmourSet(const Gear::ArmourSet& set)
@@ -172,6 +175,6 @@ void ArmourSetSearch::setAvaiableCells(Gear::AvailableCellList&& availableCells)
 
 void ArmourSetSearch::setProgressCallback(ProgressCallBack progress) { this->progress = progress; }
 
-const std::vector<Gear::Skill>& ArmourSetSearch::getWantedSkills() const { return wantedSkills; }
+const Gear::WantedSkillList& ArmourSetSearch::getWantedSkills() const { return wantedSkills; }
 
 std::vector<Gear::ArmourSet>&& ArmourSetSearch::moveArmourSets() { return std::move(armourSets); }

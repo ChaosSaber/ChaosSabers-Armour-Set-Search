@@ -36,6 +36,11 @@ class Cell
     std::string getCellInfo(const Dictionary& dict, const Armoury& armoury) const;
     SkillType getCellType() const;
 
+    /**
+    * Removes the cell and makes it empty again.
+    */
+    void clear();
+
     //  operators
     bool operator==(const Cell& cell) const;
     CellList operator*(size_t multiplicator) const;

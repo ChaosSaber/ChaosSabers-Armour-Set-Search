@@ -34,7 +34,12 @@ std::string Gear::Cell::getCellInfo(const Dictionary &dict, const Armoury& armou
 
 Gear::SkillType Gear::Cell::getCellType() const { return type; }
 
-bool Gear::Cell::operator==(const Cell &cell) const
+void Gear::Cell::clear()
+{
+    empty = true;
+}
+
+bool Gear::Cell::operator==(const Cell& cell) const
 {
     if (empty && cell.empty)
         return type == cell.type;

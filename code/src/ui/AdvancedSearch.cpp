@@ -6,11 +6,11 @@
 
 #define GEOMETRY "AdvancedSearch/Geometry"
 
-AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury &armoury,
-                               const Dictionary &dict, Options &options,
-                               std::vector<Gear::Skill> skills, QWidget *parent)
+AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury& armoury,
+                               const Dictionary& dict, Options& options,
+                               const Gear::WantedSkillList& skills, QWidget* parent)
     : QDialog(parent), ui(new Ui::AdvancedSearch), options(options), dict(dict), armoury(armoury),
-      wantedSkills(std::move(skills))
+      wantedSkills(skills)
 {
     ui->setupUi(this);
     QSettings settings;
@@ -34,7 +34,7 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
     ui->pushButtonNoneArms->setText(getTranslation(dict, "button_none"));
     ui->pushButtonNoneLegs->setText(getTranslation(dict, "button_none"));
 
-    set(weaponType, wantedSkills);
+    set(weaponType);
 
     connect(ui->pushButtonCancel, &QPushButton::clicked, [this]() { close(); });
     connect(ui->pushButtonSearch, &QPushButton::clicked, [this]() { search(); });
@@ -42,14 +42,14 @@ AdvancedSearch::AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury 
 
 AdvancedSearch::~AdvancedSearch() { delete ui; }
 
-void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> wantedSkills)
+void AdvancedSearch::set(Gear::WeaponType weaponType)
 {
     ui->listWidgetWeapons->clear();
     ui->listWidgetHeads->clear();
     ui->listWidgetTorsos->clear();
     ui->listWidgetArms->clear();
     ui->listWidgetLegs->clear();
-    for (const auto &weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType, options))
+    for (const auto& weapon : armoury.getWeaponsWithSkill(wantedSkills, weaponType, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(weapon.getName()) > 0)
@@ -88,7 +88,7 @@ void AdvancedSearch::set(Gear::WeaponType weaponType, std::vector<Gear::Skill> w
     ui->listWidgetLegs->setMinimumWidth(ui->listWidgetLegs->sizeHintForColumn(0));
 }
 
-void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
+void AdvancedSearch::addItem(QWidget* widget, QListWidget* list)
 {
     auto item = new QListWidgetItem();
     item->setSizeHint(widget->sizeHint());
@@ -99,7 +99,7 @@ void AdvancedSearch::addItem(QWidget *widget, QListWidget *list)
 void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget* list, QPushButton* noneButton,
                                 QPushButton* allButton)
 {
-    for (const auto &armour : armoury.getArmourWithSkill(wantedSkills, type, options))
+    for (const auto& armour : armoury.getArmourWithSkill(wantedSkills, type, options))
     {
         auto checkbox = new QCheckBox();
         if (options.checkedGear.count(armour.getName()) > 0)
@@ -127,7 +127,7 @@ void AdvancedSearch::addArmours(Gear::ArmourType type, QListWidget* list, QPushB
 std::vector<Gear::Armour> AdvancedSearch::getArmour(Gear::ArmourType type)
 {
     std::vector<Gear::Armour> armours;
-    for (const auto &armour : this->armours[type])
+    for (const auto& armour : this->armours[type])
         if (armour.first->isChecked())
             armours.push_back(armour.second);
     return armours;
@@ -136,7 +136,7 @@ std::vector<Gear::Armour> AdvancedSearch::getArmour(Gear::ArmourType type)
 void AdvancedSearch::search()
 {
     std::vector<Gear::Weapon> weapons;
-    for (const auto &weapon : this->weapons)
+    for (const auto& weapon : this->weapons)
         if (weapon.first->isChecked())
             weapons.push_back(weapon.second);
     std::vector<Gear::Armour> heads = getArmour(Gear::ArmourType::Head);
@@ -149,7 +149,7 @@ void AdvancedSearch::search()
     // and then let the mainwindow acces the ass with a method
 }
 
-void AdvancedSearch::closeEvent(QCloseEvent *event)
+void AdvancedSearch::closeEvent(QCloseEvent* event)
 {
     QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());

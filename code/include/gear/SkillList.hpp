@@ -3,7 +3,10 @@
 
 #include "Dictionary.hpp"
 #include "gear/Skill.hpp"
+#include "gear/SkillType.hpp"
+#include <array>
 #include <vector>
+#include <set>
 
 namespace Gear
 {
@@ -73,6 +76,62 @@ class SkillList
 
   private:
     std::vector<Skill> skills;
+};
+
+/**
+ * Skill list optimized for accessing specific elements. Used for the armour search.
+ */
+class WantedSkillList
+{
+  public:
+    /**
+     * Creates a new wanted skil list.
+     * @param armoury An reference to the armoury. Used for initializing the vector size.
+     */
+    WantedSkillList(const Armoury& armoury);
+    /**
+     * Creates a new wanted skil list.
+     * @param wantedSkills A list of skills which are wanted.
+     * @param armoury An reference to the armoury. Used for initializing the vector size.
+     */
+    WantedSkillList(const std::vector<Skill>& wantedSkills, const Armoury& armoury);
+
+    /**
+     * Checks if the given skill ID is a wanted skill.
+     * @param skillId The skill ID which needs to be checked.
+     * @return Returns true if the skill ID is a wanted skill, otherwise false.
+     */
+    bool isWanted(size_t skillId) const;
+
+    /**
+     * Gets the wanted skill level of the given skill ID.
+     * @param skillId The skill ID the level is needed for.
+     * @return Returns the wanted skill level.
+     */
+    size_t getWantedLevel(size_t skillId) const;
+
+    /**
+     * Gets all wanted skills.
+     * @return Returns a list with the skill IDs.
+     */
+    const std::set<size_t>& getWantedSkills() const;
+
+    /**
+     * gets the overall needed skill level for the specified type
+     * @param type The type for which the skill level are needed
+     * @return Returns the needed skill level for that type
+     */
+    size_t getSkillLevelForType(SkillType type) const;
+
+    const WantedSkillList& operator+=(const Skill& skill);
+    const WantedSkillList& operator-=(const Skill& skill);
+
+  private:
+    const Armoury& armoury_;
+    std::vector<bool> wanted_;
+    std::vector<size_t> levels_;
+    std::set<size_t> ids_;
+    std::array<size_t, SkillType::MaxSkillType> skillLevelPerType_;
 };
 } // namespace Gear
 

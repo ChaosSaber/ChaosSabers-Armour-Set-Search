@@ -1,5 +1,7 @@
 #include "gear/SkillList.hpp"
+#include "gear/Armoury.hpp"
 #include <algorithm>
+#include <gear/Armoury.hpp>
 #include <sstream>
 
 Gear::SkillList::SkillList(Skill skill) { skills.push_back(skill); }
@@ -10,10 +12,7 @@ Gear::SkillList::SkillList(const std::vector<Skill>& skills)
         *this += skill;
 }
 
-bool Gear::skillSorter(const Skill& lhs, const Skill& rhs)
-{
-    return lhs > rhs;
-}
+bool Gear::skillSorter(const Skill& lhs, const Skill& rhs) { return lhs > rhs; }
 
 void Gear::SkillList::sort() { std::sort(skills.begin(), skills.end(), skillSorter); }
 
@@ -123,4 +122,60 @@ Gear::SkillList Gear::operator+(SkillList lhs, const SkillList& rhs)
 {
     lhs += rhs;
     return lhs;
+}
+
+Gear::WantedSkillList::WantedSkillList(const Armoury& armoury) : WantedSkillList({}, armoury) {}
+
+Gear::WantedSkillList::WantedSkillList(const std::vector<Skill>& wantedSkills,
+                                       const Armoury& armoury)
+    : armoury_(armoury), wanted_(armoury.getSkillInfos().size(), false),
+      levels_(armoury.getSkillInfos().size(), 0), skillLevelPerType_({})
+{
+    for (auto& skill : wantedSkills)
+    {
+        if (skill.getSkillPoints() == 0)
+            continue;
+        ids_.insert(skill.getId());
+        wanted_[skill.getId()] = true;
+        levels_[skill.getId()] = skill.getSkillPoints();
+        skillLevelPerType_[armoury.getSkillTypeFor(skill.getId())] += skill.getSkillPoints();
+    }
+}
+
+bool Gear::WantedSkillList::isWanted(size_t skillId) const { return wanted_[skillId]; }
+
+size_t Gear::WantedSkillList::getWantedLevel(size_t skillId) const { return levels_[skillId]; }
+
+const std::set<size_t>& Gear::WantedSkillList::getWantedSkills() const { return ids_; }
+
+size_t Gear::WantedSkillList::getSkillLevelForType(SkillType type) const
+{
+    return skillLevelPerType_[type];
+}
+
+const Gear::WantedSkillList& Gear::WantedSkillList::operator+=(const Skill& skill)
+{
+    if (skill.getId() == 0)
+        return *this;
+    wanted_[skill.getId()] = true;
+    levels_[skill.getId()] += skill.getSkillPoints();
+    ids_.insert(skill.getId());
+    skillLevelPerType_[armoury_.getSkillTypeFor(skill.getId())] += skill.getSkillPoints();
+    return *this;
+}
+
+const Gear::WantedSkillList& Gear::WantedSkillList::operator-=(const Skill& skill)
+{
+    if (skill.getId() == 0)
+        return *this;
+    if (levels_[skill.getId()] > skill.getSkillPoints())
+        levels_[skill.getId()] -= skill.getSkillPoints();
+    else
+    {
+        levels_[skill.getId()] = 0;
+        wanted_[skill.getId()] = false;
+        ids_.erase(skill.getId());
+    }
+    skillLevelPerType_[armoury_.getSkillTypeFor(skill.getId())] += skill.getSkillPoints();
+    return *this;
 }

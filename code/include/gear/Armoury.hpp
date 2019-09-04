@@ -20,9 +20,9 @@ class Armoury
 
     void loadData();
 
-    std::vector<Weapon> getWeaponsWithSkill(const std::vector<Skill>& skills, WeaponType type,
+    std::vector<Weapon> getWeaponsWithSkill(const WantedSkillList& skills, WeaponType type,
                                             const Options& options) const;
-    std::vector<Armour> getArmourWithSkill(const std::vector<Skill>& skills, ArmourType type,
+    std::vector<Armour> getArmourWithSkill(const WantedSkillList& skills, ArmourType type,
                                            const Options& options) const;
     const Armour& getArmour(std::string name, int level) const;
     const Weapon& getWeapon(std::string name, int level) const;
@@ -66,6 +66,14 @@ class Armoury
     // its filtered out if the tier is higher than the current progression and if its tier is too
     // low and don't use lower tier gear is enabled returns true if its filtered out
     bool filterGear(const Gear& gear, const Options& options) const;
+
+    /**
+    * Checks if the gear has a needed skill or cell slot.
+    * @param gear The gear to check.
+    * @param skills A list of wanted skills.
+    * @return Returns true if the gear has the needed requirements, otherwise false.
+    */
+    bool gearHasSkill(const Gear& gear, const WantedSkillList& skills) const;
 
     /**
      * Filters out weapons according to its tier and weapon element.

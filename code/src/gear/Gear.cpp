@@ -49,7 +49,7 @@ bool Gear::Gear::hasUniqueSkill() const
 
 const std::vector<std::string>& Gear::Gear::getUniqueSkills() const { return *uniqueSkills_; }
 
-Gear::SkillList Gear::Gear::getInnateSkills() const { return skill_; }
+const Gear::Skill& Gear::Gear::getInnateSkills() const { return skill_; }
 
 Gear::SkillList Gear::Gear::getSkills() const
 {
@@ -116,18 +116,15 @@ bool Gear::Gear::hasFreeCellSlotFor(SkillType type) const
     return false;
 }
 
-Gear::CellList Gear::Gear::removeCells(const Skill& skill)
+void Gear::Gear::removeAllCells()
 {
-    CellList cells;
     for (auto& cell : cells_)
     {
-        if (!cell.isEmpty() && cell.getSkillId() == skill.getId())
+        if (!cell.isEmpty())
         {
-            cells += cell;
-            cell = Cell(cell.getCellType());
+            cell.clear();
         }
     }
-    return cells;
 }
 
 Gear::CellList Gear::Gear::getCellList() const { return cells_; }

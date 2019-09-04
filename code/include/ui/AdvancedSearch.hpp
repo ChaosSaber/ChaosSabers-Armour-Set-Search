@@ -21,10 +21,10 @@ class AdvancedSearch : public QDialog
     Q_OBJECT
   public:
     AdvancedSearch(Gear::WeaponType weaponType, const Gear::Armoury &armoury,
-                   const Dictionary &dict, Options &options, std::vector<Gear::Skill> wantedSkills,
+                   const Dictionary& dict, Options& options, const Gear::WantedSkillList& wantedSkills,
                    QWidget *parent = NULL);
     ~AdvancedSearch();
-    void set(Gear::WeaponType weaponType, std::vector<Gear::Skill> wantedSkills);
+    void set(Gear::WeaponType weaponType);
   signals:
     void armourSetSearch(ArmourSetSearch *ass);
 
@@ -40,7 +40,7 @@ class AdvancedSearch : public QDialog
     const Dictionary &dict;
     const Gear::Armoury &armoury;
     Options &options;
-    std::vector<Gear::Skill> wantedSkills;
+    Gear::WantedSkillList wantedSkills;
 
     std::unordered_map<QCheckBox *, Gear::Weapon> weapons;
     std::unordered_map<Gear::ArmourType, std::unordered_map<QCheckBox *, Gear::Armour>> armours;

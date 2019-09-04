@@ -45,11 +45,9 @@ class Gear
     bool addCell(const Cell& cell);
 
     /**
-     * removes all cells from the specified type
-     * @param skill The cell(s) with this skill shall be removed
-     * @return Returns a CellList with the removed cells
+     * Removes all cells from the gear.
      */
-    CellList removeCells(const Skill& skill);
+    void removeAllCells();
 
     // returns the cells on the gear
     CellList getCellList() const;
@@ -75,7 +73,7 @@ class Gear
      * gathers all innate skill of the gear. This does not include skills from cells
      * @return Returns a list of skills
      */
-    SkillList getInnateSkills() const;
+    const Skill& getInnateSkills() const;
     /**
      * gathers all skills on the gear including the ones gained through cells
      * @return Returns a list of skills

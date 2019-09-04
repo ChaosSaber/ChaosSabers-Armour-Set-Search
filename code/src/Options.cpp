@@ -436,7 +436,7 @@ void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
                 auto torso = jsonToArmour(json[TORSO].toObject(), armoury);
                 auto arms = jsonToArmour(json[ARMS].toObject(), armoury);
                 auto legs = jsonToArmour(json[LEGS].toObject(), armoury);
-                Gear::ArmourSet set(std::move(head), std::move(torso), std::move(arms),
+                Gear::ArmourSet set(armoury, std::move(head), std::move(torso), std::move(arms),
                                     std::move(legs), std::move(weapon));
                 for (auto& cell : jsonToCellList(json[CELLS].toArray(), armoury))
                     for (size_t count = 0; count < cell.second; ++count)

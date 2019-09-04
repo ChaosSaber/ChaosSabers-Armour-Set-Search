@@ -3,21 +3,24 @@
 
 #include "gear/Armour.hpp"
 #include "gear/Gear.hpp"
+#include "gear/SkillList.hpp"
 #include "gear/SkillType.hpp"
 #include "gear/Weapon.hpp"
 
 namespace Gear
 {
+class Armoury;
 class ArmourSet
 {
   public:
-    ArmourSet(const Armour& head, const Armour& torso, const Armour& arms, const Armour& legs,
-              const Weapon& weapon, const Cell& lantern = SkillType::Utility);
-    ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs, Weapon&& weapon,
-              Cell&& lantern = SkillType::Utility);
+    ArmourSet(const Armoury& armoury, const Armour& head, const Armour& torso, const Armour& arms,
+              const Armour& legs, const Weapon& weapon, const Cell& lantern = SkillType::Utility);
+    ArmourSet(const Armoury& armoury, Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs,
+              Weapon&& weapon, Cell&& lantern = SkillType::Utility);
     ArmourSet(const ArmourSet& other);
-    const ArmourSet& operator=(ArmourSet&& other);
     ArmourSet(ArmourSet&& other);
+    const ArmourSet& operator=(const ArmourSet& other) = delete;
+    const ArmourSet& operator=(ArmourSet&& other) = delete;
 
     // checks if the gear has free cell slots for a specific skill
     bool hasFreeCellSlotFor(SkillType type) const;
@@ -44,11 +47,15 @@ class ArmourSet
     void setWeapon(const Weapon& weapon);
 
     /**
-     * removes all cells from the specified type
-     * @param skill The cell(s) with this skill shall be removed
-     * @return Returns a CellList with the removed cells
+     * gets the total number of cell slots for the specified type
+     * @param type The skill type for which the cell slots are needed
+     * @return The number of cell slot on the set for that type
      */
-    CellList removeCells(const Skill& skill);
+    size_t getCellSlotCountFor(SkillType type) const;
+    /**
+     * removes all cells from the set
+     */
+    void removeAllCells();
 
     const Armour& getHead() const;
     const Armour& getTorso() const;
@@ -64,18 +71,21 @@ class ArmourSet
      */
     SkillList getAdditionalSkills(const SkillList& wantedSkills) const;
 
-
     std::string exportToText(const Dictionary& dict, const Armoury& armoury) const;
     std::string exportToText2(const Dictionary& dict, const Armoury& armoury) const;
     std::string exportToText3(const Dictionary& dict, const Armoury& armoury) const;
 
   private:
     void init();
+    void switchGear(const Gear& oldGear, const Gear& newGear);
 
+    const Armoury& armoury_;
     Armour head_, torso_, legs_, arms_;
     Weapon weapon_;
     std::vector<Gear*> gear_;
     Cell lantern_;
+    WantedSkillList innateSkills_;
+    std::array<size_t, SkillType::MaxSkillType> cellSlotsPerType_;
 };
 } // namespace Gear
 

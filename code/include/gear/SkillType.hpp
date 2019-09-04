@@ -6,7 +6,7 @@
 namespace Gear
 {
 
-enum SkillType { None = 0, Power, Technique, Mobility, Defense, Utility };
+enum SkillType { None = 0, Power, Technique, Mobility, Defense, Utility, MaxSkillType };
 
 std::string SkillTypeToStringKey(SkillType type);
 

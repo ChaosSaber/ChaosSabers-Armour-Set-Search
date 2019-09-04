@@ -136,6 +136,17 @@ bool Gear::AvailableCellList::hasEnoughCellsFor(size_t skillId, size_t neededSki
     return cells_[skillId].getTotalSkillcount() >= neededSkillPoints;
 }
 
+size_t Gear::AvailableCellList::cellsNeededForSkillCount(size_t skillId, size_t skillCount) const
+{
+    return cells_[skillId].cellsNeededForSkillCount(skillCount);
+}
+
+const std::vector<size_t>&
+Gear::AvailableCellList::getCellLevelsForSkillCount(size_t skillId, size_t skillCount) const
+{
+    return cells_[skillId].getCellLevelsForSkillCount(skillCount);
+}
+
 const Gear::AvailableCellList& Gear::AvailableCellList::operator+=(const CellList& lhs)
 {
     for (const auto& cell : lhs)
@@ -149,7 +160,7 @@ const Gear::AvailableCellList& Gear::AvailableCellList::operator+=(const CellLis
 
 const Gear::AvailableCellList& Gear::AvailableCellList::operator-=(const Cell& lhs)
 {
-    cells_[lhs.getSkillId()].remove(lhs.getSkill().getSkillPoints());  
+    cells_[lhs.getSkillId()].remove(lhs.getSkill().getSkillPoints());
     return *this;
 }
 
@@ -163,10 +174,38 @@ size_t Gear::AvailableCellList::CellArray::getHighestAvailableCellLevel() const
 
 size_t Gear::AvailableCellList::CellArray::getTotalSkillcount() const { return totalSkillCount_; }
 
+size_t Gear::AvailableCellList::CellArray::cellsNeededForSkillCount(size_t skillCount) const
+{
+    return cellsForSkillCount_[skillCount - 1].size();
+}
+
+const std::vector<size_t>&
+Gear::AvailableCellList::CellArray::getCellLevelsForSkillCount(size_t skillCount) const
+{
+    return cellsForSkillCount_[skillCount - 1];
+}
+
 void Gear::AvailableCellList::CellArray::add(size_t cellLevel, size_t amount)
 {
     cells_[cellLevel - 1] += amount;
     totalSkillCount_ += cellLevel * amount;
+    for (size_t i = 1; i <= cellsForSkillCount_.size(); ++i)
+    {
+        cellsForSkillCount_[i - 1].clear();
+        if (totalSkillCount_ < i)
+            continue;
+        auto copy = cells_;
+        size_t currentSkillCount = 0;
+        for (size_t k = 3; k > 0 && currentSkillCount < i; ++k)
+        {
+            while (copy[k - 1] > 0 && currentSkillCount < i)
+            {
+                currentSkillCount += k;
+                --copy[k - 1];
+                cellsForSkillCount_[i - 1].push_back(k);
+            }
+        }
+    }
 }
 
 void Gear::AvailableCellList::CellArray::remove(size_t cellLevel)

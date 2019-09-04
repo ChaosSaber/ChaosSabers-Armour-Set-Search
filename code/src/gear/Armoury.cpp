@@ -14,7 +14,7 @@ Gear::Armoury::Armoury(Dictionary& dict)
 {
 }
 
-std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<Skill>& skills,
+std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const WantedSkillList& skills,
                                                              WeaponType type,
                                                              const Options& options) const
 {
@@ -27,23 +27,17 @@ std::vector<Gear::Weapon> Gear::Armoury::getWeaponsWithSkill(const std::vector<S
             continue;
         if (options.weaponElement != Element::All)
         {
+            // since there are so few weapons for each element, we take them all
             weapons.push_back(weapon);
             continue;
         }
-        for (const auto& skill : skills)
-        {
-            if (weapon.getSkillPointsFor(skill.getId()) > 0 ||
-                weapon.hasFreeCellSlotFor(getSkillTypeFor(skill.getId())))
-            {
-                weapons.push_back(weapon);
-                break;
-            }
-        }
+        if (gearHasSkill(weapon, skills))
+            weapons.push_back(weapon);
     }
     return weapons;
 }
 
-std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Skill>& skills,
+std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const WantedSkillList& skills,
                                                             ArmourType type,
                                                             const Options& options) const
 {
@@ -54,18 +48,9 @@ std::vector<Gear::Armour> Gear::Armoury::getArmourWithSkill(const std::vector<Sk
     {
         if (filterGear(armour, options))
             continue;
-        for (const auto& skill : skills)
-        {
-            if (armour.hasSkill(skill.getId()) ||
-                armour.hasFreeCellSlotFor(getSkillTypeFor(skill.getId())))
-            {
-                armours.push_back(armour);
-                break;
-            }
-        }
+        if (gearHasSkill(armour, skills))
+            armours.push_back(armour);
     }
-    // TODO: add generic armour without skill but corresponding cell slot
-    // for example any armour with mobility Slot
     return armours;
 }
 
@@ -510,6 +495,21 @@ bool Gear::Armoury::filterGear(const Gear& gear, const Options& options) const
     {
         return gear.getLevel() != level;
     }
+}
+
+bool Gear::Armoury::gearHasSkill(const Gear& gear, const WantedSkillList& skills) const
+{
+    for (const auto& skill : gear.getSkills())
+    {
+        if (skills.isWanted(skill.getId()))
+            return true;
+    }
+    for (const auto& cell : gear.getCellList())
+    {
+        if (skills.getSkillLevelForType(cell.first.getCellType()) > 0)
+            return true;
+    }
+    return false;
 }
 
 bool Gear::Armoury::filterWeapon(const Weapon& weapon, const Options& options) const

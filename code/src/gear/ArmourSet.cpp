@@ -1,19 +1,23 @@
 #include "gear/ArmourSet.hpp"
 #include <algorithm>
+#include <gear/Armoury.hpp>
 #include <iostream>
 #include <sstream>
 
-Gear::ArmourSet::ArmourSet(const Armour& head, const Armour& torso, const Armour& arms,
-                           const Armour& legs, const Weapon& weapon, const Cell& lantern)
-    : head_(head), torso_(torso), legs_(legs), arms_(arms), weapon_(weapon), lantern_(lantern)
+Gear::ArmourSet::ArmourSet(const Armoury& armoury, const Armour& head, const Armour& torso,
+                           const Armour& arms, const Armour& legs, const Weapon& weapon,
+                           const Cell& lantern)
+    : armoury_(armoury), head_(head), torso_(torso), legs_(legs), arms_(arms), weapon_(weapon),
+      lantern_(lantern), innateSkills_(armoury), cellSlotsPerType_({})
 {
     init();
 }
 
-Gear::ArmourSet::ArmourSet(Armour&& head, Armour&& torso, Armour&& arms, Armour&& legs,
-                           Weapon&& weapon, Cell&& lantern)
-    : head_(std::move(head)), torso_(std::move(torso)), legs_(std::move(legs)),
-      arms_(std::move(arms)), weapon_(std::move(weapon)), lantern_(std::move(lantern))
+Gear::ArmourSet::ArmourSet(const Armoury& armoury, Armour&& head, Armour&& torso, Armour&& arms,
+                           Armour&& legs, Weapon&& weapon, Cell&& lantern)
+    : armoury_(armoury), head_(std::move(head)), torso_(std::move(torso)), legs_(std::move(legs)),
+      arms_(std::move(arms)), weapon_(std::move(weapon)), lantern_(std::move(lantern)),
+      innateSkills_(armoury), cellSlotsPerType_({})
 {
     init();
 }
@@ -25,27 +29,35 @@ void Gear::ArmourSet::init()
     gear_.push_back(&torso_);
     gear_.push_back(&arms_);
     gear_.push_back(&legs_);
+    for (const auto& gear : gear_)
+    {
+        innateSkills_ += gear->getInnateSkills();
+        for (const auto& cell : gear->getCellList())
+            cellSlotsPerType_[cell.first.getCellType()] += cell.second;
+    }
+    ++cellSlotsPerType_[lantern_.getCellType()];
+}
+
+void Gear::ArmourSet::switchGear(const Gear& oldGear, const Gear& newGear)
+{
+    innateSkills_ += newGear.getInnateSkills();
+    innateSkills_ -= oldGear.getInnateSkills();
+    for (const auto& cell : oldGear.getCellList())
+        --cellSlotsPerType_[cell.first.getCellType()];
+    for (const auto& cell : newGear.getCellList())
+        ++cellSlotsPerType_[cell.first.getCellType()];
 }
 
 Gear::ArmourSet::ArmourSet(const ArmourSet& other)
-    : ArmourSet(other.head_, other.torso_, other.arms_, other.legs_, other.weapon_, other.lantern_)
+    : ArmourSet(other.armoury_, other.head_, other.torso_, other.arms_, other.legs_, other.weapon_,
+                other.lantern_)
 {
-}
-
-const Gear::ArmourSet& Gear::ArmourSet::operator=(ArmourSet&& other)
-{
-    head_ = std::move(other.head_);
-    torso_ = std::move(other.torso_);
-    arms_ = std::move(other.arms_);
-    legs_ = std::move(other.legs_);
-    weapon_ = std::move(other.weapon_);
-    lantern_ = std::move(other.lantern_);
-    return *this;
 }
 
 Gear::ArmourSet::ArmourSet(ArmourSet&& other)
-    : ArmourSet(std::move(other.head_), std::move(other.torso_), std::move(other.arms_),
-                std::move(other.legs_), std::move(other.weapon_), std::move(other.lantern_))
+    : ArmourSet(other.armoury_, std::move(other.head_), std::move(other.torso_),
+                std::move(other.arms_), std::move(other.legs_), std::move(other.weapon_),
+                std::move(other.lantern_))
 {
 }
 
@@ -87,11 +99,7 @@ Gear::SkillList Gear::ArmourSet::getSkills() const
 
 size_t Gear::ArmourSet::getSkillPointsFor(size_t skillId) const
 {
-    size_t sum = 0;
-    sum += lantern_.getSkillPointsFor(skillId);
-    for (const auto part : gear_)
-        sum += part->getSkillPointsFor(skillId);
-    return sum;
+    return innateSkills_.getWantedLevel(skillId);
 }
 
 Gear::CellList Gear::ArmourSet::getCellList() const
@@ -102,6 +110,20 @@ Gear::CellList Gear::ArmourSet::getCellList() const
         cells += part->getCellList();
     }
     return cells;
+}
+
+size_t Gear::ArmourSet::getCellSlotCountFor(SkillType type) const
+{
+    return cellSlotsPerType_[type];
+}
+
+void Gear::ArmourSet::removeAllCells()
+{
+    for (auto& gear : gear_)
+    {
+        gear->removeAllCells();
+    }
+    lantern_.clear();
 }
 
 const Gear::Armour& Gear::ArmourSet::getHead() const { return head_; }
@@ -393,25 +415,32 @@ std::vector<std::string> Gear::ArmourSet::getUniqueSkills() const
     return uniqueSkills;
 }
 
-void Gear::ArmourSet::setHead(const Armour& head) { head_ = head; }
-
-void Gear::ArmourSet::setTorso(const Armour& torso) { torso_ = torso; }
-
-void Gear::ArmourSet::setArms(const Armour& arms) { arms_ = arms; }
-
-void Gear::ArmourSet::setLegs(const Armour& legs) { legs_ = legs; }
-
-void Gear::ArmourSet::setWeapon(const Weapon& weapon) { weapon_ = weapon; }
-
-Gear::CellList Gear::ArmourSet::removeCells(const Skill& skill)
+void Gear::ArmourSet::setHead(const Armour& head)
 {
-    CellList cells;
-    for (auto& gear : gear_)
-        cells += gear->removeCells(skill);
-    if (!lantern_.isEmpty() && lantern_.getSkillId() == skill.getId())
-    {
-        cells += lantern_;
-        lantern_ = Cell(lantern_.getCellType());
-    }
-    return cells;
+    switchGear(head_, head);
+    head_ = head;
+}
+
+void Gear::ArmourSet::setTorso(const Armour& torso)
+{
+    switchGear(torso_, torso);
+    torso_ = torso;
+}
+
+void Gear::ArmourSet::setArms(const Armour& arms)
+{
+    switchGear(arms_, arms);
+    arms_ = arms;
+}
+
+void Gear::ArmourSet::setLegs(const Armour& legs)
+{
+    switchGear(legs_, legs);
+    legs_ = legs;
+}
+
+void Gear::ArmourSet::setWeapon(const Weapon& weapon)
+{
+    switchGear(weapon_, weapon);
+    weapon_ = weapon;
 }

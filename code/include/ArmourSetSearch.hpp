@@ -43,10 +43,10 @@ class ArmourSetSearch
 
     typedef std::function<void(SearchStatistics)> ProgressCallBack;
     ArmourSetSearch(const Gear::Armoury& armoury, Gear::WeaponType weaponType,
-                    std::vector<Gear::Skill> skills, const Options& options);
+                    const Gear::WantedSkillList& wantedSkills, const Options& options);
     ArmourSetSearch(std::vector<Gear::Weapon> weapons, std::vector<Gear::Armour> heads,
                     std::vector<Gear::Armour> torsos, std::vector<Gear::Armour> arms,
-                    std::vector<Gear::Armour> legs, std::vector<Gear::Skill> wantedSkills);
+                    std::vector<Gear::Armour> legs, const Gear::WantedSkillList& wantedSkills);
 
     void search(const Gear::Armoury& armoury, const bool* cancel);
     const std::vector<Gear::ArmourSet>& getArmourSets() const;
@@ -61,7 +61,7 @@ class ArmourSetSearch
      * @param progress The callback.
      */
     void setProgressCallback(ProgressCallBack progress);
-    const std::vector<Gear::Skill>& getWantedSkills() const;
+    const Gear::WantedSkillList& getWantedSkills() const;
 
   private:
     /**
@@ -70,7 +70,8 @@ class ArmourSetSearch
      * @parameter armoury A reference to an armoury used for checking of skilltypes
      * @parameter cells A list of cells which are available to put into the set
      */
-    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury, Gear::AvailableCellList& cells);
+    void checkSet(Gear::ArmourSet& set, const Gear::Armoury& armoury,
+                  const Gear::AvailableCellList& cells);
     /**
      * adds an armour to the list of found armoursets (thred safe)
      * @param set: The set to add
@@ -80,7 +81,7 @@ class ArmourSetSearch
     std::vector<Gear::ArmourSet> armourSets;
     std::vector<Gear::Armour> heads, torsos, arms, legs;
     std::vector<Gear::Weapon> weapons;
-    std::vector<Gear::Skill> wantedSkills;
+    Gear::WantedSkillList wantedSkills;
 
     Gear::AvailableCellList availableCells;
     struct SearchStatistics stats;
