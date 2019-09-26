@@ -1,4 +1,5 @@
 #include "gear/SkillInfo.hpp"
+#include <stdexcept>
 
 Gear::SkillInfo::SkillInfo(std::string name, std::string description, SkillType type,
                            std::vector<std::string> effects)
