@@ -11,7 +11,7 @@
 namespace Gear
 {
 
-enum WeaponType { Sword, Hammer, Chainblades, Axe, Pike, Reapeater };
+enum WeaponType { Sword, Hammer, Chainblades, Axe, Pike, Reapeater, AetherStrikers };
 
 class Weapon : public Gear
 {

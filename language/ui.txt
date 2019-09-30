@@ -7,6 +7,7 @@ button_search;Search
 chainblades;Chainblades
 defense;Defense
 hammer;Hammer
+aether_strikers;Aether Strikers
 label_skill_filter;Filter skills
 label_skill_level;Skill level
 label_skill_name;Skill name

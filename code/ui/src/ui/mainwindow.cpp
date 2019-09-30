@@ -166,7 +166,8 @@ void MainWindow::setupTranslation()
     ui->comboBoxWeaponType->addItems(
         QStringList() << getTranslation(dict, "sword") << getTranslation(dict, "hammer")
                       << getTranslation(dict, "chainblades") << getTranslation(dict, "axe")
-                      << getTranslation(dict, "pike") << getTranslation(dict, "repeater"));
+                      << getTranslation(dict, "pike") << getTranslation(dict, "repeater")
+                      << getTranslation(dict, "aether_strikers"));
     ui->labelWeaponElement->setText(getTranslation(dict, "label_weapon_element"));
     ui->labelWeaponElement->setToolTip(getTranslation(dict, "label_weapon_element_desc"));
     ui->comboBoxWeaponElement->addItems(

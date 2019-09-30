@@ -460,17 +460,20 @@ Gear::WeaponType Gear::Armoury::getWeaponType(const std::string& type) const
 {
     if (type == "Axe")
         return WeaponType::Axe;
-    if (type == "Chain Blades")
+    else if (type == "Chain Blades")
         return WeaponType::Chainblades;
-    if (type == "Hammer")
+    else if (type == "Hammer")
         return WeaponType::Hammer;
-    if (type == "Sword")
+    else if (type == "Sword")
         return WeaponType::Sword;
-    if (type == "War Pike")
+    else if (type == "War Pike")
         return WeaponType::Pike;
-    if (type == "Repeater")
+    else if (type == "Repeater")
         return WeaponType::Reapeater;
-    throw std::logic_error("Unknown weapon type " + type);
+    else if (type == "Aether Strikers")
+        return WeaponType::AetherStrikers;
+    else 
+        throw std::logic_error("Unknown weapon type " + type);
 }
 
 bool Gear::Armoury::filterGear(const Gear& gear, const Options& options) const

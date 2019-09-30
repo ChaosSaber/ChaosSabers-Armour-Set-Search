@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-Project(ChaosSabers-Armour-Set-Search VERSION 0.12.4 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.12.5 LANGUAGES CXX)
 
 ###############################
 # project options
