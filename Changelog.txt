@@ -1,3 +1,7 @@
+Version 0.13.0: 05.10.2019:
+- Added a loadout system to save and load loadouts
+- Added an export function to dauntless-builder.com (you can access this with a right click on either the entry in the loadout screen or in the searchresults)
+
 Version 0.12.5: 30.09.2019:
 - Added Aether Strikers
 

@@ -18,7 +18,7 @@ If you encounter any error please refer at first to troubleshooting.txt for gene
 - Save/load of searches
 - Partly integrated unique skills (only in the search results)
 - Filtering of search results (weapon, empty cell slots, additional perks)
-- export function to text (file and clipboard)
+- export function to text (file and clipboard) and dauntless-builder.com
 - Saving/loading of single sets
 
 ## planned features
@@ -26,7 +26,7 @@ If you encounter any error please refer at first to troubleshooting.txt for gene
 - Sorting of search results
 - Advanced Filters: only armour sets with a minimum elemental resistance
 - Completely Integrate unique skills (search)
-- export function to image and to https://www.dauntless-builder.com
+- export function to image
 
 
 ## Assets

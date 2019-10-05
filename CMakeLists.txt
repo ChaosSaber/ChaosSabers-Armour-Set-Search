@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-Project(ChaosSabers-Armour-Set-Search VERSION 0.12.5 LANGUAGES CXX)
+Project(ChaosSabers-Armour-Set-Search VERSION 0.13.0 LANGUAGES CXX)
 
 ###############################
 # project options
@@ -173,7 +173,7 @@ set_target_properties(${PROJECT_NAME}
 		AUTOUIC ON  # Create code from a list of Qt designer ui files
 		AUTORCC ON
 		AUTOUIC_SEARCH_PATHS ${PROJECT_SOURCE_DIR}/code/ui/ui/
-		# WIN32_EXECUTABLE true
+		WIN32_EXECUTABLE true
 )
 target_include_directories(${PROJECT_LIB} PUBLIC ${PROJECT_SOURCE_DIR}/code/ui/include/)
 target_link_libraries(${PROJECT_NAME} 
