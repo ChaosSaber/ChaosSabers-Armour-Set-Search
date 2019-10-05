@@ -15,7 +15,8 @@ class SkillInfo
     const std::string &getName() const;
     SkillType getType() const;
     const std::string &getDescription() const;
-    const std::string &getEffectForLevel(int level) const;
+    const std::string &getEffectForLevel(size_t level) const;
+    size_t getMaxLevel() const;
 
   private:
     std::string name;

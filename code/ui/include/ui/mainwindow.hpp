@@ -6,6 +6,7 @@
 #include "Options.hpp"
 #include "gear/Armoury.hpp"
 #include "ui/SkillSelector.hpp"
+#include "ui/Loadouts.hpp"
 #include <QComboBox>
 #include <QFutureWatcher>
 #include <QMainWindow>
@@ -88,6 +89,7 @@ class MainWindow : public QMainWindow
     QLabel* statFoundSets;
     QLabel* statElapsedTime;
     QLabel* statSearchesPerSecond;
+    Loadouts* loadouts = nullptr;
 };
 
 #endif // !DAUNTLESS_ASS_UI_MAINWINDOW_HPP

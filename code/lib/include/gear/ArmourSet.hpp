@@ -72,8 +72,6 @@ class ArmourSet
     SkillList getAdditionalSkills(const SkillList& wantedSkills) const;
 
     std::string exportToText(const Dictionary& dict, const Armoury& armoury) const;
-    std::string exportToText2(const Dictionary& dict, const Armoury& armoury) const;
-    std::string exportToText3(const Dictionary& dict, const Armoury& armoury) const;
 
   private:
     void init();

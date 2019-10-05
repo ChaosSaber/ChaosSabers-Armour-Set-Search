@@ -1,5 +1,5 @@
 #include "ui/AdvancedSearch.hpp"
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 #include "ui_AdvancedSearch.h"
 #include <QSettings>
 #include <sstream>

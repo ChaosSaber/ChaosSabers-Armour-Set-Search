@@ -1,4 +1,4 @@
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 
 QString getTranslation(const Dictionary &dict, const std::string &key)
 {

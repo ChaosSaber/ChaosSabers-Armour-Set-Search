@@ -1,0 +1,14 @@
+#internal_key(name);language 1;language 2;...
+loadoutentry_delete;delete
+loadoutentry_delete_confirmationboxtitle;Delete Loadout?
+loadoutentry_delete_confirmationboxtext;Do you really want to delete this loadout?
+loadoutentry_rename;raname
+loadoutentry_rename_inputdialog_title;Rename Loadout
+loadoutentry_rename_inputdialog_text;What shall be the new name for this loadout?
+loadout_newloadout;unnamed
+loadout_title;Loadouts
+loadout_save;save
+loadout_export_contextmenu;Export
+loadout_export_text;export as text
+loadout_export_to_clipboard;to clipboard
+loadout_export_to_file;to file

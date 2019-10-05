@@ -22,10 +22,13 @@ class ArmourSetView : public QWidget
 {
     Q_OBJECT
 
+signals:
+    void saveSet(const Gear::ArmourSet& set);
+
   public:
-    explicit ArmourSetView(const Dictionary& dict, Options& options,
-                           const Gear::ArmourSet& set, const Gear::Armoury& armoury,
-                           int scrollBarWidth, Gear::SkillList& wantedSkills, QWidget* parent = 0);
+    explicit ArmourSetView(const Dictionary& dict, Options& options, const Gear::ArmourSet& set,
+                           const Gear::Armoury& armoury, int scrollBarWidth,
+                           Gear::SkillList& wantedSkills, QWidget* parent = 0);
     ~ArmourSetView();
 
     int getGearViewWidth() const;
@@ -42,8 +45,6 @@ class ArmourSetView : public QWidget
     void addGear(const Gear::Gear& gear);
     void addCell(const std::pair<Gear::Cell, int>& cell);
     void addSkill(const Gear::Skill& skill);
-    void exportTextToClipBoard(const std::string& text) const;
-    void exportTextToFile(const std::string& text) const;
 
     const Dictionary& dict;
     Options& options;

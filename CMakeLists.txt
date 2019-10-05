@@ -6,12 +6,6 @@ Project(ChaosSabers-Armour-Set-Search VERSION 0.12.5 LANGUAGES CXX)
 ###############################
 option(${PROJECT_NAME}_BUILD_TESTS "Build the unittests for the library" OFF)
 
-# Instruct CMake to run moc automatically when needed
-set(CMAKE_AUTOMOC ON)
-# Create code from a list of Qt designer ui files
-set(CMAKE_AUTOUIC ON)
-SET(CMAKE_AUTOUIC_SEARCH_PATHS ${PROJECT_SOURCE_DIR}/code/ui/ui/)
-
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "install" CACHE PATH "install prefix" FORCE)
 endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT) 
@@ -21,21 +15,22 @@ endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # find_packages
 ###############################
 ######## acquire QT
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(Qt5Widgets 5.12 REQUIRED)
+find_package(Qt5Network 5.12 REQUIRED)
+find_package(Qt5Concurrent 5.12 REQUIRED)
+#TODO: remove required qt version check and then search for correct open ssl version (from qt 5.12 open ssl 1.1 is required)
+find_package(OpenSSL 1.1 REQUIRED)
 set(OPENSSL_ROOT_DIR ${OPENSSL_INCLUDE_DIR}\\..)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
 find_library(SSL_EAY_DLL
 	NAMES
-		ssleay32
+		libssl-1_1-x64
 	PATHS
 		${OPENSSL_ROOT_DIR}/bin
 )
 find_library(LIB_EAY_DLL
 	NAMES
-		libeay32
+		libcrypto-1_1-x64
 	PATHS
 		${OPENSSL_ROOT_DIR}/bin
 )
@@ -110,31 +105,55 @@ target_link_libraries(${PROJECT_LIB} PUBLIC Qt5::Core)
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
 	PUBLIC
-		# ${PROJECT_SOURCE_DIR}/code/ui/include/FileDownloader.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/About.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/AdvancedSearch.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/ArmourSetView.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/CellDisplay.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/CellWindow.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/DetailedArmourSetView.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/ElementalLabel.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/GearView.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/License.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/LoadoutEntry.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/Loadouts.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/ui/SkillLabel.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/SkillSelector.hpp
-		${PROJECT_SOURCE_DIR}/code/ui/include/ui/Translation.hpp
 		${PROJECT_SOURCE_DIR}/code/ui/include/ui/mainwindow.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/util/Export.hpp
+		# ${PROJECT_SOURCE_DIR}/code/ui/include/util/FileDownloader.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/util/Spacer.hpp
+		${PROJECT_SOURCE_DIR}/code/ui/include/util/Translation.hpp
 	PRIVATE
-		# ${PROJECT_SOURCE_DIR}/code/ui/src/FileDownloader.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/assets/Resource.qrc
 		${PROJECT_SOURCE_DIR}/code/ui/src/main.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/About.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/AdvancedSearch.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/ArmourSetView.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/CellDisplay.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/CellWindow.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/DetailedArmourSetView.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/ElementalLabel.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/GearView.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/License.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/LoadoutEntry.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/Loadouts.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/ui/SkillLabel.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/SkillSelector.cpp
-		${PROJECT_SOURCE_DIR}/code/ui/src/ui/Translation.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/src/ui/mainwindow.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/util/Export.cpp
+		# ${PROJECT_SOURCE_DIR}/code/ui/src/util/FileDownloader.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/util/Spacer.cpp
+		${PROJECT_SOURCE_DIR}/code/ui/src/util/Translation.cpp
 		${PROJECT_SOURCE_DIR}/code/ui/ui/About.ui
 		${PROJECT_SOURCE_DIR}/code/ui/ui/AdvancedSearch.ui
 		${PROJECT_SOURCE_DIR}/code/ui/ui/ArmourSetView.ui
+		${PROJECT_SOURCE_DIR}/code/ui/ui/CellDisplay.ui
 		${PROJECT_SOURCE_DIR}/code/ui/ui/CellWindow.ui
+		${PROJECT_SOURCE_DIR}/code/ui/ui/DetailedArmourSetView.ui
+		${PROJECT_SOURCE_DIR}/code/ui/ui/ElementalLabel.ui
+		${PROJECT_SOURCE_DIR}/code/ui/ui/GearView.ui
 		${PROJECT_SOURCE_DIR}/code/ui/ui/License.ui
+		${PROJECT_SOURCE_DIR}/code/ui/ui/Loadouts.ui
 		${PROJECT_SOURCE_DIR}/code/ui/ui/mainwindow.ui
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE PROGRAM_VERSION="${PROJECT_VERSION}")
@@ -143,7 +162,11 @@ set_target_properties(${PROJECT_NAME}
 		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
-		WIN32_EXECUTABLE true
+		AUTOMOC ON  # Run moc automatically when needed
+		AUTOUIC ON  # Create code from a list of Qt designer ui files
+		AUTORCC ON
+		AUTOUIC_SEARCH_PATHS ${PROJECT_SOURCE_DIR}/code/ui/ui/
+		# WIN32_EXECUTABLE true
 )
 target_include_directories(${PROJECT_LIB} PUBLIC ${PROJECT_SOURCE_DIR}/code/ui/include/)
 target_link_libraries(${PROJECT_NAME} 

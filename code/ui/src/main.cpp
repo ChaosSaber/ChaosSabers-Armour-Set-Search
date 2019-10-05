@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("https://github.com/ChaosSaber");
     app.setApplicationName("ChaosSaber's Armour Set Search");
     qRegisterMetaType<ArmourSetSearch::SearchStatistics>("ArmourSetSearch::SearchStatistics");
+    //qRegisterMetaType<Gear::ArmourSet>("Gear::ArmourSet");
     MainWindow mainWindow;
     mainWindow.show();
 

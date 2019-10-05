@@ -1,5 +1,5 @@
 #include "ui/CellWindow.hpp"
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 #include "ui_CellWindow.h"
 
 #include <QFileDialog>

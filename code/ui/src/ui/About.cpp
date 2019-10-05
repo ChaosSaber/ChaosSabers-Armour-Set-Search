@@ -1,6 +1,6 @@
 #include "ui/About.hpp"
 #include "ui/License.hpp"
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 #include "ui_About.h"
 #include <sstream>
 

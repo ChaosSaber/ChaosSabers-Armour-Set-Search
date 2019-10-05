@@ -1,5 +1,5 @@
 #include "ui/SkillSelector.hpp"
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 #include <QLineEdit>
 
 SkillSelector::SkillSelector(

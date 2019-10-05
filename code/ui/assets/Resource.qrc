@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>icons/elements/Blaze.png</file>
+        <file>icons/elements/Frost.png</file>
+        <file>icons/elements/Radiant.png</file>
+        <file>icons/elements/Shock.png</file>
+        <file>icons/elements/Terra.png</file>
+        <file>icons/elements/Umbral.png</file>
+        <file>icons/cells/100x100/defense+3.png</file>
+        <file>icons/cells/100x100/mobility+3.png</file>
+        <file>icons/cells/100x100/power+3.png</file>
+        <file>icons/cells/100x100/technique+3.png</file>
+        <file>icons/cells/100x100/utility+3.png</file>
+        <file>icons/cells/100x100/defense+2.png</file>
+        <file>icons/cells/100x100/mobility+1.png</file>
+        <file>icons/cells/100x100/mobility+2.png</file>
+        <file>icons/cells/100x100/power+1.png</file>
+        <file>icons/cells/100x100/power+2.png</file>
+        <file>icons/cells/100x100/technique+1.png</file>
+        <file>icons/cells/100x100/technique+2.png</file>
+        <file>icons/cells/100x100/utility+1.png</file>
+        <file>icons/cells/100x100/utility+2.png</file>
+        <file>icons/cells/100x100/defense+1.png</file>
+        <file>icons/weapontypes/30x30/aether-strikers.png</file>
+        <file>icons/weapontypes/30x30/axe.png</file>
+        <file>icons/weapontypes/30x30/chain-blades.png</file>
+        <file>icons/weapontypes/30x30/hammer.png</file>
+        <file>icons/weapontypes/30x30/repeater.png</file>
+        <file>icons/weapontypes/30x30/sword.png</file>
+        <file>icons/weapontypes/30x30/war-pike.png</file>
+    </qresource>
+</RCC>

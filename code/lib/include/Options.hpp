@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QJsonObject>
 #include <array>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -30,6 +31,8 @@ const QString STANDARD_CELL_SAVE_LOCATION =
 const QString MY_CELLS = util::files::pathAppend(STANDARD_CELL_SAVE_LOCATION, "myCells.cells");
 const QString STANDARD_SEARCH_SAVE_LOCATION =
     util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "searches");
+const QString MY_LOADOUTS =
+    util::files::pathAppend(util::files::DOCUMENTS_LOCATION, "myLoadouts.loadout");
 
 class Options
 {
@@ -42,6 +45,13 @@ class Options
         std::string skillName = "";
         int skillLevel = 0;
     };
+    struct Loadout
+    {
+      public:
+        std::string name;
+        Gear::ArmourSet set;
+        Loadout(const std::string& name, const Gear::ArmourSet& set) : name(name), set(set) {}
+    };
     void loadConfiguration(const Gear::Armoury& armoury,
                            const QString& fileName = CONFIG_FILE_NAME);
     void saveConfiguration(const QString& fileName = CONFIG_FILE_NAME);
@@ -52,6 +62,9 @@ class Options
     void saveCells(const Gear::Armoury& armoury, const QString& fileName = MY_CELLS);
     void loadCells(const Gear::Armoury& armoury, const Dictionary& dict,
                    const QString& fileName = MY_CELLS);
+    void saveMyLoadouts(const Gear::Armoury& armoury, const QString& fileName = MY_LOADOUTS);
+    void loadMyLoadouts(const Gear::Armoury& armoury, const Dictionary& dict,
+                        const QString& fileName = MY_LOADOUTS);
 
     int numberOfResults = 100;
     std::string language = "English";
@@ -67,6 +80,7 @@ class Options
     int cellUsage = 0;
     bool useLowerTierArmour = true;
     int tier = 3;
+    std::vector<Loadout> myLoadouts;
 
   private:
     QJsonArray cellListToJson(const Gear::CellList& cells, const Gear::Armoury& armoury);
@@ -77,6 +91,9 @@ class Options
     std::tuple<std::string, int> jsonToGear(const QJsonObject& json);
     Gear::Armour jsonToArmour(const QJsonObject& json, const Gear::Armoury& armoury);
     Gear::Weapon jsonToWeapon(const QJsonObject& json, const Gear::Armoury& armoury);
+    std::optional<Gear::ArmourSet> jsonToArmourSet(const QJsonObject& json,
+                                                   const Gear::Armoury& armoury);
+    QJsonObject armourSetToJson(const Gear::ArmourSet& set, const Gear::Armoury& armoury);
 };
 
 #endif // !DAUNTLESS_ASS_OPTIONS_HPP

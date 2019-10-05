@@ -1,3 +1,4 @@
+#include "..\include\Options.hpp"
 #include "Options.hpp"
 #include "util/json.hpp"
 #include <QFile>
@@ -38,6 +39,8 @@ const QString CELL_USAGE = "Cell usage";
 const QString LOWER_TIER = "Lower tier";
 const QString TIER = "Tier";
 const QString HEROIC = "Heroic";
+const QString LOADOUTS = "Loadouts";
+const QString LOADOUT = "Loadout";
 
 Options::Options()
 {
@@ -195,6 +198,7 @@ void Options::save(const Gear::Armoury& armoury)
         saveSearch(armoury);
         saveCells(armoury); // TODO: move cells to different window apart from advanced search and
                             // then only there saving allowed
+        saveMyLoadouts(armoury);
     }
     catch (OptionsIoException)
     {
@@ -286,6 +290,72 @@ void Options::loadCells(const Gear::Armoury& armoury, const Dictionary& dict,
     }
 }
 
+void Options::saveMyLoadouts(const Gear::Armoury& armoury, const QString& fileName)
+{
+    QFile search(fileName);
+
+    if (!search.open(QIODevice::WriteOnly))
+    {
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName.toStdString() << "\"";
+        std::cout << ss.str() << std::endl;
+        throw OptionsIoException(ss.str());
+    }
+
+    QJsonObject json;
+    json[VERSION] = CURRENT_VERSION;
+    QJsonArray loadouts;
+    for (const auto& loadout : myLoadouts)
+    {
+        QJsonObject obj;
+        obj[NAME] = QString::fromStdString(loadout.name);
+        obj[LOADOUT] = armourSetToJson(loadout.set, armoury);
+        loadouts.push_back(obj);
+    }
+    json[LOADOUTS] = loadouts;
+    QJsonDocument jsonDoc(json);
+    search.write(jsonDoc.toJson());
+}
+
+const std::vector<util::json::JsonParameter> myLoadoutsParameters = {
+    {LOADOUTS, QJsonValue::Type::Array}, {VERSION, QJsonValue::Type::Double}};
+
+const std::vector<util::json::JsonParameter> loadoutsParameters = {
+    {NAME, QJsonValue::Type::String}, {LOADOUT, QJsonValue::Type::Object}};
+
+void Options::loadMyLoadouts(const Gear::Armoury& armoury, const Dictionary& dict,
+                             const QString& fileName)
+{
+    QFile search(fileName);
+    if (!search.open(QIODevice::ReadOnly))
+    {
+        std::stringstream ss;
+        ss << "Couldn't open file \"" << fileName.toStdString() << "\"";
+        std::cout << ss.str() << std::endl;
+        throw OptionsIoException(ss.str());
+    }
+    QByteArray searchData = search.readAll();
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(searchData));
+    if (!jsonDoc.isObject())
+        throw OptionsIoException("File has unexpected format");
+    auto json = jsonDoc.object();
+    if (!util::json::parameterCheck(json, myLoadoutsParameters))
+        throw OptionsIoException("File has unexpected format");
+    int version = json[VERSION].toInt();
+    for (const auto& loadout : json[LOADOUTS].toArray()) 
+    {
+        if (!loadout.isObject())
+            continue;
+        auto obj = loadout.toObject();
+        if (!util::json::parameterCheck(obj, loadoutsParameters))
+            continue;
+        auto set = jsonToArmourSet(obj[LOADOUT].toObject(), armoury);
+        if (!set)
+            continue;
+        myLoadouts.emplace_back(obj[NAME].toString().toStdString(), std::move(*set));
+    }
+}
+
 void Options::saveSearch(const Gear::Armoury& armoury, const QString& fileName)
 {
     QFile search(fileName);
@@ -322,14 +392,7 @@ void Options::saveSearch(const Gear::Armoury& armoury, const QString& fileName)
     json[GEAR] = gearParts;
     for (const auto& set : armourSets)
     {
-        QJsonObject jsonSet;
-        jsonSet[WEAPON] = gearToJson(set.getWeapon());
-        jsonSet[HEAD] = gearToJson(set.getHead());
-        jsonSet[TORSO] = gearToJson(set.getTorso());
-        jsonSet[ARMS] = gearToJson(set.getArms());
-        jsonSet[LEGS] = gearToJson(set.getLegs());
-        jsonSet[CELLS] = cellListToJson(set.getCellList(), armoury);
-        sets.push_back(jsonSet);
+        sets.push_back(armourSetToJson(set, armoury));
     }
     json[SETS] = sets;
 
@@ -342,11 +405,6 @@ const std::vector<util::json::JsonParameter> searchParameters = {
     {SEARCHED_SKILLS, QJsonValue::Type::Array},
     {GEAR, QJsonValue::Type::Array},
     {SETS, QJsonValue::Type::Array}};
-
-const std::vector<util::json::JsonParameter> armourSetParameters = {
-    {WEAPON, QJsonValue::Type::Object}, {HEAD, QJsonValue::Type::Object},
-    {TORSO, QJsonValue::Type::Object},  {ARMS, QJsonValue::Type::Object},
-    {LEGS, QJsonValue::Type::Object},   {CELLS, QJsonValue::Type::Array}};
 
 void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
                          const QString& fileName)
@@ -427,30 +485,9 @@ void Options::loadSearch(const Gear::Armoury& armoury, const Dictionary& dict,
             if (!set.isObject())
                 continue;
             auto json = set.toObject();
-            if (!util::json::parameterCheck(json, armourSetParameters))
-                continue;
-            try
-            {
-                auto weapon = jsonToWeapon(json[WEAPON].toObject(), armoury);
-                auto head = jsonToArmour(json[HEAD].toObject(), armoury);
-                auto torso = jsonToArmour(json[TORSO].toObject(), armoury);
-                auto arms = jsonToArmour(json[ARMS].toObject(), armoury);
-                auto legs = jsonToArmour(json[LEGS].toObject(), armoury);
-                Gear::ArmourSet set(armoury, std::move(head), std::move(torso), std::move(arms),
-                                    std::move(legs), std::move(weapon));
-                for (auto& cell : jsonToCellList(json[CELLS].toArray(), armoury))
-                    for (size_t count = 0; count < cell.second; ++count)
-                        if (!set.addCell(cell.first))
-                        {
-                            std::cout << "cells do not fit into armour set" << std::endl;
-                            continue;
-                        }
-                armourSets.push_back(std::move(set));
-            }
-            catch (const std::exception& e)
-            {
-                std::cout << e.what() << std::endl;
-            }
+            auto set = jsonToArmourSet(json, armoury);
+            if (set)
+                armourSets.push_back(std::move(*set));
         }
     }
 }
@@ -487,4 +524,51 @@ Gear::Weapon Options::jsonToWeapon(const QJsonObject& json, const Gear::Armoury&
     auto [name, level] = jsonToGear(json);
     auto weapon = armoury.getWeapon(name, level);
     return weapon;
+}
+
+const std::vector<util::json::JsonParameter> armourSetParameters = {
+    {WEAPON, QJsonValue::Type::Object}, {HEAD, QJsonValue::Type::Object},
+    {TORSO, QJsonValue::Type::Object},  {ARMS, QJsonValue::Type::Object},
+    {LEGS, QJsonValue::Type::Object},   {CELLS, QJsonValue::Type::Array}};
+
+std::optional<Gear::ArmourSet> Options::jsonToArmourSet(const QJsonObject& json,
+                                                        const Gear::Armoury& armoury)
+{
+    if (!util::json::parameterCheck(json, armourSetParameters))
+        return {};
+    try
+    {
+        auto weapon = jsonToWeapon(json[WEAPON].toObject(), armoury);
+        auto head = jsonToArmour(json[HEAD].toObject(), armoury);
+        auto torso = jsonToArmour(json[TORSO].toObject(), armoury);
+        auto arms = jsonToArmour(json[ARMS].toObject(), armoury);
+        auto legs = jsonToArmour(json[LEGS].toObject(), armoury);
+        Gear::ArmourSet set(armoury, std::move(head), std::move(torso), std::move(arms),
+                            std::move(legs), std::move(weapon));
+        for (auto& cell : jsonToCellList(json[CELLS].toArray(), armoury))
+            for (size_t count = 0; count < cell.second; ++count)
+                if (!set.addCell(cell.first))
+                {
+                    std::cout << "cells do not fit into armour set" << std::endl;
+                    continue;
+                }
+        return set;
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return {};
+    }
+}
+
+QJsonObject Options::armourSetToJson(const Gear::ArmourSet& set, const Gear::Armoury& armoury)
+{
+    QJsonObject jsonSet;
+    jsonSet[WEAPON] = gearToJson(set.getWeapon());
+    jsonSet[HEAD] = gearToJson(set.getHead());
+    jsonSet[TORSO] = gearToJson(set.getTorso());
+    jsonSet[ARMS] = gearToJson(set.getArms());
+    jsonSet[LEGS] = gearToJson(set.getLegs());
+    jsonSet[CELLS] = cellListToJson(set.getCellList(), armoury);
+    return jsonSet;
 }

@@ -39,6 +39,7 @@ menu_options;Options
 menu_number_of_results;Maximum number of shown results
 menu_save;Save
 menu_load;Load
+menu_myloadouts;My Loadouts
 label_weapons;Weapons
 label_head_armour;Head Armours
 label_torsos_armour;Torso Armours
@@ -82,10 +83,6 @@ tier_t1;The Sheltered Frontier
 tier_t2;Maelstrom
 tier_t3;Maelstrom (Heroic/Heroic+)
 repeater;Repeater
-export_contextmenu;Export
-export_text;export as text
-export_to_clipboard;to clipboard
-export_to_file;to file
 lantern;lantern
 button_all;All
 button_none;None

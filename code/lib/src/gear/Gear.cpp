@@ -1,3 +1,5 @@
+#include "..\..\include\gear\Gear.hpp"
+#include "..\..\include\gear\Gear.hpp"
 #include "gear/Gear.hpp"
 #include <sstream>
 
@@ -87,7 +89,15 @@ std::string Gear::Gear::getGearInfo(const Dictionary& dict) const
     return dict.getTranslationFor(info_->name_) + " +" + std::to_string(level_);
 }
 
-const Gear::Elements& Gear::Gear::getElements() const { return info_->elements_; }
+const std::optional<Gear::Element>& Gear::Gear::getElementalStrength() const
+{
+    return info_->elementalStrength_;
+}
+
+const std::optional<Gear::Element>& Gear::Gear::getElementalWeakness() const
+{
+    return info_->elementalWeakness_;
+}
 
 std::string Gear::Gear::getToolTip(const Dictionary& dict, const Armoury& armoury) const
 {
@@ -143,12 +153,18 @@ bool Gear::Gear::addCell(const Cell& cell)
 }
 
 Gear::GearInfo::GearInfo(const std::string& name, const std::string& description,
-                         const Elements& elements)
-    : name_(name), description_(description), elements_(elements)
+                         const std::optional<Element>& elementalStrength,
+                         const std::optional<Element>& elementalWeakness)
+    : name_(name), description_(description), elementalStrength_(elementalStrength),
+      elementalWeakness_(elementalWeakness)
 {
 }
 
-Gear::GearInfo::GearInfo(std::string&& name, std::string&& description, Elements&& elements)
-    : name_(std::move(name)), description_(std::move(description)), elements_(std::move(elements))
+Gear::GearInfo::GearInfo(std::string&& name, std::string&& description,
+                         std::optional<Element>&& elementalStrength,
+                         std::optional<Element>&& elementalWeakness)
+    : name_(std::move(name)), description_(std::move(description)),
+      elementalStrength_(std::move(elementalStrength)),
+      elementalWeakness_(std::move(elementalWeakness))
 {
 }

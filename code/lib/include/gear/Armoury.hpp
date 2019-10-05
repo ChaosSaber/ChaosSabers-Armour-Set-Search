@@ -57,7 +57,7 @@ class Armoury
 
   private:
     void load(const std::string& fileName = "data/data.json");
-    void setElement(Elements& element, const std::string& name, int value);
+    Element getElement(const std::string& name) const;
     SkillType getSkillType(const std::string& type) const;
     ArmourType getArmourType(const std::string& type) const;
     WeaponType getWeaponType(const std::string& type) const;

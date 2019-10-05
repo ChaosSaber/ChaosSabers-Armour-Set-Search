@@ -1,5 +1,5 @@
 #include "ui/License.hpp"
-#include "ui/Translation.hpp"
+#include "util/Translation.hpp"
 #include "ui_License.h"
 #include <QFile>
 #include <iostream>

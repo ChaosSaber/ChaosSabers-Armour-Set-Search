@@ -18,15 +18,20 @@ If you encounter any error please refer at first to troubleshooting.txt for gene
 - Save/load of searches
 - Partly integrated unique skills (only in the search results)
 - Filtering of search results (weapon, empty cell slots, additional perks)
-- experimental export function to text (file and clipboard)
+- export function to text (file and clipboard)
+- Saving/loading of single sets
 
 ## planned features
 - ui overhaul (help screen, rework of the perk selection, restructuring of search options and filters)
-- Saving/loading/comparing of single sets
 - Sorting of search results
 - Advanced Filters: only armour sets with a minimum elemental resistance
 - Completely Integrate unique skills (search)
 - export function to image and to https://www.dauntless-builder.com
+
+
+## Assets
+
+All Dauntless related assets are the property of Phoenix Labs.
 
 ## Building the program
 - This software use cmake to organize the building process

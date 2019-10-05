@@ -276,6 +276,7 @@
     </property>
     <addaction name="actionSaveSearch"/>
     <addaction name="actionLoadSearch"/>
+    <addaction name="actionMyLoadouts"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -381,6 +382,11 @@
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionMyLoadouts">
+   <property name="text">
+    <string>My Loadouts</string>
    </property>
   </action>
  </widget>

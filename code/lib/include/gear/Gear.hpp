@@ -6,6 +6,7 @@
 #include "gear/CellList.hpp"
 #include "gear/Elements.hpp"
 #include "gear/SkillList.hpp"
+#include <optional>
 #include <string>
 
 namespace Gear
@@ -14,15 +15,19 @@ namespace Gear
 class GearInfo
 {
   public:
-    GearInfo(const std::string& name, const std::string& description, const Elements& elements);
-    GearInfo(std::string&& name, std::string&& description, Elements&& elements);
+    GearInfo(const std::string& name, const std::string& description,
+             const std::optional<Element>& elementalStrength = {},
+             const std::optional<Element>& elementalWeakness = {});
+    GearInfo(std::string&& name, std::string&& description,
+             std::optional<Element>&& elementalStrength = {},
+             std::optional<Element>&& elementalWeakness = {});
     GearInfo(const GearInfo& other) = delete;
     GearInfo(GearInfo&& other) = delete;
     const GearInfo& operator=(const GearInfo& other) = delete;
     const GearInfo& operator=(GearInfo&& other) = delete;
     std::string name_;
     std::string description_;
-    Elements elements_;
+    std::optional<Element> elementalStrength_, elementalWeakness_;
 };
 
 class Gear
@@ -84,11 +89,16 @@ class Gear
     bool hasUniqueSkill() const;
     // returns the info of the gear as human readable string
     std::string getGearInfo(const Dictionary& dict) const;
+
     /**
-     * return the elemental effects of the gear. For Weapons this would be the elemental damage and
-     * for armour the elemental defense
+    * @return Returns the elemental strength of the qear if available
+    */
+    const std::optional<Element>& getElementalStrength() const;
+
+    /**
+     * @return Returns the elemental weakness of the qear if available
      */
-    const Elements& getElements() const;
+    const std::optional<Element>& getElementalWeakness() const;
 
     virtual std::string getToolTip(const Dictionary& dict, const Armoury& armoury) const;
 

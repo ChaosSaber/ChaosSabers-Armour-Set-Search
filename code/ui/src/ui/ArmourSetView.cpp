@@ -1,6 +1,8 @@
 #include "ui/ArmourSetView.hpp"
-#include "ui/Translation.hpp"
+#include "ui/SkillLabel.hpp"
 #include "ui_ArmourSetView.h"
+#include "util/Export.hpp"
+#include "util/Translation.hpp"
 #include <QClipboard>
 #include <QFileDialog>
 #include <QLabel>
@@ -81,36 +83,7 @@ void ArmourSetView::addCell(const std::pair<Gear::Cell, int>& cell)
 
 void ArmourSetView::addSkill(const Gear::Skill& skill)
 {
-    QLabel* label = new QLabel();
-    label->setText(QString::fromStdString(skill.toString(dict, armoury)));
-    ui->verticalLayoutSkills->addWidget(label);
-}
-
-void ArmourSetView::exportTextToClipBoard(const std::string& text) const
-{
-    QClipboard* clipboard = QApplication::clipboard();
-    clipboard->setText(QString::fromStdString(text));
-}
-
-void ArmourSetView::exportTextToFile(const std::string& text) const
-{
-    auto fileName = QFileDialog::getSaveFileName(nullptr, getTranslation(dict, "menu_save"),
-                                                 options.lastExportTextSaveLocation);
-    if (fileName.isEmpty())
-        return;
-    QFileInfo info(fileName);
-    options.lastExportTextSaveLocation = info.path();
-    QFile file(fileName);
-
-    if (!file.open(QIODevice::WriteOnly))
-    {
-        std::stringstream ss;
-        ss << "Couldn't open file \"" << fileName.toStdString() << "\"";
-        QMessageBox box(QMessageBox::Critical, getTranslation(dict, "error"),
-                        QString::fromStdString(ss.str()));
-        return;
-    }
-    file.write(text.c_str());
+    ui->verticalLayoutSkills->addWidget(new SkillLabel(skill, armoury, dict));
 }
 
 int ArmourSetView::getGearViewWidth() const { return ui->widgetGears->sizeHint().width(); }
@@ -138,47 +111,13 @@ void ArmourSetView::resizeEvent(QResizeEvent* event)
 
 void ArmourSetView::showContextMenu(const QPoint& pos)
 {
-    QMenu contextMenu(getTranslation(dict, "export_contextmenu"), this);
+    QMenu contextMenu(getTranslation(dict, "loadout_export_contextmenu"), this);
 
-    // auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text"));
-    // auto actionTextToClipBoard =
-    //    contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
-    // connect(actionTextToClipBoard, &QAction::triggered,
-    //        [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict)); });
-    // auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
-    // connect(actionTextToFile, &QAction::triggered,
-    //        [this](bool) { exportTextToFile(armourSet.exportToText(dict)); });
-    {
-        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text1"));
-        auto actionTextToClipBoard =
-            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
-        connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText(dict, armoury)); });
-        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
-        connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText(dict, armoury)); });
-    }
-    {
-        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text2"));
-        auto actionTextToClipBoard =
-            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
-        connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText2(dict, armoury)); });
-        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
-        connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText2(dict, armoury)); });
-    }
-    {
-        auto contextMenuText = contextMenu.addMenu(getTranslation(dict, "export_text3"));
-        auto actionTextToClipBoard =
-            contextMenuText->addAction(getTranslation(dict, "export_to_clipboard"));
-        connect(actionTextToClipBoard, &QAction::triggered,
-                [this](bool) { exportTextToClipBoard(armourSet.exportToText3(dict, armoury)); });
-        auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "export_to_file"));
-        connect(actionTextToFile, &QAction::triggered,
-                [this](bool) { exportTextToFile(armourSet.exportToText3(dict, armoury)); });
-    }
+    auto save =
+        contextMenu.addAction(getTranslation(dict, "loadout_save"));
+    connect(save, &QAction::triggered, [this](bool) { emit saveSet(armourSet); });
 
+    util::addArmoursetExportToContextMenu(contextMenu, armourSet, dict, options, armoury);
     contextMenu.exec(mapToGlobal(pos));
 }
 

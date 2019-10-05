@@ -5,8 +5,9 @@
 #include "ui/ArmourSetView.hpp"
 #include "ui/CellWindow.hpp"
 #include "ui/SkillSelector.hpp"
-#include "ui/Translation.hpp"
 #include "ui_mainwindow.h"
+#include "util/Spacer.hpp"
+#include "util/Translation.hpp"
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFutureWatcher>
@@ -29,6 +30,7 @@
 MainWindow::~MainWindow()
 {
     saveSearchSettings();
+    delete loadouts;
     options.save(armoury);
     if (manager)
         delete manager;
@@ -51,17 +53,22 @@ MainWindow::MainWindow(QWidget* parent)
     {
         options.loadConfiguration(armoury);
     }
-    catch (OptionsIoException)
+    catch (OptionsIoException& ex)
     {
+        std::cout << "WARNING: options.loadConfiguration throwed an exception: " << ex.what
+                  << std::endl;
     }
     dict.loadLanguage(options.language);
     try
     {
         options.loadCells(armoury, dict);
         options.loadSearch(armoury, dict);
+        options.loadMyLoadouts(armoury, dict);
     }
-    catch (OptionsIoException)
+    catch (OptionsIoException& ex)
     {
+        std::cout << "WARNING: loading of settings throwed an exception: " << ex.what
+                  << std::endl;
     }
 
     setupTranslation();
@@ -118,6 +125,7 @@ MainWindow::MainWindow(QWidget* parent)
     showLoadedSearch();
     connect(ui->actionLoadSearch, &QAction::triggered, [this](bool) { loadSearch(); });
     connect(ui->actionSaveSearch, &QAction::triggered, [this](bool) { saveSearch(); });
+    connect(ui->actionMyLoadouts, &QAction::triggered, [this](bool) { loadouts->show(); });
     connect(ui->pushButtonOrganizeCells, &QPushButton::clicked, [this]() {
         CellWindow dialog(armoury, options, dict, this);
         dialog.exec();
@@ -157,6 +165,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui->comboBoxWeaponElement->setCurrentIndex(options.weaponElement);
     connect(ui->comboBoxWeaponElement, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int index) { options.weaponElement = Gear::Element(index); });
+    loadouts = new Loadouts(options, dict, armoury);
 }
 
 void MainWindow::setupTranslation()
@@ -188,6 +197,7 @@ void MainWindow::setupTranslation()
     ui->menuNumberOfResults->setTitle(getTranslation(dict, "menu_number_of_results"));
     ui->actionSaveSearch->setText(getTranslation(dict, "menu_save"));
     ui->actionLoadSearch->setText(getTranslation(dict, "menu_load"));
+    ui->actionMyLoadouts->setText(getTranslation(dict, "menu_myloadouts"));
     ui->menuHelp->setTitle(getTranslation(dict, "menu_help"));
     ui->actionAbout->setText(getTranslation(dict, "menu_about"));
     ui->actionAboutQt->setText(getTranslation(dict, "menu_about_qt"));
@@ -207,11 +217,7 @@ void MainWindow::setupTranslation()
     ui->comboBoxTier->addItem(getTranslation(dict, "tier_t3"));
 
     // status bar (stats)
-    auto addSpacer = [this]() {
-        QWidget* spacer = new QWidget();
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        ui->statusBar->addWidget(spacer);
-    };
+    auto addSpacer = [this]() { ui->statusBar->addWidget(new util::HorizontalSpacer); };
     ui->statusBar->addWidget(new QLabel(getTranslation(dict, "stat_searched_combinations")));
     statCombinations = new QLabel("-/-");
     ui->statusBar->addWidget(statCombinations);
@@ -249,8 +255,9 @@ void MainWindow::search()
     std::vector<Gear::Skill> wantedSkills = getWantedSkills();
     if (wantedSkills.empty())
         return;
-    armourSetSearch(new ArmourSetSearch(
-        armoury, (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(), Gear::WantedSkillList(wantedSkills, armoury), options));
+    armourSetSearch(new ArmourSetSearch(armoury,
+                                        (Gear::WeaponType)ui->comboBoxWeaponType->currentIndex(),
+                                        Gear::WantedSkillList(wantedSkills, armoury), options));
 }
 
 void MainWindow::advancedSearch()
@@ -496,6 +503,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
     QSettings settings;
     settings.setValue(GEOMETRY, saveGeometry());
     settings.setValue(STATE, saveState());
+    loadouts->close();
     QWidget::closeEvent(event);
 }
 
@@ -588,9 +596,15 @@ void MainWindow::createArmourSetItem(const Gear::ArmourSet* set, ArmourSetView* 
 ArmourSetView* MainWindow::createArmourSetView(const Gear::ArmourSet& set,
                                                std::vector<Gear::Skill> wantedSkills)
 {
-    return new ArmourSetView(dict, options, set, armoury,
-                             ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width(),
-                             Gear::SkillList(wantedSkills));
+    auto setView =
+        new ArmourSetView(dict, options, set, armoury,
+                          ui->listWidgetArmourSets->verticalScrollBar()->sizeHint().width(),
+                          Gear::SkillList(wantedSkills));
+    connect(setView, &ArmourSetView::saveSet, [this](const Gear::ArmourSet& set) {
+        loadouts->saveSet(set);
+        loadouts->show();
+    });
+    return setView;
 }
 
 void MainWindow::saveDataFiles(QNetworkReply* reply, const QString& fileName) {}
