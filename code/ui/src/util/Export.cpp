@@ -4,10 +4,12 @@
 #include "util/Translation.hpp"
 #include <QApplication>
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <iostream>
 #include <sstream>
 
 void util::exportTextToClipBoard(const std::string& text)
@@ -37,6 +39,14 @@ void util::exportTextToFile(const std::string& text, const Dictionary& dict, Opt
     file.write(text.c_str());
 }
 
+void util::exportOpenWebpage(const std::string& url)
+{
+    if (!QDesktopServices::openUrl(QUrl(QString::fromStdString(url))))
+    {
+        std::cout << "failed to open web page " << url << std::endl;
+    }
+}
+
 void util::addArmoursetExportToContextMenu(QMenu& contextMenu, const Gear::ArmourSet& set,
                                            const Dictionary& dict, Options& options,
                                            const Gear::Armoury& armoury)
@@ -47,9 +57,28 @@ void util::addArmoursetExportToContextMenu(QMenu& contextMenu, const Gear::Armou
     QObject::connect(actionTextToClipBoard, &QAction::triggered, [&set, &dict, &armoury](bool) {
         util::exportTextToClipBoard(set.exportToText(dict, armoury));
     });
-    auto actionTextToFile = contextMenuText->addAction(getTranslation(dict, "loadout_export_to_file"));
+    auto actionTextToFile =
+        contextMenuText->addAction(getTranslation(dict, "loadout_export_to_file"));
     QObject::connect(actionTextToFile, &QAction::triggered,
                      [&set, &dict, &armoury, &options](bool) {
                          util::exportTextToFile(set.exportToText(dict, armoury), dict, options);
+                     });
+
+    constexpr auto dauntlessbuilderWebstring = "https://www.dauntless-builder.com/b/";
+    auto contextMenuDauntlessbuilder =
+        contextMenu.addMenu(getTranslation(dict, "loadout_export_dauntlessbuilder"));
+    auto actionDauntlessbuilderToClipBoard =
+        contextMenuDauntlessbuilder->addAction(getTranslation(dict, "loadout_export_to_clipboard"));
+    QObject::connect(actionDauntlessbuilderToClipBoard, &QAction::triggered,
+                     [&set, &armoury, dauntlessbuilderWebstring](bool) {
+                         util::exportTextToClipBoard(dauntlessbuilderWebstring +
+                                                     set.getHashIds(armoury));
+                     });
+    auto actionDauntlessbuilderOpenWebpage =
+        contextMenuDauntlessbuilder->addAction(getTranslation(dict, "loadout_export_open_webpage"));
+    QObject::connect(actionDauntlessbuilderOpenWebpage, &QAction::triggered,
+                     [&set, &armoury, dauntlessbuilderWebstring](bool) {
+                         util::exportOpenWebpage(dauntlessbuilderWebstring +
+                                                 set.getHashIds(armoury));
                      });
 }

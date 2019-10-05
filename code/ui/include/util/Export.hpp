@@ -24,6 +24,12 @@ void exportTextToClipBoard(const std::string& text);
 void exportTextToFile(const std::string& text, const Dictionary& dict, Options& options);
 
 /**
+ * Open the given url in a web browser.
+ * @param url The url to open.
+ */
+void exportOpenWebpage(const std::string& url);
+
+/**
  * Adds export menu entries for armour sets.
  * @param contextMenu The context menu where the entries are needed to added.
  * @param set The Armour set for which the entries needs to be added.

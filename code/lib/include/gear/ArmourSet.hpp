@@ -73,6 +73,8 @@ class ArmourSet
 
     std::string exportToText(const Dictionary& dict, const Armoury& armoury) const;
 
+    std::string getHashIds(const Armoury& armoury) const;
+
   private:
     void init();
     void switchGear(const Gear& oldGear, const Gear& newGear);

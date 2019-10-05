@@ -12,3 +12,5 @@ loadout_export_contextmenu;Export
 loadout_export_text;export as text
 loadout_export_to_clipboard;to clipboard
 loadout_export_to_file;to file
+loadout_export_dauntlessbuilder;export to dauntless-builder
+loadout_export_open_webpage;open in web browser

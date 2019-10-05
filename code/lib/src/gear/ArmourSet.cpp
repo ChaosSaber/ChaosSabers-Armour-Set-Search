@@ -1,4 +1,5 @@
 #include "gear/ArmourSet.hpp"
+#include "hashids.h"
 #include <algorithm>
 #include <gear/Armoury.hpp>
 #include <iostream>
@@ -231,6 +232,38 @@ std::string Gear::ArmourSet::exportToText(const Dictionary& dict, const Armoury&
             text << skill << std::endl;
     }
     return text.str();
+}
+
+std::string Gear::ArmourSet::getHashIds(const Armoury& armoury) const
+{
+    std::vector<int> ids;
+    ids.push_back(3); // version
+    auto addGear = [&ids, &armoury](const Gear& gear) {
+        ids.push_back(gear.getId());
+        ids.push_back(gear.getLevel());
+        for (const auto& cell : gear.getCellList())
+        {
+            for (size_t i = 0; i < cell.second; ++i)
+            {
+                ids.push_back(armoury.getCellId(cell.first));
+            }
+        }
+    };
+    addGear(weapon_);
+    ids.push_back(0); // weapon part 1
+    ids.push_back(0); // weapon part 2
+    ids.push_back(0); // weapon part 3
+    ids.push_back(0); // weapon part 4
+    ids.push_back(0); // weapon part 5
+    ids.push_back(0); // weapon part 6
+    addGear(head_);
+    addGear(torso_);
+    addGear(arms_);
+    addGear(legs_);
+    ids.push_back(1); // lantern
+    ids.push_back(armoury.getCellId(lantern_));
+    hashidsxx::Hashids hash("spicy");
+    return hash.encode(ids.begin(), ids.end());
 }
 
 bool Gear::ArmourSet::hasUniqueSkill() const

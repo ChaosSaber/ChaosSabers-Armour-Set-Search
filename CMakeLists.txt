@@ -69,6 +69,7 @@ target_sources(${PROJECT_LIB}
 		${PROJECT_SOURCE_DIR}/code/lib/include/util/files.hpp
 		${PROJECT_SOURCE_DIR}/code/lib/include/util/json.hpp
 		${PROJECT_SOURCE_DIR}/code/lib/include/util/string.hpp
+		${PROJECT_SOURCE_DIR}/deps/hashidsxx/hashids.h
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/code/lib/src/ArmourSetSearch.cpp
 		${PROJECT_SOURCE_DIR}/code/lib/src/Dictionary.cpp
@@ -88,6 +89,7 @@ target_sources(${PROJECT_LIB}
 		${PROJECT_SOURCE_DIR}/code/lib/src/util/files.cpp
 		${PROJECT_SOURCE_DIR}/code/lib/src/util/json.cpp
 		${PROJECT_SOURCE_DIR}/code/lib/src/util/string.cpp
+		${PROJECT_SOURCE_DIR}/deps/hashidsxx/hashids.cpp
 )
 set_target_properties(${PROJECT_LIB} 
 	PROPERTIES
@@ -95,7 +97,12 @@ set_target_properties(${PROJECT_LIB}
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
 )
-target_include_directories(${PROJECT_LIB} PUBLIC ${PROJECT_SOURCE_DIR}/code/lib/include/)
+target_include_directories(${PROJECT_LIB} 
+	PUBLIC 
+		${PROJECT_SOURCE_DIR}/code/lib/include/ 
+	PRIVATE
+		${PROJECT_SOURCE_DIR}/deps/hashidsxx
+)
 target_link_libraries(${PROJECT_LIB} PUBLIC Qt5::Core)
 
 

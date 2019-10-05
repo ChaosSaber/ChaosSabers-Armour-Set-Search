@@ -1,5 +1,4 @@
 #include "..\..\include\gear\Gear.hpp"
-#include "..\..\include\gear\Gear.hpp"
 #include "gear/Gear.hpp"
 #include <sstream>
 
@@ -118,6 +117,8 @@ std::string Gear::Gear::getToolTip(const Dictionary& dict, const Armoury& armour
     return ss.str();
 }
 
+int Gear::Gear::getId() const { return info_->id_; }
+
 bool Gear::Gear::hasFreeCellSlotFor(SkillType type) const
 {
     for (auto& cell : cells_)
@@ -152,19 +153,19 @@ bool Gear::Gear::addCell(const Cell& cell)
     return false;
 }
 
-Gear::GearInfo::GearInfo(const std::string& name, const std::string& description,
+Gear::GearInfo::GearInfo(int id, const std::string& name, const std::string& description,
                          const std::optional<Element>& elementalStrength,
                          const std::optional<Element>& elementalWeakness)
     : name_(name), description_(description), elementalStrength_(elementalStrength),
-      elementalWeakness_(elementalWeakness)
+      elementalWeakness_(elementalWeakness), id_(id)
 {
 }
 
-Gear::GearInfo::GearInfo(std::string&& name, std::string&& description,
+Gear::GearInfo::GearInfo(int id, std::string&& name, std::string&& description,
                          std::optional<Element>&& elementalStrength,
                          std::optional<Element>&& elementalWeakness)
     : name_(std::move(name)), description_(std::move(description)),
       elementalStrength_(std::move(elementalStrength)),
-      elementalWeakness_(std::move(elementalWeakness))
+      elementalWeakness_(std::move(elementalWeakness)), id_(id)
 {
 }

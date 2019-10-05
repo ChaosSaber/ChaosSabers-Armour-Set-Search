@@ -55,8 +55,16 @@ class Armoury
      */
     size_t getSkillIdForName(const std::string& name) const;
 
+    /**
+     * Gets the ID of the given cell.
+     * @param cell The cell for which the cell ID is needed.
+     * @return Returns the id of the given cell if found, otherwise 0.
+     */
+    int getCellId(const Cell& cell) const;
+
   private:
-    void load(const std::string& fileName = "data/data.json");
+    void load(const std::string& fileName = "data/data.json",
+              const std::string& mapFileName = "data/names.json");
     Element getElement(const std::string& name) const;
     SkillType getSkillType(const std::string& type) const;
     ArmourType getArmourType(const std::string& type) const;
@@ -68,11 +76,11 @@ class Armoury
     bool filterGear(const Gear& gear, const Options& options) const;
 
     /**
-    * Checks if the gear has a needed skill or cell slot.
-    * @param gear The gear to check.
-    * @param skills A list of wanted skills.
-    * @return Returns true if the gear has the needed requirements, otherwise false.
-    */
+     * Checks if the gear has a needed skill or cell slot.
+     * @param gear The gear to check.
+     * @param skills A list of wanted skills.
+     * @return Returns true if the gear has the needed requirements, otherwise false.
+     */
     bool gearHasSkill(const Gear& gear, const WantedSkillList& skills) const;
 
     /**
@@ -90,8 +98,9 @@ class Armoury
     std::unordered_map<ArmourType, std::vector<Armour>> armours;
 
     std::vector<SkillInfo> skillInfos;
+    std::vector<std::array<int, 3>> cellIds_;
     std::unordered_map<std::string, size_t> mapSkillNameToId_;
-    SkillInfo notFound;
+    SkillInfo notFound; // TODO: instead of notfound, return optional
 
     Dictionary& dict;
 };

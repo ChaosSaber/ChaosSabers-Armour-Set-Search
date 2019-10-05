@@ -101,6 +101,9 @@ const Gear::Weapon& Gear::Armoury::getWeapon(std::string name, int level) const
 #define JSON_ARMOURS "armours"
 #define JSON_PERKS "perks"
 #define JSON_WEAPONS "weapons"
+#define MAP_ARMOURS "Armours"
+#define MAP_CELLS "Cells"
+#define MAP_WEAPONS "Weapons"
 
 const std::vector<util::json::JsonParameter> armouryParameters = {
     {JSON_ARMOURS, QJsonValue::Type::Object},
@@ -117,6 +120,11 @@ const std::vector<util::json::JsonParameter> armouryParameters = {
 #define JSON_ELEMENTAL "elemental"
 #define JSON_POWER "power"
 #define JSON_EFFECTS "effects"
+
+const std::vector<util::json::JsonParameter> mapParameters = {
+    {MAP_ARMOURS, QJsonValue::Type::Object},
+    {MAP_CELLS, QJsonValue::Type::Object},
+    {MAP_WEAPONS, QJsonValue::Type::Object}};
 
 const std::vector<util::json::JsonParameter> armourParameters = {
     {JSON_NAME, QJsonValue::Type::String},
@@ -141,17 +149,54 @@ size_t Gear::Armoury::getSkillIdForName(const std::string& name) const
     return mapSkillNameToId_.at(name);
 }
 
-void Gear::Armoury::load(const std::string& fileName)
+int Gear::Armoury::getCellId(const Cell& cell) const
 {
+    if (cell.isEmpty() || cell.getSkillId() >= cellIds_.size() || cell.getSkill().getSkillPoints() > 3)
+        return 0;
+    return cellIds_[cell.getSkillId()][cell.getSkill().getSkillPoints() - 1];
+}
+
+void Gear::Armoury::load(const std::string& dataFileName, const std::string& mapFileName)
+{
+    QFile map(QString::fromStdString(mapFileName));
+    if (!map.open(QIODevice::ReadOnly))
+    {
+        // leave presets
+        std::cout << "Couldn't open name map file: " << mapFileName << std::endl;
+        return;
+    }
+    QByteArray mapData = map.readAll();
+    QJsonDocument mapJsonDoc(QJsonDocument::fromJson(mapData));
+    auto mapJson = mapJsonDoc.object();
+    if (!util::json::parameterCheck(mapJson, mapParameters))
+    {
+        std::cout << "Error reading name map file" << std::endl;
+        return;
+    }
+    auto getMapId = [&mapJson](const std::string& mapType, const std::string& name) {
+        auto obj = mapJson[QString::fromStdString(mapType)].toObject();
+        for (const auto& key : obj.keys())
+        {
+            if (obj[key].toString().toStdString() == name)
+            {
+                return std::stoi(key.toStdString());
+                break;
+            }
+        }
+        std::cout << mapType << " does not contain item with name " << name << std::endl;
+        return 0;
+    };
+
     weapons.clear();
     armours.clear();
     skillInfos.clear();
+    cellIds_.clear();
     mapSkillNameToId_.clear();
-    QFile config(QString::fromStdString(fileName));
+    QFile config(QString::fromStdString(dataFileName));
     if (!config.open(QIODevice::ReadOnly))
     {
         // leave presets
-        std::cout << "Couldn't open config file: " << fileName << std::endl;
+        std::cout << "Couldn't open config file: " << dataFileName << std::endl;
         return;
     }
     QByteArray configData = config.readAll();
@@ -246,6 +291,14 @@ void Gear::Armoury::load(const std::string& fileName)
     {
         mapSkillNameToId_[skillInfos[i].getName()] = i;
     }
+    cellIds_.resize(skillInfos.size(), {0, 0, 0});
+    for (size_t skillId = 1; skillId < skillInfos.size();++skillId)
+    {
+        for (size_t i = 1; i < 4; ++i) {
+            std::string name = "+" + std::to_string(i) + " " + skillInfos[skillId].getName() + " Cell";
+            cellIds_[skillId][i - 1] = getMapId(MAP_CELLS, name);
+        }
+    }
 
     auto jsonArmours = json[JSON_ARMOURS].toObject();
     for (const auto& key : jsonArmours.keys())
@@ -300,7 +353,9 @@ void Gear::Armoury::load(const std::string& fileName)
                 uniqueSkillsHeroic =
                     util::json::getUniqueSkillsFromJson(armour[JSON_UNIQUE_EFFECT], dict, 15);
             }
-            auto info = std::make_shared<GearInfo>(name, description, elementalStrength, elementalWeakness);
+            auto id = getMapId(MAP_ARMOURS, name);
+            auto info = std::make_shared<GearInfo>(id, name, description, elementalStrength,
+                                                   elementalWeakness);
             armours[type].emplace_back(type, info, 5, uniqueSkills, cell, normalSkills);
             armours[type].emplace_back(type, info, 9, uniqueSkillsMaelstrom, cell, maelstromSkills);
             armours[type].emplace_back(type, info, 15, uniqueSkillsHeroic, cell, heroicSkills);
@@ -392,7 +447,8 @@ void Gear::Armoury::load(const std::string& fileName)
                     util::json::getUniqueSkillsFromJson(weapon[JSON_UNIQUE_EFFECT], dict, 15);
             }
 
-            auto info = std::make_shared<GearInfo>(name, description, element);
+            auto id = getMapId(MAP_WEAPONS, name);
+            auto info = std::make_shared<GearInfo>(id, name, description, element);
             weapons[type].emplace_back(type, info, 5, uniqueSkills, cell1, cell2, normalSkills);
             weapons[type].emplace_back(type, info, 9, uniqueSkillsMaelstrom, cell1, cell2,
                                        maelstromSkills);
@@ -471,7 +527,7 @@ Gear::WeaponType Gear::Armoury::getWeaponType(const std::string& type) const
         return WeaponType::Reapeater;
     else if (type == "Aether Strikers")
         return WeaponType::AetherStrikers;
-    else 
+    else
         throw std::logic_error("Unknown weapon type " + type);
 }
 

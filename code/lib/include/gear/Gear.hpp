@@ -15,10 +15,10 @@ namespace Gear
 class GearInfo
 {
   public:
-    GearInfo(const std::string& name, const std::string& description,
+    GearInfo(int id, const std::string& name, const std::string& description,
              const std::optional<Element>& elementalStrength = {},
              const std::optional<Element>& elementalWeakness = {});
-    GearInfo(std::string&& name, std::string&& description,
+    GearInfo(int id, std::string&& name, std::string&& description,
              std::optional<Element>&& elementalStrength = {},
              std::optional<Element>&& elementalWeakness = {});
     GearInfo(const GearInfo& other) = delete;
@@ -28,6 +28,7 @@ class GearInfo
     std::string name_;
     std::string description_;
     std::optional<Element> elementalStrength_, elementalWeakness_;
+    int id_; // TODO like perks use this id as index instead of a shared pointer
 };
 
 class Gear
@@ -91,8 +92,8 @@ class Gear
     std::string getGearInfo(const Dictionary& dict) const;
 
     /**
-    * @return Returns the elemental strength of the qear if available
-    */
+     * @return Returns the elemental strength of the qear if available
+     */
     const std::optional<Element>& getElementalStrength() const;
 
     /**
@@ -101,6 +102,8 @@ class Gear
     const std::optional<Element>& getElementalWeakness() const;
 
     virtual std::string getToolTip(const Dictionary& dict, const Armoury& armoury) const;
+
+    int getId() const;
 
   private:
     std::shared_ptr<GearInfo> info_;
